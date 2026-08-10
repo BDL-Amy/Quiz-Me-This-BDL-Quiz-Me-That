@@ -46,12 +46,23 @@ button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:
 <script>
 
 const questions = [
+const questions = [
 
   {
 
-    question: "What is Nick’s favourite snack?",
+    question: "In BDL GOSSIPER Issue 2, Baker Dip won first prize for one of his products. What did he make?",
 
-    answers: ["Pizza", "Burger", "Crisps", "Ice cream"],
+    answers: [
+
+      "Brown bread",
+
+      "Apple cake",
+
+      "Brownies",
+
+      "American cookies"
+
+    ],
 
     correct: 2
 
@@ -59,9 +70,19 @@ const questions = [
 
   {
 
-    question: "What is the name of Bubu and Masha’s restaurant?",
+    question: "3 truths, 1 lie. Find the statement that is not true.",
 
-    answers: ["BDL Bistro", "BDL Bites", "BDL Bar", "BDL Bowl"],
+    answers: [
+
+      "Tofi is cute",
+
+      "Nick doesn’t like studying",
+
+      "Max is a bit naughty",
+
+      "Raka is Max’s best friend"
+
+    ],
 
     correct: 1
 
@@ -69,25 +90,106 @@ const questions = [
 
   {
 
-    question: "What gift did Tofi give Moly?",
+    question: "Max went to the river to catch a new fish for Nick. A fisherman helped him catch one. What was the fisherman’s name?",
 
     answers: [
 
-      "Pokémon LEGO set",
+      "Bob",
 
-      "Nintendo Switch",
+      "Bobby",
 
-      "Remote controlled car",
+      "Bobo",
 
-      "Nerf blaster"
+      "Bobu"
 
     ],
 
     correct: 0
 
+  },
+
+  {
+
+    question: "Bubu is… Select the answer that is correct.",
+
+    answers: [
+
+      "Married to Dudu",
+
+      "Mother of Tofi",
+
+      "A caring person",
+
+      "All of the above"
+
+    ],
+
+    correct: 3
+
+  },
+
+  {
+
+    question: "When Masha, Alec, Nick and Max moved, Nick had to change schools. What was the name of the first friend he made at his new school?",
+
+    answers: [
+
+      "Tinki",
+
+      "Tinka",
+
+      "Tunka",
+
+      "Tunki"
+
+    ],
+
+    correct: 0
+
+  },
+
+  {
+
+    question: "In The More Than Shopping - special, one character claims not to buy a single thing. Who is that character?",
+
+    answers: [
+
+      "Linda",
+
+      "Bubu",
+
+      "Cassandra",
+
+      "Masha"
+
+    ],
+
+    correct: 1
+
+  },
+
+  {
+
+    question: "What is the name of Dudu’s personal assistant?",
+
+    answers: [
+
+      "John Johnsen",
+
+      "Peter Peeters",
+
+      "Robin Robinson",
+
+      "Richard Richards"
+
+    ],
+
+    correct: 3
+
   }
 
 ];
+
 let currentQuestion = 0;
 let score = 0;
 
