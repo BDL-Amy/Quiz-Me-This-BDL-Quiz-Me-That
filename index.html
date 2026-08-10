@@ -1,41 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html lang="en">
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="utf-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>Quiz Me This, BDL, Quiz Me That</title>
+<title>Quiz Me This, BDL, Quiz Me That</title>
 
-  <style>
+<style>
 
-    body {
+body{font-family:Arial;margin:0;padding:20px;background:#f3f3f3;color:#111}
 
-      font-family: Arial, sans-serif;
+main{max-width:600px;margin:auto;background:white;padding:24px;border-radius:18px}
 
-      background: #f4f4f4;
+h1{text-align:center}
 
-      margin: 0;
+small{display:block;text-align:center;color:#666;margin-bottom:25px}
 
-      padding: 20px;
+button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:12px;background:white;font-size:17px;text-align:left}
 
-      color: #111;
+.answer{background:#fff2bd;padding:15px;border-radius:12px;margin-bottom:20px}
 
-    }
+#msg{font-weight:bold;margin-top:15px}
 
-    .quiz-box {
+</style>
 
-      max-width: 650px;
+</head>
 
-      margin: 0 auto;
+<body>
 
-      background: white;
+<main>
 
-      border-radius: 18px;
+<h1>Quiz Me This, BDL, Quiz Me That</h1>
 
-      padding: 24px;
+<small>Daily Quiz</small>
 
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1
+<div id="old"></div>
+
+<div id="quiz"></div>
+
+</main>
+<script>
+
+const questions = [
+
+  {
+
+    question: "What is Nick’s favourite snack?",
+
+    answers: ["Pizza", "Burger", "Crisps", "Ice cream"],
+
+    correct: 2
+
+  },
+
+  {
+
+    question: "What is the name of Bubu and Masha’s restaurant?",
+
+    answers: ["BDL Bistro", "BDL Bites", "BDL Bar", "BDL Bowl"],
+
+    correct: 1
+
+  },
+
+  {
+
+    question: "What gift did Tofi give Moly?",
+
+    answers: [
+
+      "Pokémon LEGO set",
+
+      "Nintendo Switch",
+
+      "Remote controlled car",
+
+      "Nerf blaster"
+
+    ],
+
+    correct: 0
+
+  }
+
+];
+let currentQuestion = 0;
+let score = 0;
+
+function showQuestion() {
+  const quiz = document.getElementById("quiz");
+
+  if (currentQuestion >= questions.length) {
+    quiz.innerHTML = `
+      <div class="answer">
+        <h2>Quiz completed!</h2>
+        <p>You scored ${score} out of ${questions.length}.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const q = questions[currentQuestion];
+
+  quiz.innerHTML = `
+    <h2>Question ${currentQuestion + 1}</h2>
+    <p><strong>${q.question}</strong></p>
+    ${q.answers.map((answer, index) => `
+      <button onclick="checkAnswer(${index})">
+        ${String.fromCharCode(65 + index)}. ${answer}
+      </button>
+    `).join("")}
+    <div id="msg"></div>
+  `;
+}
+
+function checkAnswer(selected) {
+  const q = questions[currentQuestion];
+  const msg = document.getElementById("msg");
+
+  if (selected === q.correct) {
+    score++;
+    msg.innerHTML = `<div class="answer">Correct! 🎉</div>`;
+  } else {
+    msg.innerHTML = `
+      <div class="answer">
+        The correct answer is
+        ${String.fromCharCode(65 + q.correct)}:
+        ${q.answers[q.correct]}
+      </div>
+    `;
+  }
+
+  document.querySelectorAll("#quiz button").forEach(button => {
+    button.disabled = true;
+  });
+
+  setTimeout(() => {
+    currentQuestion++;
+    showQuestion();
+  }, 1500);
+}
+
+showQuestion();
+</script>
+</body>
+</html>
