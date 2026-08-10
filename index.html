@@ -209,7 +209,7 @@ function showQuestion() {
   const q = questions[currentQuestion];
 
   quiz.innerHTML = `
-    <h2>Question ${currentQuestion + 1}</h2>
+  <h2>Question ${currentQuestion + 16}</h2>
     <p><strong>${q.question}</strong></p>
     ${q.answers.map((answer, index) => `
       <button onclick="checkAnswer(${index})">
@@ -240,12 +240,16 @@ function checkAnswer(selected) {
   document.querySelectorAll("#quiz button").forEach(button => {
     button.disabled = true;
   });
-
-  setTimeout(() => {
-    currentQuestion++;
-    showQuestion();
-  }, 1500);
+setTimeout(() => {
+currentQuestion++;
+showQuestion();
+}, 1500);
 }
+
+
+
+  
+
 
 showQuestion();
 </script>
