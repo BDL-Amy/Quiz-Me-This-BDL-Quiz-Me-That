@@ -185,73 +185,260 @@ const questions = [
     ],
 
     correct: 3
-
-  }
+ }
 
 ];
+const START_DATE = "2026-08-11";
 
-let currentQuestion = 0;
-let score = 0;
+const FIRST_QUESTION_NUMBER = 16;
 
-function showQuestion() {
-  const quiz = document.getElementById("quiz");
+function getQuizDay() {
 
-  if (currentQuestion >= questions.length) {
-    quiz.innerHTML = `
-      <div class="answer">
-        <h2>Quiz completed!</h2>
-        <p>You scored ${score} out of ${questions.length}.</p>
-      </div>
-    `;
-    return;
+  const now = new Date();
+
+  // New quiz day starts at 08:00
+
+  const todayAtEight = new Date(
+
+    now.getFullYear(),
+
+    now.getMonth(),
+
+    now.getDate(),
+
+    8, 0, 0
+
+  );
+
+  if (now < todayAtEight) {
+
+    todayAtEight.setDate(todayAtEight.getDate() - 1);
+
   }
 
-  const q = questions[currentQuestion];
+  const start = new Date(START_DATE + "T08:00:00");
+
+  const difference = todayAtEight - start;
+
+  return Math.floor(difference / 86400000);
+
+}
+
+function showQuestion() {
+
+  const quiz = document.getElementById("quiz");
+
+  const quizDay = getQuizDay();
+
+  if (quizDay < 0) {
+
+    quiz.innerHTML = `
+
+      <div class="answer">
+
+        <h2>The Daily Quiz starts on 11 August at 08:00!</h2>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  if (quizDay >= questions.length) {
+
+    quiz.innerHTML = `
+
+      <div class="answer">
+
+        <h2>No new question yet.</h2>
+
+        <p>Stay tuned!</p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  const q = questions[quizDay];
+
+  const questionNumber = FIRST_QUESTION_NUMBER + quizDay;
 
   quiz.innerHTML = `
-  <h2>Question ${currentQuestion + 16}</h2>
+
+    <h2>Question ${questionNumber}</h2>
+
     <p><strong>${q.question}</strong></p>
+
     ${q.answers.map((answer, index) => `
+
       <button onclick="checkAnswer(${index})">
+
         ${String.fromCharCode(65 + index)}. ${answer}
+
       </button>
+
     `).join("")}
+
     <div id="msg"></div>
+
   `;
+
 }
 
 function checkAnswer(selected) {
-  const q = questions[currentQuestion];
+
+  const quizDay = getQuizDay();
+
+  const q = questions[quizDay];
+
+  const questionNumber = FIRST_QUESTION_NUMBER + quizDay;
+
   const msg = document.getElementById("msg");
 
-  if (selected === q.correct) {
-    score++;
-    msg.innerHTML = `<div class="answer">Correct! 🎉</div>`;
-  } else {
-    msg.innerHTML = `
-      <div class="answer">
-        The correct answer is
-        ${String.fromCharCode(65 + q.correct)}:
-        ${q.answers[q.correct]}
-      </div>
-    `;
-  }
+  const selectedLetter = String.fromCharCode(65 + selected);
+
+  msg.innerHTML = `
+
+    <div class="answer">
+
+      <h2>Thanks for playing today!</h2>
+
+      <p><strong>The question was:</strong></p>
+
+      <p>${q.question}</p>
+
+      <p><strong>You answered:</strong></p>
+
+      <p>${selectedLetter}. ${q.answers[selected]}</p>
+
+      <p>
+
+        Stay tuned! The correct answer will be revealed tomorrow
+
+        together with a new Daily Quiz.
+
+      </p>
+
+    </div>
+
+  `;
 
   document.querySelectorAll("#quiz button").forEach(button => {
+
     button.disabled = true;
+
   });
-setTimeout(() => {
-currentQuestion++;
-showQuestion();
-}, 1500);
+
+  localStorage.setItem(
+
+    "bdlQuizAnswer_" + questionNumber,
+
+    JSON.stringify({
+
+      selected: selected,
+
+      question: q.question
+
+    })
+
+  );
+
 }
+
+function showYesterdayResult() {
+
+  const quizDay = getQuizDay();
+
+  if (quizDay <= 0) {
+
+    return;
+
+  }
+
+  const yesterdayIndex = quizDay - 1;
+
+  if (yesterdayIndex >= questions.length) {
+
+    return;
+
+  }
+
+  const q = questions[yesterdayIndex];
+
+  const questionNumber =
+
+    FIRST_QUESTION_NUMBER + yesterdayIndex;
+
+  const saved = localStorage.getItem(
+
+    "bdlQuizAnswer_" + questionNumber
+
+  );
+
+  if (!saved) {
+
+    return;
+
+  }
+
+  const data = JSON.parse(saved);
+
+  const result = document.createElement("div");
+
+  result.className = "answer";
+
+  result.innerHTML = `
+
+    <h2>Yesterday's Answer</h2>
+
+    <p><strong>The question was:</strong></p>
+
+    <p>${q.question}</p>
+
+    <p><strong>You answered:</strong></p>
+
+    <p>
+
+      ${String.fromCharCode(65 + data.selected)}.
+
+      ${q.answers[data.selected]}
+
+    </p>
+
+    <p><strong>The correct answer is:</strong></p>
+
+    <p>
+
+      ${String.fromCharCode(65 + q.correct)}.
+
+      ${q.answers[q.correct]}
+
+    </p>
+
+  `;
+
+  const quiz = document.getElementById("quiz");
+
+  quiz.parentNode.insertBefore(result, quiz);
+
+}
+
+showYesterdayResult();
+
+showQuestion();
+
 
 
 
   
 
 
-showQuestion();
+
 </script>
 </body>
 </html>
