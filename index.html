@@ -34,9 +34,12 @@ button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:
 
 <main>
 
-<h1>Quiz Me This, BDL, Quiz Me That</h1>
 
-<small>Daily Quiz</small>
+<div id="mainHeader">
+  <h1>Quiz Me This, BDL, Quiz Me That</h1>
+  <small>Daily Quiz</small>
+</div>
+
 
 <div id="old"></div>
 
@@ -293,6 +296,7 @@ function saveAnswer(index, selected) {
 ================================ */
 
 function showStartScreen() {
+  document.getElementById("mainHeader").style.display = "none";
   const quiz = document.getElementById("quiz");
   const old = document.getElementById("old");
 
@@ -382,6 +386,7 @@ function showStartScreen() {
 ================================ */
 
 function startQuiz() {
+  document.getElementById("mainHeader").style.display = "block";
   const quizDay = getQuizDay();
 
   if (quizDay > 0) {
