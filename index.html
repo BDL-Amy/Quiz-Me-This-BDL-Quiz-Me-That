@@ -188,256 +188,514 @@ const questions = [
 
 ];
 const START_DATE = "2026-08-11";
-
 const FIRST_QUESTION_NUMBER = 16;
 
-function getQuizDay() {
+/* ================================
+   QUIZ DAY — NEW DAY AT 08:00
+================================ */
 
+function getQuizDay() {
   const now = new Date();
 
-  // New quiz day starts at 08:00
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Brussels",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23"
+  }).formatToParts(now);
 
-  const todayAtEight = new Date(
+  const value = {};
+  parts.forEach(part => {
+    if (part.type !== "literal") {
+      value[part.type] = part.value;
+    }
+  });
 
-    now.getFullYear(),
-
-    now.getMonth(),
-
-    now.getDate(),
-
-    8, 0, 0
-
+  let date = new Date(
+    Number(value.year),
+    Number(value.month) - 1,
+    Number(value.day),
+    Number(value.hour),
+    Number(value.minute)
   );
 
-  if (now < todayAtEight) {
-
-    todayAtEight.setDate(todayAtEight.getDate() - 1);
-
+  if (Number(value.hour) < 8) {
+    date.setDate(date.getDate() - 1);
   }
 
-  const start = new Date(START_DATE + "T08:00:00");
+  const start = new Date(2026, 7, 11);
 
-  const difference = todayAtEight - start;
-
-  return Math.floor(difference / 86400000);
-
+  return Math.round(
+    (
+      new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      ) - start
+    ) / 86400000
+  );
 }
 
-function showQuestion() {
 
+/* ================================
+   HELPERS
+================================ */
+
+function getQuestionNumber(index) {
+  return FIRST_QUESTION_NUMBER + index;
+}
+
+function getStorageKey(index) {
+  return "bdlQuizAnswer_" + getQuestionNumber(index);
+}
+
+function getSavedAnswer(index) {
+  const saved = localStorage.getItem(
+    getStorageKey(index)
+  );
+
+  if (saved === null) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      parsed.selected !== undefined
+    ) {
+      return Number(parsed.selected);
+    }
+
+    return Number(parsed);
+  } catch {
+    return Number(saved);
+  }
+}
+
+function saveAnswer(index, selected) {
+  localStorage.setItem(
+    getStorageKey(index),
+    JSON.stringify({
+      selected: selected
+    })
+  );
+}
+
+
+/* ================================
+   START SCREEN
+================================ */
+
+function showStartScreen() {
   const quiz = document.getElementById("quiz");
+  const old = document.getElementById("old");
+
+  old.innerHTML = "";
 
   const quizDay = getQuizDay();
 
   if (quizDay < 0) {
-
     quiz.innerHTML = `
+      <div style="text-align:center">
+        <h1>
+          Quiz Me This<br>
+          <span style="font-size:0.75em">BDL</span><br>
+          Quiz Me That
+        </h1>
 
-      <div class="answer">
-
-        <h2>The Daily Quiz starts on 11 August at 08:00!</h2>
-
+        <p>
+          The Daily Quiz starts on
+          11 August at 08:00.
+        </p>
       </div>
-
     `;
-
     return;
-
   }
 
   if (quizDay >= questions.length) {
-
     quiz.innerHTML = `
+      <div style="text-align:center">
+        <h1>
+          Quiz Me This<br>
+          <span style="font-size:0.75em">BDL</span><br>
+          Quiz Me That
+        </h1>
 
-      <div class="answer">
-
-        <h2>No new question yet.</h2>
-
-        <p>Stay tuned!</p>
-
+        <p>
+          No new Daily Quiz is scheduled yet.
+        </p>
       </div>
-
     `;
-
     return;
-
   }
 
-  const q = questions[quizDay];
+  const savedAnswer = getSavedAnswer(quizDay);
 
-  const questionNumber = FIRST_QUESTION_NUMBER + quizDay;
+  if (savedAnswer !== null) {
+    quiz.innerHTML = `
+      <div style="text-align:center">
+        <h1>
+          Quiz Me This<br>
+          <span style="font-size:0.75em">BDL</span><br>
+          Quiz Me That
+        </h1>
+
+        <div class="answer">
+          <h2>
+            You already answered today's quiz.
+          </h2>
+
+          <p>
+            See you again tomorrow!
+          </p>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   quiz.innerHTML = `
+    <div style="text-align:center">
+      <h1>
+        Quiz Me This<br>
+        <span style="font-size:0.75em">BDL</span><br>
+        Quiz Me That
+      </h1>
 
-    <h2>Question ${questionNumber}</h2>
-
-    <p><strong>${q.question}</strong></p>
-
-    ${q.answers.map((answer, index) => `
-
-      <button onclick="checkAnswer(${index})">
-
-        ${String.fromCharCode(65 + index)}. ${answer}
-
+      <button onclick="startQuiz()"
+        style="text-align:center;font-weight:bold">
+        START QUIZ
       </button>
-
-    `).join("")}
-
-    <div id="msg"></div>
-
+    </div>
   `;
-
 }
 
-function checkAnswer(selected) {
 
+/* ================================
+   START QUIZ
+================================ */
+
+function startQuiz() {
   const quizDay = getQuizDay();
 
-  const q = questions[quizDay];
+  if (quizDay > 0) {
+    showYesterdayPage();
+  } else {
+    showTodayQuestion();
+  }
+}
 
-  const questionNumber = FIRST_QUESTION_NUMBER + quizDay;
 
-  const msg = document.getElementById("msg");
+/* ================================
+   YESTERDAY'S RESULT PAGE
+================================ */
 
-  const selectedLetter = String.fromCharCode(65 + selected);
+function showYesterdayPage() {
+  const quiz = document.getElementById("quiz");
+  const quizDay = getQuizDay();
 
-  msg.innerHTML = `
+  const previousIndex = quizDay - 1;
 
+  if (
+    previousIndex < 0 ||
+    previousIndex >= questions.length
+  ) {
+    showNextStepAfterYesterday();
+    return;
+  }
+
+  const q = questions[previousIndex];
+  const questionNumber =
+    getQuestionNumber(previousIndex);
+
+  const selected =
+    getSavedAnswer(previousIndex);
+
+  let yourAnswer;
+
+  if (selected === null) {
+    yourAnswer = `
+      <p>
+        <strong>Your answer:</strong><br>
+        You did not answer yesterday's question.
+      </p>
+    `;
+  } else {
+    yourAnswer = `
+      <p>
+        <strong>Your answer:</strong><br>
+        ${String.fromCharCode(65 + selected)}.
+        ${q.answers[selected]}
+      </p>
+    `;
+  }
+
+  let resultText = "";
+
+  if (selected !== null) {
+    if (selected === q.correct) {
+      resultText = `
+        <p>
+          <strong>🎉 You got it right!</strong>
+        </p>
+      `;
+    } else {
+      resultText = `
+        <p>
+          <strong>Better luck today!</strong>
+        </p>
+      `;
+    }
+  }
+
+  quiz.innerHTML = `
     <div class="answer">
 
-      <h2>Thanks for playing today!</h2>
-
-      <p><strong>The question was:</strong></p>
-
-      <p>${q.question}</p>
-
-      <p><strong>You answered:</strong></p>
-
-      <p>${selectedLetter}. ${q.answers[selected]}</p>
+      <h2>
+        Yesterday's Question —
+        Question ${questionNumber}
+      </h2>
 
       <p>
-
-        Stay tuned! The correct answer will be revealed tomorrow
-
-        together with a new Daily Quiz.
-
+        <strong>${q.question}</strong>
       </p>
+
+      ${yourAnswer}
+
+      <p>
+        <strong>The correct answer:</strong><br>
+        ${String.fromCharCode(65 + q.correct)}.
+        ${q.answers[q.correct]}
+      </p>
+
+      ${resultText}
 
     </div>
 
+    <button
+      onclick="showNextStepAfterYesterday()"
+      style="text-align:center;font-weight:bold">
+      CONTINUE
+    </button>
   `;
-
-  document.querySelectorAll("#quiz button").forEach(button => {
-
-    button.disabled = true;
-
-  });
-
-  localStorage.setItem(
-
-    "bdlQuizAnswer_" + questionNumber,
-
-    JSON.stringify({
-
-      selected: selected,
-
-      question: q.question
-
-    })
-
-  );
-
 }
 
-function showYesterdayResult() {
 
-  const quizDay = getQuizDay();
+/* ================================
+   AFTER YESTERDAY'S RESULT
 
-  if (quizDay <= 0) {
+   Monday = weekly winner screen
+   Other days = today's question
+================================ */
 
-    return;
+function showNextStepAfterYesterday() {
+  const now = new Date();
 
+  const weekday = new Intl.DateTimeFormat(
+    "en-US",
+    {
+      timeZone: "Europe/Brussels",
+      weekday: "long"
+    }
+  ).format(now);
+
+  if (weekday === "Monday") {
+    showWeeklyWinner();
+  } else {
+    showTodayQuestion();
   }
+}
 
-  const yesterdayIndex = quizDay - 1;
 
-  if (yesterdayIndex >= questions.length) {
+/* ================================
+   MONDAY WEEKLY WINNER SCREEN
 
-    return;
+   TEMPORARY TEST VERSION.
+   Database will provide real winner later.
+================================ */
 
-  }
-
-  const q = questions[yesterdayIndex];
-
-  const questionNumber =
-
-    FIRST_QUESTION_NUMBER + yesterdayIndex;
-
-  const saved = localStorage.getItem(
-
-    "bdlQuizAnswer_" + questionNumber
-
-  );
-
-  if (!saved) {
-
-    return;
-
-  }
-
-  const data = JSON.parse(saved);
-
-  const result = document.createElement("div");
-
-  result.className = "answer";
-
-  result.innerHTML = `
-
-    <h2>Yesterday's Answer</h2>
-
-    <p><strong>The question was:</strong></p>
-
-    <p>${q.question}</p>
-
-    <p><strong>You answered:</strong></p>
-
-    <p>
-
-      ${String.fromCharCode(65 + data.selected)}.
-
-      ${q.answers[data.selected]}
-
-    </p>
-
-    <p><strong>The correct answer is:</strong></p>
-
-    <p>
-
-      ${String.fromCharCode(65 + q.correct)}.
-
-      ${q.answers[q.correct]}
-
-    </p>
-
-  `;
-
+function showWeeklyWinner() {
   const quiz = document.getElementById("quiz");
 
-  quiz.parentNode.insertBefore(result, quiz);
+  quiz.innerHTML = `
+    <div style="text-align:center">
 
+      <div class="answer">
+
+        <h2>
+          🏆 Smartest BDL'er of the Week 🏆
+        </h2>
+
+        <p>
+          Another week of questions,
+          clever answers and a little bit
+          of luck...
+        </p>
+
+        <p>
+          But one BDL'er came out on top!
+        </p>
+
+        <h2>
+          This week's Smartest BDL'er is...
+        </h2>
+
+        <h1>
+          ⭐ TEST WINNER ⭐
+        </h1>
+
+        <p>
+          <strong>Congratulations!</strong>
+        </p>
+
+        <p>
+          Enjoy the glory —
+          at least until next Monday. 😉
+        </p>
+
+      </div>
+
+      <button
+        onclick="showTodayQuestion()"
+        style="text-align:center;font-weight:bold">
+        CONTINUE TO QUESTION
+      </button>
+
+    </div>
+  `;
 }
 
-showYesterdayResult();
 
-showQuestion();
+/* ================================
+   TODAY'S QUESTION
+================================ */
+
+function showTodayQuestion() {
+  const quiz = document.getElementById("quiz");
+  const quizDay = getQuizDay();
+
+  if (
+    quizDay < 0 ||
+    quizDay >= questions.length
+  ) {
+    showStartScreen();
+    return;
+  }
+
+  const q = questions[quizDay];
+  const questionNumber =
+    getQuestionNumber(quizDay);
+
+  quiz.innerHTML = `
+    <h2>
+      Question ${questionNumber}
+    </h2>
+
+    <p>
+      <strong>${q.question}</strong>
+    </p>
+
+    ${
+      q.answers.map((answer, index) => `
+        <button onclick="submitAnswer(${index})">
+          ${String.fromCharCode(65 + index)}.
+          ${answer}
+        </button>
+      `).join("")
+    }
+  `;
+}
+
+
+/* ================================
+   SUBMIT ANSWER
+================================ */
+
+function submitAnswer(selected) {
+  const quizDay = getQuizDay();
+
+  if (
+    quizDay < 0 ||
+    quizDay >= questions.length
+  ) {
+    return;
+  }
+
+  if (getSavedAnswer(quizDay) !== null) {
+    showStartScreen();
+    return;
+  }
+
+  saveAnswer(quizDay, selected);
+
+  showThankYouPage(selected);
+}
+
+
+/* ================================
+   THANK YOU PAGE
+================================ */
+
+function showThankYouPage(selected) {
+  const quiz = document.getElementById("quiz");
+  const quizDay = getQuizDay();
+
+  const q = questions[quizDay];
+  const questionNumber =
+    getQuestionNumber(quizDay);
+
+  quiz.innerHTML = `
+    <div class="answer">
+
+      <h2>
+        Thanks for playing today!
+      </h2>
+
+      <p>
+        <strong>
+          Question ${questionNumber}
+        </strong>
+      </p>
+
+      <p>
+        <strong>The question was:</strong><br>
+        ${q.question}
+      </p>
+
+      <p>
+        <strong>You answered:</strong><br>
+        ${String.fromCharCode(65 + selected)}.
+        ${q.answers[selected]}
+      </p>
+
+      <p>
+        <strong>Stay tuned!</strong><br>
+        The correct answer will be revealed
+        tomorrow together with a new Daily Quiz.
+      </p>
+
+    </div>
+  `;
+}
+
+
+/* ================================
+   LOAD WEBSITE
+================================ */
+
+showStartScreen();
 
 
 
 
-  
 
-
-
+    
 </script>
 </body>
 </html>
