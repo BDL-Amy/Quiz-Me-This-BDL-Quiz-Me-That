@@ -350,10 +350,22 @@ function isMondayFlow(){
 
   const p = getBrusselsParts();
 
+  const today =
+    new Date(
+      Number(p.year),
+      Number(p.month)-1,
+      Number(p.day)
+    );
+
+  const firstWeeklyResultsDate =
+    new Date(2026, 7, 24);
+
   return (
     p.weekday === "Monday"
     &&
     Number(p.hour) >= 8
+    &&
+    today >= firstWeeklyResultsDate
   );
 }
 
