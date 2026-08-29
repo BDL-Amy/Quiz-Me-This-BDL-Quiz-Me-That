@@ -81,6 +81,19 @@ function confirmExistingRecoverySaved(){
   showStartScreen();
 }
 
+/* Question 49 repair: remove the accidental empty slot directly before the Bubu money question. */
+if(typeof questions !== "undefined"){
+  const q49Index = 49 - FIRST_QUESTION_NUMBER;
+  const slot = questions[q49Index];
+  const next = questions[q49Index + 1];
+  if(
+    slot && !slot.question &&
+    next && next.question === "Bubu found a big bag with a lot of money once. What did she do with it?"
+  ){
+    questions.splice(q49Index,1);
+  }
+}
+
 /* Check once on the player's next visit, after account.js has loaded. */
 setTimeout(()=>{
   checkExistingPlayerRecoveryOnboarding();
