@@ -1,55 +1,41 @@
-name: Load recovery onboarding
+name: Repair Question 49
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
-  patch:
-    if: github.actor != 'github-actions[bot]'
+  repair:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Repair Question 49
+      - name: Repair slot
+        shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-          q='''{
-  question:
-    "Bubu found a big bag with a lot of money once. What did she do with it?",
-  answers:[
-    "She went to the bank and put all the money in her account",
-    "She went shopping and bought herself an expensive dress",
-    "She took the bag home, informed the police and was rewarded for her honesty.",
-    "She left the bag where she found it"
-  ],
-  correct:2
-}'''
-          old='''{
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          marker = '''{
 },
 
-'''+q+''',
-
 {
   question:
-    "We have already reached Question 50'''
-          new=q+''',
-
-{
+    "Bubu found a big bag with a lot of money once. What did she do with it?",'''
+          replacement = '''{
   question:
-    "We have already reached Question 50'''
-          if old in s:
-              s=s.replace(old,new,1)
-              p.write_text(s,encoding='utf-8')
+    "Bubu found a big bag with a lot of money once. What did she do with it?",'''
+          if marker not in s:
+              raise SystemExit("Question 49 marker not found")
+          p.write_text(s.replace(marker, replacement, 1), encoding="utf-8")
           PY
-      - name: Commit patch
+      - name: Commit
+        shell: bash
         run: |
-          if git diff --quiet -- index.html; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
