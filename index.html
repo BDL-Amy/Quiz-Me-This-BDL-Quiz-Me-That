@@ -3,111 +3,316 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Quiz Me This, BDL, Quiz Me That</title>
 
 <style>
+:root{
+  --black:#111;
+  --stats:#62385f;
+  --stats-light:#d9c1dc;
+  --stats-bg:#faf2f7;
+  --quiz:#f3a712;
+  --quiz-bg:#fff4d7;
+  --history:#7b263d;
+  --history-bg:#fff4f3;
+  --settings:#267c78;
+  --settings-bg:#effaf8;
+  --blue:#123c73;
+  --gold:#d6aa35;
+  --green:#075f4b;
+  --champagne:#f1dfbd;
+  --copper:#b87345;
+}
+
+*{box-sizing:border-box}
+
 body{
-  font-family:Arial,sans-serif;
   margin:0;
-  padding:20px;
-  background:#f3f3f3;
+  padding:16px;
+  background:#eee;
+  font-family:Arial,sans-serif;
   color:#111;
 }
+
 main{
-  max-width:600px;
+  max-width:650px;
   margin:auto;
   background:#fff;
-  padding:24px;
-  border-radius:18px;
+  padding:22px;
+  border-radius:20px;
+  box-shadow:0 8px 30px #00000015;
 }
-h1{text-align:center}
+
+h1,h2,h3{margin-top:0}
+h1,.center{text-align:center}
+
 small{
   display:block;
   text-align:center;
   color:#666;
-  margin-bottom:25px;
+  margin-bottom:22px;
 }
-button{
+
+button,input{
   width:100%;
   padding:15px;
-  margin:7px 0;
+  margin:6px 0;
   border:2px solid #111;
   border-radius:12px;
+  font-size:16px;
+}
+
+button{
   background:#fff;
-  font-size:17px;
-  text-align:left;
+  color:#111;
   cursor:pointer;
 }
-button.center{
+
+.menu{
+  display:grid;
+  gap:10px;
+}
+
+.main-menu button{
+  background:#111;
+  color:#fff;
+  font-weight:bold;
   text-align:center;
+  padding:19px;
+}
+
+.section{
+  padding:18px;
+  border-radius:18px;
+}
+
+.stats{
+  background:var(--stats-bg);
+  border-top:7px solid var(--stats);
+}
+
+.quiz-section{
+  background:var(--quiz-bg);
+  border-top:7px solid var(--quiz);
+}
+
+.history{
+  background:var(--history-bg);
+  border-top:7px solid var(--history);
+}
+
+.settings{
+  background:var(--settings-bg);
+  border-top:7px solid var(--settings);
+}
+
+.quiz-menu button{
+  border-color:var(--quiz);
+  border-left:7px solid var(--quiz);
   font-weight:bold;
 }
-button.selected{
-  background:#fff2bd;
+
+.quiz-menu .weekly{
+  border-color:var(--blue);
+  border-left-color:var(--gold);
+}
+
+.quiz-menu .supreme{
+  border-color:var(--green);
+  border-left-color:var(--copper);
+}
+
+.selected{
+  background:#fff0b8;
   border-width:3px;
   font-weight:bold;
 }
-.answer{
-  background:#fff2bd;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:20px;
+
+.stat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
-.day-result{
-  border:1px solid #ddd;
-  border-radius:12px;
-  padding:12px;
-  margin:10px 0;
+
+.stat-card{
   background:#fff;
-}
-.total{
-  font-size:22px;
-  font-weight:bold;
-  text-align:center;
-  margin:18px 0 8px;
-}
-.name-box{
-  width:100%;
-  box-sizing:border-box;
   padding:14px;
-  font-size:17px;
-  border:2px solid #111;
-  border-radius:12px;
-  margin:10px 0;
+  border:1px solid var(--stats-light);
+  border-radius:14px;
+  text-align:center;
 }
-.center{text-align:center}
-.muted{color:#666}
+
+.stat-card strong{
+  display:block;
+  color:var(--stats);
+  font-size:25px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.tabs button{
+  border-color:var(--stats);
+  text-align:center;
+  font-weight:bold;
+}
+
+.tabs .active{
+  background:var(--stats);
+  color:#fff;
+}
+
+.rank-card{
+  background:#fff;
+  border:2px solid var(--stats);
+  border-radius:14px;
+  padding:14px;
+  margin:14px 0;
+  text-align:center;
+}
+
+.leaderboard{
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.leader-row{
+  display:grid;
+  grid-template-columns:45px 1fr auto;
+  gap:8px;
+  padding:11px;
+  border-bottom:1px solid #eee;
+}
+
+.leader-row.me{
+  background:var(--stats-light);
+}
+
+.wall-card{
+  padding:15px;
+  margin:10px 0;
+  border-radius:15px;
+  text-align:center;
+}
+
+.wall-card.week{
+  border:2px solid var(--gold);
+  background:#eef5ff;
+}
+
+.wall-card.month{
+  border:2px solid var(--copper);
+  background:#eef8f4;
+}
+
+.weekly-holder{
+  background:var(--blue);
+  color:#fff;
+  border:4px solid var(--gold);
+  border-radius:20px;
+  padding:30px 20px;
+  text-align:center;
+}
+
+.weekly-holder .name{
+  color:var(--gold);
+  font-size:34px;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+.supreme-holder{
+  background:var(--green);
+  color:var(--champagne);
+  border:4px solid var(--copper);
+  border-radius:20px;
+  padding:32px 20px;
+  text-align:center;
+}
+
+.supreme-holder .name{
+  color:#fff;
+  font-size:35px;
+  font-weight:bold;
+  margin:22px 0;
+}
+
+.settings-card{
+  background:#fff;
+  border-radius:14px;
+  padding:15px;
+}
+
+.settings-button{
+  background:var(--settings);
+  color:#fff;
+  border-color:var(--settings);
+  text-align:center;
+  font-weight:bold;
+}
+
+.notice{
+  padding:14px;
+  background:#fff;
+  border-radius:12px;
+  text-align:center;
+  margin:12px 0;
+}
+
+.loading{
+  text-align:center;
+  padding:25px;
+  color:#666;
+}
+
+.back{
+  margin-top:18px;
+  text-align:center;
+  font-weight:bold;
+}
 </style>
 </head>
 
 <body>
+
 <main>
+  <div id="mainHeader">
+    <h1>Quiz Me This, BDL, Quiz Me That</h1>
+    <small>Daily Quiz</small>
+  </div>
 
-<div id="mainHeader">
-  <h1>Quiz Me This, BDL, Quiz Me That</h1>
-  <small>Daily Quiz</small>
-</div>
-
-<div id="quiz"></div>
-
+  <div id="quiz"></div>
 </main>
 
 <script>
 
-const SUPABASE_FUNCTIONS =
+const BASE =
   "https://ggmcjycwrnpahauhwyrs.supabase.co/functions/v1";
 
 const QUIZ_SERVICE =
-  SUPABASE_FUNCTIONS + "/quiz-service";
+  BASE + "/quiz-service";
 
 const RESULTS_SERVICE =
-  SUPABASE_FUNCTIONS + "/quiz-results-service";
+  BASE + "/quiz-results-service";
 
-const TEST_MONDAY =
-  new URLSearchParams(window.location.search)
-    .get("testMonday") === "1";
+const MONTHLY_WINNER_SERVICE =
+  BASE + "/monthly-winner-service";
+
+const PUSH_SERVICE =
+  BASE + "/push-service";
 
 const FIRST_QUESTION_NUMBER = 16;
+
+let selectedAnswer = null;
+let dashboardCache = null;
+
+
+/* QUESTIONS — PART 1 */
 
 const questions = [
 
@@ -508,6 +713,7 @@ const questions = [
 
 {
 },
+
 {
   question:
     "Bubu found a big bag with a lot of money once. What did she do with it?",
@@ -519,6 +725,7 @@ const questions = [
   ],
   correct:2
 },
+
 {
   question:
     "We have already reached Question 50 — a milestone for the Quiz! Thank you for playing every day! Because this is the 50th question, we'll make it very easy. During the construction project in The Slums, we met a new character. Who is that character? Little hint: Amy absolutely adores this character.",
@@ -530,9 +737,14 @@ const questions = [
   ],
   correct:1
 }
+
 ];
 
-function getBrusselsParts(){
+
+/* DATE & TIME */
+
+function brussels(){
+
   const parts =
     new Intl.DateTimeFormat(
       "en-GB",
@@ -542,239 +754,65 @@ function getBrusselsParts(){
         month:"2-digit",
         day:"2-digit",
         hour:"2-digit",
-        minute:"2-digit",
-        second:"2-digit",
-        hourCycle:"h23",
-        weekday:"long"
+        hourCycle:"h23"
       }
     ).formatToParts(new Date());
 
-  const value = {};
-
-  parts.forEach(part=>{
-    if(part.type !== "literal"){
-      value[part.type] = part.value;
-    }
-  });
-
-  return value;
+  return Object.fromEntries(
+    parts
+      .filter(
+        p=>p.type!=="literal"
+      )
+      .map(
+        p=>[
+          p.type,
+          p.value
+        ]
+      )
+  );
 }
 
-function getEffectiveQuizDate(){
-  const p = getBrusselsParts();
+
+function effectiveDate(){
+
+  const p =
+    brussels();
 
   const d =
     new Date(
-      Number(p.year),
-      Number(p.month)-1,
-      Number(p.day)
+      +p.year,
+      +p.month-1,
+      +p.day
     );
 
-  if(Number(p.hour) < 8){
-    d.setDate(d.getDate()-1);
+  if(+p.hour < 8){
+    d.setDate(
+      d.getDate()-1
+    );
   }
 
   return d;
 }
 
-function formatDateLocal(date){
-  return (
-    date.getFullYear()
-    + "-"
-    + String(date.getMonth()+1).padStart(2,"0")
-    + "-"
-    + String(date.getDate()).padStart(2,"0")
-  );
+
+function dateString(d){
+
+  return [
+    d.getFullYear(),
+
+    String(
+      d.getMonth()+1
+    ).padStart(2,"0"),
+
+    String(
+      d.getDate()
+    ).padStart(2,"0")
+
+  ].join("-");
 }
 
-function getQuizDay(){
-  const effective = getEffectiveQuizDate();
-  const start = new Date(2026,7,11);
 
-  return Math.round(
-    (
-      new Date(
-        effective.getFullYear(),
-        effective.getMonth(),
-        effective.getDate()
-      )
-      -
-      start
-    )
-    /
-    86400000
-  );
-}
-
-function isMondayFlow(){
-  if(TEST_MONDAY){
-    return true;
-  }
-
-  const p = getBrusselsParts();
-
-  const today =
-    new Date(
-      Number(p.year),
-      Number(p.month)-1,
-      Number(p.day)
-    );
-
-  const firstWeeklyResultsDate =
-    new Date(2026, 7, 24);
-
-  return (
-    p.weekday === "Monday"
-    &&
-    Number(p.hour) >= 8
-    &&
-    today >= firstWeeklyResultsDate
-  );
-}
-
-function getPlayerName(){
-  return localStorage.getItem("bdlPlayerName") || "";
-}
-
-function setPlayerName(name){
-  localStorage.setItem("bdlPlayerName",name.trim());
-}
-
-function getPlayerId(){
-  let id =
-    localStorage.getItem("bdlPlayerId");
-
-  if(!id){
-    if(window.crypto && crypto.randomUUID){
-      id = crypto.randomUUID();
-    }else{
-      id =
-        "bdl-"
-        + Date.now()
-        + "-"
-        + Math.random().toString(36).slice(2);
-    }
-
-    localStorage.setItem("bdlPlayerId",id);
-  }
-
-  return id;
-}
-
-function getQuestionNumber(index){
-  return FIRST_QUESTION_NUMBER + index;
-}
-
-function getStorageKey(index){
-  return "bdlQuizAnswer_" + getQuestionNumber(index);
-}
-
-function getSavedAnswer(index){
-  const saved =
-    localStorage.getItem(getStorageKey(index));
-
-  if(saved === null){
-    return null;
-  }
-
-  try{
-    const parsed =
-      JSON.parse(saved);
-
-    if(
-      typeof parsed === "object"
-      &&
-      parsed !== null
-      &&
-      parsed.selected !== undefined
-    ){
-      return Number(parsed.selected);
-    }
-
-    return Number(parsed);
-
-  }catch{
-    return Number(saved);
-  }
-}
-
-function saveAnswer(index,selected){
-  localStorage.setItem(
-    getStorageKey(index),
-    JSON.stringify({selected:selected})
-  );
-}
-
-function escapeHtml(text){
-  return String(text)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-async function postJson(url,body){
-  const response =
-    await fetch(
-      url,
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(body)
-      }
-    );
-
-  const data =
-    await response.json().catch(()=>null);
-
-  if(!response.ok || !data){
-    throw new Error(
-      data?.error
-      ||
-      "Unable to contact the quiz service."
-    );
-  }
-
-  return data;
-}
-
-function getPreviousWeekStart(){
-  const current = getEffectiveQuizDate();
-
-  const monday =
-    new Date(
-      current.getFullYear(),
-      current.getMonth(),
-      current.getDate()
-    );
-
-  const day = monday.getDay();
-
-  const distanceFromMonday =
-    day === 0 ? 6 : day - 1;
-
-  monday.setDate(
-    monday.getDate()
-    - distanceFromMonday
-    - 7
-  );
-
-  return formatDateLocal(monday);
-}
-
-function dateToQuestionIndex(dateString){
-  const [year,month,day] =
-    dateString.split("-").map(Number);
-
-  const date =
-    new Date(
-      year,
-      month-1,
-      day
-    );
+function quizDay(){
 
   const start =
     new Date(
@@ -784,45 +822,303 @@ function dateToQuestionIndex(dateString){
     );
 
   return Math.round(
-    (date-start)/86400000
+    (
+      effectiveDate()
+      -
+      start
+    )
+    /
+    86400000
   );
 }
 
-function dayName(dateString){
-  const [year,month,day] =
-    dateString.split("-").map(Number);
 
-  return new Intl.DateTimeFormat(
-    "en-US",
-    {weekday:"long"}
-  ).format(
+function currentWeekStart(){
+
+  const d =
+    effectiveDate();
+
+  const day =
+    d.getDay() || 7;
+
+  d.setDate(
+    d.getDate()
+    -
+    day
+    +
+    1
+  );
+
+  return dateString(d);
+}
+
+
+function previousWeekStart(){
+
+  const d =
+    effectiveDate();
+
+  const day =
+    d.getDay() || 7;
+
+  d.setDate(
+    d.getDate()
+    -
+    day
+    -
+    6
+  );
+
+  return dateString(d);
+}
+
+
+function currentMonthStart(){
+
+  const d =
+    effectiveDate();
+
+  return dateString(
     new Date(
-      year,
-      month-1,
-      day
+      d.getFullYear(),
+      d.getMonth(),
+      1
     )
   );
 }
 
-function showStartScreen(){
+
+/* PLAYER */
+
+function playerName(){
+
+  return (
+    localStorage.getItem(
+      "bdlPlayerName"
+    )
+    ||
+    ""
+  );
+}
+
+
+function playerId(){
+
+  let id =
+    localStorage.getItem(
+      "bdlPlayerId"
+    );
+
+  if(!id){
+
+    if(
+      crypto.randomUUID
+    ){
+      id =
+        crypto.randomUUID();
+
+    }else{
+
+      id =
+        "bdl-"
+        +
+        Date.now()
+        +
+        "-"
+        +
+        Math.random()
+          .toString(36)
+          .slice(2);
+    }
+
+    localStorage.setItem(
+      "bdlPlayerId",
+      id
+    );
+  }
+
+  return id;
+}
+
+
+/* ANSWERS */
+
+function questionNumber(index){
+
+  return (
+    FIRST_QUESTION_NUMBER
+    +
+    index
+  );
+}
+
+
+function answerKey(index){
+
+  return (
+    "bdlQuizAnswer_"
+    +
+    questionNumber(index)
+  );
+}
+
+
+function savedAnswer(index){
+
+  const value =
+    localStorage.getItem(
+      answerKey(index)
+    );
+
+  if(value === null){
+    return null;
+  }
+
+  try{
+
+    const data =
+      JSON.parse(value);
+
+    return Number(
+      data.selected
+      ??
+      data
+    );
+
+  }catch{
+
+    return Number(value);
+  }
+}
+
+
+function storeAnswer(
+  index,
+  answer
+){
+
+  localStorage.setItem(
+    answerKey(index),
+
+    JSON.stringify({
+      selected:answer
+    })
+  );
+}
+
+
+/* GENERAL HELPERS */
+
+function html(text){
+
+  return String(
+    text ?? ""
+  )
+  .replaceAll(
+    "&",
+    "&amp;"
+  )
+  .replaceAll(
+    "<",
+    "&lt;"
+  )
+  .replaceAll(
+    ">",
+    "&gt;"
+  )
+  .replaceAll(
+    '"',
+    "&quot;"
+  );
+}
+
+
+function page(content){
+
   document
-    .getElementById("mainHeader")
-    .style.display = "none";
+    .getElementById(
+      "quiz"
+    )
+    .innerHTML =
+      content;
+}
 
-  const quiz =
-    document.getElementById("quiz");
 
-  const quizDay =
-    getQuizDay();
+function back(
+  fn="showMainMenu"
+){
 
-  if(quizDay < 0){
-    quiz.innerHTML = `
+  return `
+    <button
+      class="back"
+      onclick="${fn}()">
+      BACK
+    </button>
+  `;
+}
+
+
+async function api(
+  url,
+  body
+){
+
+  const response =
+    await fetch(
+      url,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify(body)
+      }
+    );
+
+  const data =
+    await response
+      .json()
+      .catch(()=>({}));
+
+  if(!response.ok){
+
+    throw new Error(
+      data.error
+      ||
+      "Something went wrong."
+    );
+  }
+
+  return data;
+}
+  /* START PAGE */
+
+function showStartScreen(){
+
+  document
+    .getElementById(
+      "mainHeader"
+    )
+    .style.display =
+      "none";
+
+  const day =
+    quizDay();
+
+  if(day < 0){
+
+    page(`
       <div class="center">
+
         <h1>
-          Quiz Me This<br>
-          <span style="font-size:.75em">
-            BDL
-          </span><br>
+          Quiz Me This
+          <br>
+          BDL
+          <br>
           Quiz Me That
         </h1>
 
@@ -830,19 +1126,25 @@ function showStartScreen(){
           The Daily Quiz starts
           on 11 August at 08:00.
         </p>
+
       </div>
-    `;
+    `);
+
     return;
   }
 
-  if(quizDay >= questions.length){
-    quiz.innerHTML = `
+  if(
+    day >= questions.length
+  ){
+
+    page(`
       <div class="center">
+
         <h1>
-          Quiz Me This<br>
-          <span style="font-size:.75em">
-            BDL
-          </span><br>
+          Quiz Me This
+          <br>
+          BDL
+          <br>
           Quiz Me That
         </h1>
 
@@ -850,22 +1152,26 @@ function showStartScreen(){
           No new Daily Quiz
           is scheduled yet.
         </p>
+
       </div>
-    `;
+    `);
+
     return;
   }
 
   const name =
-    getPlayerName();
+    playerName();
 
   if(!name){
-    quiz.innerHTML = `
+
+    page(`
       <div class="center">
+
         <h1>
-          Quiz Me This<br>
-          <span style="font-size:.75em">
-            BDL
-          </span><br>
+          Quiz Me This
+          <br>
+          BDL
+          <br>
           Quiz Me That
         </h1>
 
@@ -876,10 +1182,8 @@ function showStartScreen(){
 
         <input
           id="playerNameInput"
-          class="name-box"
-          maxlength="50"
-          autocomplete="name"
           placeholder="Your name"
+          maxlength="50"
         >
 
         <button
@@ -887,55 +1191,28 @@ function showStartScreen(){
           onclick="saveNameAndContinue()">
           CONTINUE
         </button>
+
       </div>
-    `;
+    `);
+
     return;
   }
 
-  const savedAnswer =
-    getSavedAnswer(quizDay);
-
-  if(savedAnswer !== null && !TEST_MONDAY){
-    quiz.innerHTML = `
-      <div class="center">
-        <h1>
-          Quiz Me This<br>
-          <span style="font-size:.75em">
-            BDL
-          </span><br>
-          Quiz Me That
-        </h1>
-
-        <div class="answer">
-          <h2>
-            ${escapeHtml(name)},
-            you already answered
-            today's quiz.
-          </h2>
-
-          <p>
-            See you again tomorrow!
-          </p>
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  quiz.innerHTML = `
+  page(`
     <div class="center">
+
       <h1>
-        Quiz Me This<br>
-        <span style="font-size:.75em">
-          BDL
-        </span><br>
+        Quiz Me This
+        <br>
+        BDL
+        <br>
         Quiz Me That
       </h1>
 
       <p>
         Welcome back,
         <strong>
-          ${escapeHtml(name)}
+          ${html(name)}
         </strong>!
       </p>
 
@@ -944,13 +1221,18 @@ function showStartScreen(){
         onclick="startQuiz()">
         START QUIZ
       </button>
+
     </div>
-  `;
+  `);
 }
 
+
 function saveNameAndContinue(){
+
   const input =
-    document.getElementById("playerNameInput");
+    document.getElementById(
+      "playerNameInput"
+    );
 
   const name =
     input.value.trim();
@@ -960,903 +1242,1665 @@ function saveNameAndContinue(){
     return;
   }
 
-  setPlayerName(name);
-  getPlayerId();
+  localStorage.setItem(
+    "bdlPlayerName",
+    name
+  );
+
+  playerId();
+
   showStartScreen();
 }
 
+
 function startQuiz(){
+  showMainMenu();
+}
+
+
+/* MAIN MENU */
+
+function showMainMenu(){
+
   document
-    .getElementById("mainHeader")
-    .style.display = "block";
-
-  const quizDay =
-    getQuizDay();
-
-  if(quizDay > 0){
-    showAnswerIntro();
-  }else{
-    showTodayQuestion();
-  }
-}
-
-function showAnswerIntro(){
-  const quiz =
-    document.getElementById("quiz");
-
-  const name =
-    getPlayerName();
-
-  quiz.innerHTML = `
-    <div class="answer center">
-      <h2>
-        Hello, ${escapeHtml(name)}!
-      </h2>
-
-      <p>
-        Ready to see the answer of yesterday?
-      </p>
-    </div>
-
-    <button
-      class="center"
-      onclick="showYesterdayPage()">
-      SHOW MY ANSWER
-    </button>
-  `;
-}
-
-async function showYesterdayPage(){
-  const quiz =
-    document.getElementById("quiz");
-
-  const quizDay =
-    getQuizDay();
-
-  const previousIndex =
-    quizDay - 1;
-
-  if(previousIndex < 0 || previousIndex >= questions.length){
-    showAfterYesterday();
-    return;
-  }
-
-  quiz.innerHTML = `
-    <div class="answer center">
-      Loading your answer...
-    </div>
-  `;
-
-  const q =
-    questions[previousIndex];
-
-  const questionNumber =
-    getQuestionNumber(previousIndex);
-
-  let selected =
-    getSavedAnswer(previousIndex);
-
-  if(!TEST_MONDAY){
-    try{
-      const data =
-        await postJson(
-          QUIZ_SERVICE,
-          {
-            action:"get_answer",
-            player_id:getPlayerId(),
-            question_num:questionNumber
-          }
-        );
-
-      if(data.answered && data.answer){
-        const letter =
-          String(data.answer.answer || "")
-            .trim()
-            .toUpperCase();
-
-        const index =
-          ["A","B","C","D"].indexOf(letter);
-
-        if(index >= 0){
-          selected = index;
-        }
-      }
-
-    }catch(error){
-      console.log("Using local answer fallback.");
-    }
-  }
-
-  const yourAnswer =
-    selected === null
-
-    ? `
-      <p>
-        <strong>Your answer:</strong><br>
-        You did not answer yesterday's question.
-      </p>
-    `
-
-    : `
-      <p>
-        <strong>Your answer:</strong><br>
-        ${String.fromCharCode(65+selected)}.
-        ${escapeHtml(q.answers[selected])}
-      </p>
-    `;
-
-  let resultText = "";
-
-  if(selected !== null){
-    resultText =
-      selected === q.correct
-
-      ? `
-        <p>
-          <strong>
-            You got it right!
-          </strong>
-        </p>
-      `
-
-      : `
-        <p>
-          <strong>
-            Better luck today!
-          </strong>
-        </p>
-      `;
-  }
-
-  const nextButton =
-    isMondayFlow()
-
-    ? `
-      <button
-        class="center"
-        onclick="showWeekResults()">
-        SHOW MY WEEK RESULTS
-      </button>
-    `
-
-    : `
-      <button
-        class="center"
-        onclick="showTodayQuestion()">
-        CONTINUE
-      </button>
-    `;
-
-  quiz.innerHTML = `
-    <div class="answer">
-
-      <h2>
-        Yesterday's Question - Question ${questionNumber}
-      </h2>
-
-      <p>
-        <strong>
-          ${escapeHtml(q.question)}
-        </strong>
-      </p>
-
-      ${yourAnswer}
-
-      <p>
-        <strong>
-          The correct answer:
-        </strong><br>
-
-        ${String.fromCharCode(65+q.correct)}.
-        ${escapeHtml(q.answers[q.correct])}
-      </p>
-
-      ${resultText}
-
-    </div>
-
-    ${nextButton}
-  `;
-}
-
-function showAfterYesterday(){
-  if(isMondayFlow()){
-    showWeekResults();
-  }else{
-    showTodayQuestion();
-  }
-}
-
-async function showWeekResults(){
-  const quiz =
-    document.getElementById("quiz");
-
-  const name =
-    getPlayerName();
-
-  quiz.innerHTML = `
-    <div class="answer center">
-      Loading your week results,
-      ${escapeHtml(name)}...
-    </div>
-  `;
-
-  if(TEST_MONDAY){
-    showTestWeekResults();
-    return;
-  }
-
-  try{
-    const weekStart =
-      getPreviousWeekStart();
-
-    const data =
-      await postJson(
-        RESULTS_SERVICE,
-        {
-          action:"week_summary",
-          player_id:getPlayerId(),
-          week_start:weekStart
-        }
-      );
-
-    renderWeekResults(data);
-
-  }catch(error){
-
-    quiz.innerHTML = `
-      <div class="answer">
-        <h2>
-          MY WEEK RESULTS
-        </h2>
-
-        <p>
-          We couldn't load your weekly results right now.
-        </p>
-      </div>
-
-      <button
-        class="center"
-        onclick="showWeeklyWinner()">
-        SMARTEST BDL'er OF THE WEEK
-      </button>
-    `;
-  }
-}
-
-function renderWeekResults(data){
-  const quiz =
-    document.getElementById("quiz");
-
-  const answersByDate =
-    new Map();
-
-  (data.answers || []).forEach(row=>{
-    answersByDate.set(
-      row.quiz_date,
-      row
-    );
-  });
-
-  const start =
-    new Date(
-      data.week_start + "T00:00:00"
-    );
-
-  let rowsHtml = "";
-
-  for(let i=0;i<7;i++){
-    const date =
-      new Date(start);
-
-    date.setDate(
-      start.getDate()+i
-    );
-
-    const dateString =
-      formatDateLocal(date);
-
-    const row =
-      answersByDate.get(dateString);
-
-    const questionIndex =
-      dateToQuestionIndex(dateString);
-
-    const q =
-      questions[questionIndex] || null;
-
-    if(!row){
-      rowsHtml += `
-        <div class="day-result">
-          <strong>
-            ${dayName(dateString)}
-          </strong>
-
-          <br><br>
-
-          <span class="muted">
-            Not answered
-          </span>
-        </div>
-      `;
-      continue;
-    }
-
-    const selectedLetter =
-      String(row.answer || "")
-        .trim()
-        .toUpperCase();
-
-    const selectedIndex =
-      ["A","B","C","D"]
-        .indexOf(selectedLetter);
-
-    const yourText =
-      q && selectedIndex >= 0
-
-      ? (
-          selectedLetter
-          + ". "
-          + escapeHtml(q.answers[selectedIndex])
-        )
-
-      : escapeHtml(row.answer);
-
-    const correctText =
-      q
-
-      ? (
-          String.fromCharCode(65+q.correct)
-          + ". "
-          + escapeHtml(q.answers[q.correct])
-        )
-
-      : (
-          row.is_correct
-          ? "Correct"
-          : "Incorrect"
-        );
-
-    rowsHtml += `
-      <div class="day-result">
-
-        <strong>
-          ${dayName(dateString)}
-        </strong>
-
-        <br><br>
-
-        <strong>
-          Your answer:
-        </strong><br>
-
-        ${yourText}
-
-        <br><br>
-
-        <strong>
-          Correct answer:
-        </strong><br>
-
-        ${correctText}
-
-        <br><br>
-
-        <strong>
-          ${
-            row.is_correct
-            ? "Correct"
-            : "Incorrect"
-          }
-        </strong>
-
-      </div>
-    `;
-  }
-
-  quiz.innerHTML = `
-    <div class="answer">
-
-      <h2 class="center">
-        MY WEEK RESULTS
-      </h2>
-
-      ${rowsHtml}
-
-      <div class="total">
-        TOTAL:
-        ${Number(data.correct || 0)}/7 CORRECT
-      </div>
-
-    </div>
-
-    <button
-      class="center"
-      onclick="showWeeklyWinner()">
-      SMARTEST BDL'er OF THE WEEK
-    </button>
-  `;
-}
-
-function showTestWeekResults(){
-  const quiz =
-    document.getElementById("quiz");
-
-  const demo = [
-    ["Monday","C. Brownies","C. Brownies",true],
-    ["Tuesday","A. Tofi is cute","A. Tofi is cute",true],
-    ["Wednesday","A. Bob","A. Bob",true],
-    ["Thursday","D. All of the above","D. All of the above",true],
-    ["Friday","B. Tinka","A. Tinki",false],
-    ["Saturday","B. Bubu","B. Bubu",true],
-    ["Sunday","C. MJ","C. MJ",true]
-  ];
-
-  const rows =
-    demo.map(item=>`
-
-      <div class="day-result">
-
-        <strong>
-          ${item[0]}
-        </strong>
-
-        <br><br>
-
-        <strong>
-          Your answer:
-        </strong><br>
-
-        ${item[1]}
-
-        <br><br>
-
-        <strong>
-          Correct answer:
-        </strong><br>
-
-        ${item[2]}
-
-        <br><br>
-
-        <strong>
-          ${
-            item[3]
-            ? "Correct"
-            : "Incorrect"
-          }
-        </strong>
-
-      </div>
-
-    `).join("");
-
-  quiz.innerHTML = `
-    <div class="answer">
-
-      <h2 class="center">
-        MY WEEK RESULTS
-      </h2>
-
-      ${rows}
-
-      <div class="total">
-        TOTAL: 6/7 CORRECT
-      </div>
-
-    </div>
-
-    <button
-      class="center"
-      onclick="showWeeklyWinner()">
-      SMARTEST BDL'er OF THE WEEK
-    </button>
-  `;
-}
-
-async function showWeeklyWinner(){
-  const quiz =
-    document.getElementById("quiz");
-
-  quiz.innerHTML = `
-    <div class="answer center">
-      Loading the SMARTEST BDL'er OF THE WEEK...
-    </div>
-  `;
-
-  if(TEST_MONDAY){
-    renderWeeklyWinner("TEST WINNER");
-    return;
-  }
-
-  try{
-    const data =
-      await postJson(
-        RESULTS_SERVICE,
-        {
-          action:"weekly_winner",
-          week_start:getPreviousWeekStart()
-        }
-      );
-
-    if(data.winner && data.winner.player_name){
-      renderWeeklyWinner(
-        data.winner.player_name
-      );
-    }else{
-      quiz.innerHTML = `
-        <div class="answer center">
-
-          <h2>
-            SMARTEST BDL'er OF THE WEEK
-          </h2>
-
-          <p>
-            The weekly winner is not available yet.
-          </p>
-
-        </div>
-
-        <button
-          class="center"
-          onclick="showTodayQuestion()">
-          CONTINUE TO THE QUIZ
-        </button>
-      `;
-    }
-
-  }catch(error){
-
-    quiz.innerHTML = `
-      <div class="answer center">
-
-        <h2>
-          SMARTEST BDL'er OF THE WEEK
-        </h2>
-
-        <p>
-          The weekly winner could not be loaded.
-        </p>
-
-      </div>
-
-      <button
-        class="center"
-        onclick="showTodayQuestion()">
-        CONTINUE TO THE QUIZ
-      </button>
-    `;
-  }
-}
-
-function renderWeeklyWinner(winnerName){
-  const quiz =
-    document.getElementById("quiz");
-
-  quiz.innerHTML = `
-    <div class="answer center">
-
-      <h2>
-        SMARTEST BDL'er OF THE WEEK
-      </h2>
-
-      <p>
-        Another week of questions,
-        clever answers and a little bit of luck...
-      </p>
-
-      <p>
-        But one BDL'er came out on top!
-      </p>
-
-      <h2>
-        This week's SMARTEST BDL'er is...
-      </h2>
-
-      <h1>
-        ${escapeHtml(winnerName)}
-      </h1>
-
-      <p>
-        <strong>
-          Congratulations!
-        </strong>
-      </p>
-
-      <p>
-        Enjoy the glory - at least until next Monday.
-      </p>
-
-    </div>
-
-    <button
-      class="center"
-      onclick="showTodayQuestion()">
-      CONTINUE TO THE QUIZ
-    </button>
-  `;
-}
-
-let pendingAnswer = null;
-
-function showTodayQuestion(){
-  const quiz =
-    document.getElementById("quiz");
-
-  const quizDay =
-    getQuizDay();
-
-  if(quizDay < 0 || quizDay >= questions.length){
-    showStartScreen();
-    return;
-  }
-
-  const q =
-    questions[quizDay];
-
-  const questionNumber =
-    getQuestionNumber(quizDay);
-
-  pendingAnswer = null;
-
-  quiz.innerHTML = `
-    <h2>
-      Question ${questionNumber}
+    .getElementById(
+      "mainHeader"
+    )
+    .style.display =
+      "block";
+
+  page(`
+    <h2 class="center">
+      Welcome,
+      ${html(playerName())}
     </h2>
 
-    <p>
-      <strong>
-        ${escapeHtml(q.question)}
-      </strong>
-    </p>
+    <div class="menu main-menu">
 
-    <div id="answerButtons"></div>
+      <button
+        onclick="showMyStatistics()">
+        MY STATISTICS
+      </button>
 
-    <div id="submitArea"></div>
-  `;
+      <button
+        onclick="showQuizMenu()">
+        QUIZ
+      </button>
 
-  renderAnswerButtons();
+      <button
+        onclick="showHistory()">
+        HISTORY
+      </button>
+
+      <button
+        onclick="showPersonalSettings()">
+        PERSONAL SETTINGS
+      </button>
+
+    </div>
+  `);
 }
 
-function renderAnswerButtons(){
-  const quizDay =
-    getQuizDay();
 
-  const q =
-    questions[quizDay];
+/* QUIZ MENU */
 
-  const answerButtons =
-    document.getElementById("answerButtons");
+function showQuizMenu(){
 
-  answerButtons.innerHTML =
-    q.answers.map(
-      (answer,index)=>`
+  page(`
+    <div class="section quiz-section">
+
+      <h2 class="center">
+        QUIZ
+      </h2>
+
+      <div class="menu quiz-menu">
 
         <button
-          class="${
-            pendingAnswer === index
-            ? "selected"
-            : ""
-          }"
-          onclick="selectAnswer(${index})">
-
-          ${String.fromCharCode(65+index)}.
-          ${escapeHtml(answer)}
-
+          onclick="showTodayQuestion()">
+          TODAY'S QUESTION
         </button>
 
-      `
-    ).join("");
-}
+        <button
+          onclick="showYesterdayPage()">
+          YESTERDAY'S ANSWER
+        </button>
 
-function selectAnswer(index){
-  pendingAnswer = index;
+        <button
+          class="weekly"
+          onclick="showCurrentWeeklyHolder()">
+          SMARTEST BDL'ER OF THE WEEK
+        </button>
 
-  renderAnswerButtons();
+        <button
+          class="supreme"
+          onclick="showSupremeBDLer()">
+          THE SUPREME BDL'ER
+        </button>
 
-  const q =
-    questions[getQuizDay()];
-
-  const submitArea =
-    document.getElementById("submitArea");
-
-  submitArea.innerHTML = `
-    <div class="answer">
-
-      <strong>
-        Your choice:
-      </strong><br>
-
-      ${String.fromCharCode(65+index)}.
-      ${escapeHtml(q.answers[index])}
-
-      <br><br>
-
-      <span class="muted">
-        You can still change your choice before submitting.
-      </span>
+      </div>
 
     </div>
 
-    <button
-      class="center"
-      onclick="submitAnswer()">
-      SUBMIT ANSWER
-    </button>
-  `;
+    ${back("showMainMenu")}
+  `);
 }
 
-async function submitAnswer(){
-  const quizDay =
-    getQuizDay();
 
-  if(
-    pendingAnswer === null
-    ||
-    quizDay < 0
-    ||
-    quizDay >= questions.length
-  ){
-    return;
-  }
+/* TODAY'S QUESTION */
+
+function showTodayQuestion(){
+
+  const index =
+    quizDay();
 
   const q =
-    questions[quizDay];
-
-  const selected =
-    pendingAnswer;
+    questions[index];
 
   if(
-    !TEST_MONDAY
-    &&
-    getSavedAnswer(quizDay) !== null
+    !q
+    ||
+    !q.question
+    ||
+    !Array.isArray(q.answers)
   ){
-    showStartScreen();
-    return;
-  }
 
-  if(TEST_MONDAY){
-    showThankYouPage(selected);
-    return;
-  }
+    page(`
+      <div class="section quiz-section">
 
-  const quiz =
-    document.getElementById("quiz");
-
-  quiz.innerHTML = `
-    <div class="answer center">
-      Saving your answer...
-    </div>
-  `;
-
-  try{
-    const result =
-      await postJson(
-        QUIZ_SERVICE,
-        {
-          action:"submit_answer",
-          player_id:getPlayerId(),
-          player_name:getPlayerName(),
-          quiz_date:formatDateLocal(getEffectiveQuizDate()),
-          question_num:getQuestionNumber(quizDay),
-          answer:String.fromCharCode(65+selected),
-          is_correct:selected === q.correct
-        }
-      );
-
-    let savedSelected =
-      selected;
-
-    if(result.already_answered && result.answer){
-      const existingLetter =
-        String(result.answer.answer || "")
-          .trim()
-          .toUpperCase();
-
-      const existingIndex =
-        ["A","B","C","D"]
-          .indexOf(existingLetter);
-
-      if(existingIndex >= 0){
-        savedSelected =
-          existingIndex;
-      }
-    }
-
-    saveAnswer(
-      quizDay,
-      savedSelected
-    );
-
-    showThankYouPage(
-      savedSelected
-    );
-
-  }catch(error){
-
-    quiz.innerHTML = `
-      <div class="answer">
-
-        <h2>
-          We couldn't save your answer.
+        <h2 class="center">
+          TODAY'S QUESTION
         </h2>
 
-        <p>
-          Please try again.
+        <div class="notice">
+          Today's question
+          is not available yet.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+
+    return;
+  }
+
+  const existing =
+    savedAnswer(index);
+
+  selectedAnswer =
+    existing;
+
+  let answersHtml = "";
+
+  q.answers.forEach(
+    (answer,i)=>{
+
+      const letter =
+        String.fromCharCode(
+          65+i
+        );
+
+      const selected =
+        existing === i
+        ? "selected"
+        : "";
+
+      const click =
+        existing === null
+        ? `onclick="selectAnswer(${i})"`
+        : "";
+
+      answersHtml += `
+        <button
+          id="answer-${i}"
+          class="${selected}"
+          ${click}>
+          ${letter}/
+          ${html(answer)}
+        </button>
+      `;
+    }
+  );
+
+  if(existing !== null){
+
+    page(`
+      <div class="section quiz-section">
+
+        <h2 class="center">
+          QUESTION
+          ${questionNumber(index)}
+        </h2>
+
+        <div class="notice">
+          You already answered
+          today's question.
+        </div>
+
+        <h3>
+          ${html(q.question)}
+        </h3>
+
+        ${answersHtml}
+
+        <div class="answer">
+
+          <strong>
+            Your answer:
+          </strong>
+
+          ${
+            String.fromCharCode(
+              65+existing
+            )
+          }/
+          ${html(q.answers[existing])}
+
+        </div>
+
+        <p class="center">
+          The correct answer
+          will be revealed tomorrow.
         </p>
 
       </div>
 
+      ${back("showQuizMenu")}
+    `);
+
+    return;
+  }
+
+  page(`
+    <div class="section quiz-section">
+
+      <h2 class="center">
+        QUESTION
+        ${questionNumber(index)}
+      </h2>
+
+      <h3>
+        ${html(q.question)}
+      </h3>
+
+      <div id="answerButtons">
+        ${answersHtml}
+      </div>
+
       <button
+        id="submitButton"
         class="center"
-        onclick="showTodayQuestion()">
-        TRY AGAIN
+        onclick="submitAnswer()"
+        disabled>
+        SUBMIT ANSWER
       </button>
-    `;
+
+    </div>
+
+    ${back("showQuizMenu")}
+  `);
+}
+
+
+function selectAnswer(index){
+
+  selectedAnswer =
+    index;
+
+  document
+    .querySelectorAll(
+      "#answerButtons button"
+    )
+    .forEach(
+      button=>
+        button.classList.remove(
+          "selected"
+        )
+    );
+
+  document
+    .getElementById(
+      "answer-"+index
+    )
+    .classList.add(
+      "selected"
+    );
+
+  document
+    .getElementById(
+      "submitButton"
+    )
+    .disabled =
+      false;
+}
+
+
+async function submitAnswer(){
+
+  const index =
+    quizDay();
+
+  const q =
+    questions[index];
+
+  if(
+    selectedAnswer === null
+    ||
+    !q
+  ){
+    return;
+  }
+
+  const button =
+    document.getElementById(
+      "submitButton"
+    );
+
+  if(button){
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "SUBMITTING...";
+  }
+
+  try{
+
+    await api(
+      QUIZ_SERVICE,
+      {
+        action:"submit",
+        player_id:playerId(),
+        player_name:playerName(),
+        question_number:
+          questionNumber(index),
+        answer:
+          selectedAnswer
+      }
+    );
+
+    storeAnswer(
+      index,
+      selectedAnswer
+    );
+
+    dashboardCache =
+      null;
+
+    showThankYouPage();
+
+  }catch(error){
+
+    if(button){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "SUBMIT ANSWER";
+    }
+
+    alert(
+      error.message
+      ||
+      "Your answer could not be submitted."
+    );
   }
 }
 
-function showThankYouPage(selected){
-  const quiz =
-    document.getElementById("quiz");
 
-  const quizDay =
-    getQuizDay();
+/* THANK YOU */
 
-  const name =
-    getPlayerName();
+function showThankYouPage(){
+
+  const index =
+    quizDay();
 
   const q =
-    questions[quizDay];
+    questions[index];
 
-  const questionNumber =
-    getQuestionNumber(quizDay);
+  const chosen =
+    savedAnswer(index);
 
-  quiz.innerHTML = `
-    <div class="answer">
+  if(
+    !q
+    ||
+    chosen === null
+  ){
+    showQuizMenu();
+    return;
+  }
+
+  page(`
+    <div class="section quiz-section center">
 
       <h2>
-        ${escapeHtml(name)},
+        ${html(playerName())},
         thanks for playing today!
       </h2>
 
       <p>
         <strong>
-          Question ${questionNumber}
+          Question
+          ${questionNumber(index)}
         </strong>
       </p>
 
       <p>
-        <strong>
-          The question was:
-        </strong><br>
-
-        ${escapeHtml(q.question)}
+        The question was:
       </p>
 
       <p>
         <strong>
-          You answered:
-        </strong><br>
-
-        ${String.fromCharCode(65+selected)}.
-        ${escapeHtml(q.answers[selected])}
+          ${html(q.question)}
+        </strong>
       </p>
 
       <p>
-        <strong>
-          Stay tuned!
-        </strong><br>
+        You answered:
+      </p>
 
-        The correct answer will be revealed
-        tomorrow together with a new Daily Quiz.
+      <div class="answer">
+
+        ${
+          String.fromCharCode(
+            65+chosen
+          )
+        }/
+
+        ${html(q.answers[chosen])}
+
+      </div>
+
+      <p>
+        Stay tuned!
+        The correct answer
+        will be revealed tomorrow
+        together with a new Daily Quiz.
       </p>
 
     </div>
-  `;
+
+    ${back("showQuizMenu")}
+  `);
 }
 
-getPlayerId();
+
+/* YESTERDAY'S ANSWER */
+
+function showYesterdayPage(){
+
+  const index =
+    quizDay()-1;
+
+  const q =
+    questions[index];
+
+  if(
+    index < 0
+    ||
+    !q
+    ||
+    !q.question
+    ||
+    !Array.isArray(q.answers)
+  ){
+
+    page(`
+      <div class="section quiz-section">
+
+        <h2 class="center">
+          YESTERDAY'S ANSWER
+        </h2>
+
+        <div class="notice">
+          Yesterday's answer
+          is not available.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+
+    return;
+  }
+
+  const correct =
+    q.correct;
+
+  const letter =
+    String.fromCharCode(
+      65+correct
+    );
+
+  page(`
+    <div class="section quiz-section">
+
+      <h2 class="center">
+        YESTERDAY'S ANSWER
+      </h2>
+
+      <p>
+        <strong>
+          Question
+          ${questionNumber(index)}
+        </strong>
+      </p>
+
+      <p>
+        ${html(q.question)}
+      </p>
+
+      <div class="answer">
+
+        <strong>
+          The correct answer is
+          ${letter}
+        </strong>
+
+        <br><br>
+
+        ${html(q.answers[correct])}
+
+      </div>
+
+    </div>
+
+    ${back("showQuizMenu")}
+  `);
+}
+  /* WEEKLY TITLE HOLDER */
+
+async function showCurrentWeeklyHolder(){
+
+  page(`
+    <div class="loading">
+      Loading current title holder...
+    </div>
+  `);
+
+  try{
+
+    const data =
+      await api(
+        RESULTS_SERVICE,
+        {
+          action:"weekly_winner",
+          week_start:
+            previousWeekStart()
+        }
+      );
+
+    renderWeeklyHolder(
+      data.winner
+    );
+
+  }catch(error){
+
+    page(`
+      <div class="weekly-holder">
+
+        <div>
+          SMARTEST BDL'ER
+          OF THE WEEK
+        </div>
+
+        <div class="notice">
+          The current title holder
+          is not available.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+  }
+}
+
+
+function renderWeeklyHolder(winner){
+
+  if(
+    !winner
+    ||
+    !winner.player_name
+  ){
+
+    page(`
+      <div class="weekly-holder">
+
+        <div>
+          SMARTEST BDL'ER
+          OF THE WEEK
+        </div>
+
+        <div class="notice">
+          No current title holder
+          is available yet.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+
+    return;
+  }
+
+  page(`
+    <div class="weekly-holder">
+
+      <div>
+        CURRENT TITLE HOLDER
+      </div>
+
+      <h1>
+        SMARTEST BDL'ER
+        OF THE WEEK
+      </h1>
+
+      <div class="name">
+        ${html(
+          winner.player_name
+        )}
+      </div>
+
+      <p>
+        Congratulations!
+      </p>
+
+      <p>
+        Enjoy the glory —
+        at least until next Monday.
+      </p>
+
+    </div>
+
+    ${back("showQuizMenu")}
+  `);
+}
+
+
+/* SUPREME BDL'ER */
+
+async function showSupremeBDLer(){
+
+  page(`
+    <div class="loading">
+      Loading current title holder...
+    </div>
+  `);
+
+  try{
+
+    const response =
+      await fetch(
+        MONTHLY_WINNER_SERVICE
+      );
+
+    const data =
+      await response
+        .json()
+        .catch(()=>({}));
+
+    if(!response.ok){
+      throw new Error(
+        data.error
+        ||
+        "Unable to load winner."
+      );
+    }
+
+    renderSupremeBDLer(
+      data.winner
+    );
+
+  }catch(error){
+
+    page(`
+      <div class="supreme-holder">
+
+        <div class="supreme-title">
+          THE SUPREME BDL'ER
+        </div>
+
+        <div class="notice">
+          The current monthly
+          title holder
+          is not available.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+  }
+}
+
+
+function renderSupremeBDLer(winner){
+
+  if(
+    !winner
+    ||
+    !winner.player_name
+  ){
+
+    page(`
+      <div class="supreme-holder">
+
+        <div class="supreme-title">
+          THE SUPREME BDL'ER
+        </div>
+
+        <div class="notice">
+          No current monthly
+          title holder
+          is available yet.
+        </div>
+
+      </div>
+
+      ${back("showQuizMenu")}
+    `);
+
+    return;
+  }
+
+  page(`
+    <div class="supreme-holder">
+
+      <div class="supreme-title">
+        THE SUPREME BDL'ER
+      </div>
+
+      <div class="name">
+        ${html(
+          winner.player_name
+        )}
+      </div>
+
+      <div>
+        ONE MONTH ·
+        MOST CORRECT ANSWERS ·
+        MOST DAYS PLAYED
+      </div>
+
+      <p style="
+        margin-top:25px;
+        font-size:12px;
+        font-style:italic;
+      ">
+        Excellence has a name.
+        This month, it is yours.
+      </p>
+
+    </div>
+
+    ${back("showQuizMenu")}
+  `);
+}
+
+
+/* DASHBOARD */
+
+async function loadDashboard(){
+
+  if(dashboardCache){
+    return dashboardCache;
+  }
+
+  dashboardCache =
+    await api(
+      RESULTS_SERVICE,
+      {
+        action:"dashboard",
+        player_id:
+          playerId(),
+        week_start:
+          currentWeekStart(),
+        month_start:
+          currentMonthStart()
+      }
+    );
+
+  return dashboardCache;
+}
+
+
+/* MY STATISTICS */
+
+async function showMyStatistics(){
+
+  page(`
+    <div class="loading">
+      Loading your statistics...
+    </div>
+  `);
+
+  try{
+
+    const data =
+      await loadDashboard();
+
+    const lifetime =
+      data.lifetime
+      ||
+      {
+        played:0,
+        correct:0,
+        incorrect:0,
+        accuracy:0
+      };
+
+    page(`
+      <div class="section stats">
+
+        <h2 class="center">
+          MY STATISTICS
+        </h2>
+
+        <div class="stat-grid">
+
+          <div class="stat-card">
+            <strong>
+              ${lifetime.played ?? 0}
+            </strong>
+            Played
+          </div>
+
+          <div class="stat-card">
+            <strong>
+              ${lifetime.correct ?? 0}
+            </strong>
+            Correct
+          </div>
+
+          <div class="stat-card">
+            <strong>
+              ${lifetime.incorrect ?? 0}
+            </strong>
+            Incorrect
+          </div>
+
+          <div class="stat-card">
+            <strong>
+              ${lifetime.accuracy ?? 0}%
+            </strong>
+            Accuracy
+          </div>
+
+        </div>
+
+        <div class="tabs">
+
+          <button
+            id="weekTab"
+            class="active"
+            onclick="
+              renderRanking(
+                'week'
+              )
+            ">
+            THIS WEEK
+          </button>
+
+          <button
+            id="monthTab"
+            onclick="
+              renderRanking(
+                'month'
+              )
+            ">
+            THIS MONTH
+          </button>
+
+        </div>
+
+        <div id="rankingArea"></div>
+
+      </div>
+
+      ${back("showMainMenu")}
+    `);
+
+    renderRanking(
+      "week"
+    );
+
+  }catch(error){
+
+    page(`
+      <div class="section stats">
+
+        <h2 class="center">
+          MY STATISTICS
+        </h2>
+
+        <div class="notice">
+          Your statistics
+          could not be loaded.
+        </div>
+
+      </div>
+
+      ${back("showMainMenu")}
+    `);
+  }
+}
+
+
+function renderRanking(type){
+
+  if(!dashboardCache){
+    return;
+  }
+
+  const period =
+    dashboardCache[type];
+
+  const area =
+    document.getElementById(
+      "rankingArea"
+    );
+
+  const weekTab =
+    document.getElementById(
+      "weekTab"
+    );
+
+  const monthTab =
+    document.getElementById(
+      "monthTab"
+    );
+
+  if(
+    !area
+    ||
+    !period
+  ){
+    return;
+  }
+
+  if(weekTab){
+    weekTab.classList.toggle(
+      "active",
+      type==="week"
+    );
+  }
+
+  if(monthTab){
+    monthTab.classList.toggle(
+      "active",
+      type==="month"
+    );
+  }
+
+  let rankHtml = "";
+
+  if(period.player){
+
+    rankHtml = `
+      <div class="rank-card">
+
+        <strong>
+          #${period.player.rank}
+        </strong>
+
+        <p>
+          of
+          ${period.total_players ?? 0}
+          players
+        </p>
+
+        <p>
+          ${period.player.correct ?? 0}
+          correct ·
+          ${period.player.played ?? 0}
+          days played
+        </p>
+
+      </div>
+    `;
+
+  }else{
+
+    rankHtml = `
+      <div class="rank-card">
+
+        <strong>
+          Not ranked yet
+        </strong>
+
+        <p>
+          Play this period
+          to enter the ranking.
+        </p>
+
+      </div>
+    `;
+  }
+
+  const rows =
+    Array.isArray(
+      period.leaderboard
+    )
+    ?
+    period.leaderboard
+    :
+    [];
+
+  let leaderboardHtml = "";
+
+  if(rows.length === 0){
+
+    leaderboardHtml = `
+      <div class="notice">
+        No ranking data
+        is available yet.
+      </div>
+    `;
+
+  }else{
+
+    leaderboardHtml =
+      `<div class="leaderboard">`;
+
+    rows.forEach(row=>{
+
+      const me =
+        String(
+          row.player_name
+          ||
+          ""
+        ).toLowerCase()
+        ===
+        String(
+          playerName()
+        ).toLowerCase();
+
+      leaderboardHtml += `
+        <div
+          class="
+            leader-row
+            ${me ? "me" : ""}
+          ">
+
+          <strong>
+            #${row.rank}
+          </strong>
+
+          <span>
+            ${html(
+              row.player_name
+            )}
+          </span>
+
+          <span>
+            ${row.correct ?? 0}
+            correct
+            <br>
+            <small style="
+              margin:0;
+              text-align:right;
+            ">
+              ${row.played ?? 0}
+              played
+            </small>
+          </span>
+
+        </div>
+      `;
+    });
+
+    leaderboardHtml +=
+      `</div>`;
+  }
+
+  area.innerHTML = `
+    ${rankHtml}
+
+    <h3 class="center">
+      TOP 20
+    </h3>
+
+    ${leaderboardHtml}
+  `;
+}
+  /* HISTORY / WALL OF FAME */
+
+async function showHistory(){
+
+  page(`
+    <div class="loading">
+      Loading Wall of Fame...
+    </div>
+  `);
+
+  try{
+
+    const data =
+      await loadDashboard();
+
+    const history =
+      data.history || {};
+
+    const weekly =
+      Array.isArray(
+        history.weekly
+      )
+      ? history.weekly
+      : [];
+
+    const monthly =
+      Array.isArray(
+        history.monthly
+      )
+      ? history.monthly
+      : [];
+
+    const activeWeek =
+      previousWeekStart();
+
+    const pastWeekly =
+      weekly.filter(
+        row =>
+          row.week_start !==
+          activeWeek
+      );
+
+    const pastMonthly =
+      monthly.length > 0
+      ? monthly.slice(1)
+      : [];
+
+    let weeklyHtml = "";
+
+    if(
+      pastWeekly.length === 0
+    ){
+
+      weeklyHtml = `
+        <div class="notice">
+          No previous weekly
+          winners yet.
+        </div>
+      `;
+
+    }else{
+
+      pastWeekly.forEach(
+        row=>{
+
+          weeklyHtml += `
+            <div class="wall-card week">
+
+              <strong>
+                SMARTEST BDL'ER
+                OF THE WEEK
+              </strong>
+
+              <h3>
+                ${html(
+                  row.player_name
+                )}
+              </h3>
+
+              <div>
+                ${row.correct_answers ?? 0}
+                correct ·
+                ${row.days_played ?? 0}
+                days played
+              </div>
+
+              <small>
+                ${html(
+                  row.week_start
+                )}
+                —
+                ${html(
+                  row.week_end
+                )}
+              </small>
+
+            </div>
+          `;
+        }
+      );
+    }
+
+    let monthlyHtml = "";
+
+    if(
+      pastMonthly.length === 0
+    ){
+
+      monthlyHtml = `
+        <div class="notice">
+          No previous monthly
+          winners yet.
+        </div>
+      `;
+
+    }else{
+
+      pastMonthly.forEach(
+        row=>{
+
+          monthlyHtml += `
+            <div class="wall-card month">
+
+              <strong>
+                THE SUPREME BDL'ER
+              </strong>
+
+              <h3>
+                ${html(
+                  row.player_name
+                )}
+              </h3>
+
+              <div>
+                ${row.correct_answers ?? 0}
+                correct ·
+                ${row.days_played ?? 0}
+                days played
+              </div>
+
+              <small>
+                ${html(
+                  row.month_start
+                )}
+                —
+                ${html(
+                  row.month_end
+                )}
+              </small>
+
+            </div>
+          `;
+        }
+      );
+    }
+
+    page(`
+      <div class="section history">
+
+        <h2 class="center">
+          HISTORY
+        </h2>
+
+        <p class="center">
+          WALL OF FAME
+        </p>
+
+        <h3 class="center">
+          WEEKLY WINNERS
+        </h3>
+
+        ${weeklyHtml}
+
+        <h3
+          class="center"
+          style="margin-top:30px"
+        >
+          MONTHLY WINNERS
+        </h3>
+
+        ${monthlyHtml}
+
+      </div>
+
+      ${back("showMainMenu")}
+    `);
+
+  }catch(error){
+
+    page(`
+      <div class="section history">
+
+        <h2 class="center">
+          HISTORY
+        </h2>
+
+        <div class="notice">
+          The Wall of Fame
+          could not be loaded.
+        </div>
+
+      </div>
+
+      ${back("showMainMenu")}
+    `);
+  }
+}
+
+
+/* PERSONAL SETTINGS */
+
+async function showPersonalSettings(){
+
+  page(`
+    <div class="section settings">
+
+      <h2 class="center">
+        PERSONAL SETTINGS
+      </h2>
+
+      <div class="settings-card">
+
+        <h3>
+          Push notifications
+        </h3>
+
+        <p>
+          Receive a notification
+          when the new Daily Quiz
+          is available.
+        </p>
+
+        <p id="pushStatus">
+          Checking status...
+        </p>
+
+        <button
+          id="pushButton"
+          class="settings-button"
+          onclick="
+            togglePushNotifications()
+          ">
+          PLEASE WAIT...
+        </button>
+
+      </div>
+
+    </div>
+
+    ${back("showMainMenu")}
+  `);
+
+  await refreshPushStatus();
+}
+
+
+/* PUSH HELPERS */
+
+function urlBase64ToUint8Array(
+  base64String
+){
+
+  const padding =
+    "=".repeat(
+      (
+        4
+        -
+        base64String.length % 4
+      )
+      % 4
+    );
+
+  const base64 =
+    (
+      base64String
+      +
+      padding
+    )
+    .replace(
+      /-/g,
+      "+"
+    )
+    .replace(
+      /_/g,
+      "/"
+    );
+
+  const rawData =
+    atob(base64);
+
+  return Uint8Array.from(
+    [...rawData]
+      .map(
+        char =>
+          char.charCodeAt(0)
+      )
+  );
+}
+
+
+function pushSupported(){
+
+  return (
+    "serviceWorker"
+    in navigator
+    &&
+    "PushManager"
+    in window
+    &&
+    "Notification"
+    in window
+  );
+}
+
+
+async function getPushRegistration(){
+
+  if(!pushSupported()){
+    return null;
+  }
+
+  return await navigator
+    .serviceWorker
+    .register(
+      "./service-worker.js"
+    );
+}
+
+
+async function getCurrentPushSubscription(){
+
+  const registration =
+    await getPushRegistration();
+
+  if(!registration){
+    return null;
+  }
+
+  return await registration
+    .pushManager
+    .getSubscription();
+}
+
+
+async function refreshPushStatus(){
+
+  const status =
+    document.getElementById(
+      "pushStatus"
+    );
+
+  const button =
+    document.getElementById(
+      "pushButton"
+    );
+
+  if(
+    !status
+    ||
+    !button
+  ){
+    return;
+  }
+
+  if(!pushSupported()){
+
+    status.textContent =
+      "Push notifications are not supported on this device.";
+
+    button.textContent =
+      "NOT AVAILABLE";
+
+    button.disabled =
+      true;
+
+    return;
+  }
+
+  try{
+
+    const subscription =
+      await getCurrentPushSubscription();
+
+    if(subscription){
+
+      status.innerHTML =
+        "<strong>Status: ON</strong>";
+
+      button.textContent =
+        "DISABLE PUSH NOTIFICATIONS";
+
+    }else{
+
+      status.innerHTML =
+        "<strong>Status: OFF</strong>";
+
+      button.textContent =
+        "ENABLE PUSH NOTIFICATIONS";
+    }
+
+    button.disabled =
+      false;
+
+  }catch(error){
+
+    status.textContent =
+      "Push status could not be checked.";
+
+    button.textContent =
+      "TRY AGAIN";
+
+    button.disabled =
+      false;
+  }
+}
+
+
+async function togglePushNotifications(){
+
+  const subscription =
+    await getCurrentPushSubscription();
+
+  if(subscription){
+    await disablePushNotifications(
+      subscription
+    );
+
+  }else{
+    await enablePushNotifications();
+  }
+
+  await refreshPushStatus();
+}
+
+
+async function enablePushNotifications(){
+
+  if(!pushSupported()){
+
+    alert(
+      "Push notifications are not supported on this device."
+    );
+
+    return;
+  }
+
+  let permission =
+    Notification.permission;
+
+  if(
+    permission ===
+    "default"
+  ){
+
+    permission =
+      await Notification
+        .requestPermission();
+  }
+
+  if(
+    permission !==
+    "granted"
+  ){
+
+    alert(
+      "Push notifications were not enabled."
+    );
+
+    return;
+  }
+
+  const registration =
+    await getPushRegistration();
+
+  const keyData =
+    await api(
+      PUSH_SERVICE,
+      {
+        action:
+          "public_key"
+      }
+    );
+
+  if(
+    !keyData.public_key
+  ){
+
+    throw new Error(
+      "Push key is unavailable."
+    );
+  }
+
+  let subscription =
+    await registration
+      .pushManager
+      .getSubscription();
+
+  if(!subscription){
+
+    subscription =
+      await registration
+        .pushManager
+        .subscribe({
+          userVisibleOnly:true,
+
+          applicationServerKey:
+            urlBase64ToUint8Array(
+              keyData.public_key
+            )
+        });
+  }
+
+  await api(
+    PUSH_SERVICE,
+    {
+      action:
+        "subscribe",
+
+      subscription:
+        subscription.toJSON(),
+
+      player_id:
+        playerId(),
+
+      player_name:
+        playerName()
+    }
+  );
+
+  alert(
+    "Push notifications are now enabled."
+  );
+}
+
+
+async function disablePushNotifications(
+  subscription
+){
+
+  if(!subscription){
+
+    subscription =
+      await getCurrentPushSubscription();
+  }
+
+  if(!subscription){
+    return;
+  }
+
+  await api(
+    PUSH_SERVICE,
+    {
+      action:
+        "unsubscribe",
+
+      endpoint:
+        subscription.endpoint
+    }
+  );
+
+  await subscription
+    .unsubscribe();
+
+  alert(
+    "Push notifications are now disabled."
+  );
+}
+  /* FINAL STARTUP */
+
+getPlayerId = playerId;
+
+playerId();
 showStartScreen();
 
 </script>
