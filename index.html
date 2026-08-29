@@ -1689,36 +1689,26 @@ function showThankYouPage(){
 
 /* YESTERDAY'S ANSWER */
 
-function showYesterdayPage(){
+async function showYesterdayPage(){
 
-  const index =
-    quizDay()-1;
-
-  const q =
-    questions[index];
+  const index = quizDay()-1;
+  const q = questions[index];
 
   if(
-    index < 0
-    ||
-    !q
-    ||
-    !q.question
-    ||
+    index < 0 ||
+    !q ||
+    !q.question ||
     !Array.isArray(q.answers)
   ){
-
     page(`
       <div class="section quiz-section">
-
         <h2 class="center">
           YESTERDAY'S ANSWER
         </h2>
 
         <div class="notice">
-          Yesterday's answer
-          is not available.
+          Yesterday's answer is not available.
         </div>
-
       </div>
 
       ${back("showQuizMenu")}
@@ -1727,13 +1717,77 @@ function showYesterdayPage(){
     return;
   }
 
-  const correct =
-    q.correct;
+  let selected = savedAnswer(index);
 
-  const letter =
-    String.fromCharCode(
-      65+correct
+  try{
+    const data = await api(
+      QUIZ_SERVICE,
+      {
+        action:"get_answer",
+        player_id:playerId(),
+        question_num:questionNumber(index)
+      }
     );
+
+    if(data.answered && data.answer){
+      const letter =
+        String(data.answer.answer || "")
+          .trim()
+          .toUpperCase();
+
+      const answerIndex =
+        ["A","B","C","D"].indexOf(letter);
+
+      if(answerIndex >= 0){
+        selected = answerIndex;
+      }
+    }
+  }catch(error){
+    console.log(
+      "Using local answer."
+    );
+  }
+
+  const correct = q.correct;
+  const correctLetter =
+    String.fromCharCode(65+correct);
+
+  let personalResult = `
+    <div class="notice">
+      You did not answer yesterday's question.
+    </div>
+  `;
+
+  if(selected !== null){
+
+    const yourLetter =
+      String.fromCharCode(65+selected);
+
+    const isCorrect =
+      selected === correct;
+
+    personalResult = `
+      <div class="answer">
+
+        <strong>Your answer:</strong>
+        <br><br>
+
+        ${yourLetter}/
+        ${html(q.answers[selected])}
+
+        <br><br>
+
+        <strong>
+          ${
+            isCorrect
+            ? "✓ Correct!"
+            : "✗ Incorrect."
+          }
+        </strong>
+
+      </div>
+    `;
+  }
 
   page(`
     <div class="section quiz-section">
@@ -1744,8 +1798,7 @@ function showYesterdayPage(){
 
       <p>
         <strong>
-          Question
-          ${questionNumber(index)}
+          Question ${questionNumber(index)}
         </strong>
       </p>
 
@@ -1753,11 +1806,13 @@ function showYesterdayPage(){
         ${html(q.question)}
       </p>
 
+      ${personalResult}
+
       <div class="answer">
 
         <strong>
           The correct answer is
-          ${letter}
+          ${correctLetter}
         </strong>
 
         <br><br>
