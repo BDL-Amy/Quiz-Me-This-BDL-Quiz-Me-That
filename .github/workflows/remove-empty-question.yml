@@ -3,8 +3,6 @@ name: Remove empty quiz question
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/remove-empty-question.yml'
 
 permissions:
   contents: write
@@ -34,12 +32,13 @@ jobs:
   question:
     "Bubu found a big bag with a lot of money once. What did she do with it?",'''
           if old not in s:
-              raise SystemExit('Expected empty question before Bubu question not found')
-          s = s.replace(old, new, 1)
-          p.write_text(s)
+              print('Empty question already removed')
+          else:
+              p.write_text(s.replace(old, new, 1))
           PY
-      - name: Commit change
+      - name: Commit change if needed
         run: |
+          if git diff --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
