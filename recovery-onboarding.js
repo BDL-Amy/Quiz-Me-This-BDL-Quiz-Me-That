@@ -121,3 +121,30 @@ showYesterdayPage = async function(){
 
   page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showQuizMenu")}`);
 };
+
+/* Amy.TEST uses the exact same player-facing result experience and copy as the live quiz. */
+if(typeof renderTestPlayResult === "function"){
+  renderTestPlayResult = function(type,chosen){
+    const index=testPlayIndex;
+    const q=questions[index];
+    if(!q) return;
+
+    const correct=q.correct;
+    const correctLetter=String.fromCharCode(65+correct);
+    const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
+
+    let playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`;
+    let personalResult=`<div class="notice"><strong>Oops, this one slipped by!</strong><br><br>No worries — today's question is waiting for you.</div>`;
+
+    if(chosen!==null){
+      const yourLetter=String.fromCharCode(65+chosen);
+      const isCorrect=chosen===correct;
+      playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter} - ${html(q.answers[chosen])}</div>`;
+      personalResult=isCorrect
+        ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
+        : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
+    }
+
+    page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showTestPlay")}`);
+  };
+}
