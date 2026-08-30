@@ -1,8 +1,10 @@
 /* AMY.TEST CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
-const TEST_PLATFORM_VERSION = "1.0";
+const TEST_PLATFORM_VERSION = "2.0";
 let testPreviewIndex = null;
 let testPreviewAnswer = null;
+let testPlayIndex = null;
+let testPlayAnswer = null;
 
 function testGuard(){
   if(!isAmyTestIdentity()){
@@ -12,7 +14,7 @@ function testGuard(){
   return true;
 }
 
-function testShell(title,content,backFn="showTestMode"){
+function testShell(title,content,backFn="showTestControlPlatform"){
   page(`
     <div class="section settings">
       <h2 class="center">${html(title)}</h2>
@@ -50,12 +52,38 @@ function testQuestionIssues(q){
 
 showTestMode = function(){
   if(!testGuard()) return;
+  page(`
+    <div class="section settings">
+      <h2 class="center">AMY.TEST</h2>
+      <div class="notice">
+        <strong>CHOOSE MODE</strong><br><br>
+        This account has three separate ways to use the quiz.
+      </div>
+
+      <div class="menu">
+        <button class="settings-button" onclick="showMainMenu()">NORMAL MODE</button>
+        <button class="settings-button" onclick="showTestControlPlatform()">TEST MODE</button>
+        <button class="settings-button" onclick="showTestPlay()">TEST PLAY</button>
+      </div>
+
+      <div class="settings-card" style="margin-top:14px;text-align:left">
+        <p><strong>NORMAL MODE</strong><br>Use the quiz like a regular player.</p>
+        <p><strong>TEST MODE</strong><br>Inspect questions, systems, statistics, history, winner rules and notifications.</p>
+        <p><strong>TEST PLAY</strong><br>Play anything, as often as you want, regardless of date, saved answers or normal quiz restrictions. Nothing is submitted.</p>
+      </div>
+    </div>
+    ${back("showMainMenu")}
+  `);
+};
+
+function showTestControlPlatform(){
+  if(!testGuard()) return;
 
   const invalid = questions.reduce((n,q)=>n+(testQuestionIssues(q).length?1:0),0);
 
   page(`
     <div class="section settings">
-      <h2 class="center">AMY.TEST</h2>
+      <h2 class="center">AMY.TEST — TEST MODE</h2>
       <div class="notice">
         <strong>TEST PLATFORM</strong><br>
         Version ${TEST_PLATFORM_VERSION}<br><br>
@@ -63,6 +91,7 @@ showTestMode = function(){
       </div>
 
       <div class="menu">
+        <button class="settings-button" onclick="showTestOutcomePreview()">ANSWER OUTCOMES</button>
         <button class="settings-button" onclick="showTestSystemCheck()">SYSTEM CHECK</button>
         <button class="settings-button" onclick="showTestQuizPreview()">QUIZ PREVIEW</button>
         <button class="settings-button" onclick="showTestQuestionsAudit()">QUESTIONS</button>
@@ -76,9 +105,185 @@ showTestMode = function(){
         ${questions.length} questions loaded · ${invalid} question${invalid===1?"":"s"} need attention
       </div>
     </div>
-    ${back("showMainMenu")}
+    ${back("showTestMode")}
   `);
-};
+}
+
+function showTestOutcomePreview(index){
+  if(!testGuard()) return;
+  if(!Number.isInteger(index)) index=Math.max(0,Math.min(questions.length-1,quizDay()-1));
+  const q=questions[index];
+  const options=questions.map((item,i)=>`<option value="${i}" ${i===index?'selected':''}>Q${questionNumber(i)} · ${testQuestionDateString(i)}</option>`).join("");
+  const valid=q && !testQuestionIssues(q).length;
+
+  testShell("ANSWER OUTCOMES",`
+    <div class="settings-card">
+      <label><strong>Choose question</strong></label>
+      <select onchange="showTestOutcomePreview(Number(this.value))" style="width:100%;padding:14px;margin:8px 0 14px;border:2px solid #111;border-radius:12px;font-size:16px">${options}</select>
+      ${valid?`<p><strong>${html(q.question)}</strong></p>`:`<div class="notice">This question cannot be previewed because its data is incomplete.</div>`}
+    </div>
+
+    ${valid?`
+    <div class="notice"><strong>WHAT DO YOU WANT TO SEE?</strong><br>These buttons imitate what a player would see after the answer is released.</div>
+    <div class="menu">
+      <button class="settings-button" onclick="renderTestOutcome(${index},'correct')">I ANSWERED CORRECTLY</button>
+      <button class="settings-button" onclick="renderTestOutcome(${index},'incorrect')">I ANSWERED INCORRECTLY</button>
+      <button class="settings-button" onclick="renderTestOutcome(${index},'none')">I DID NOT ANSWER</button>
+    </div>
+    <div id="testOutcomeArea"></div>`:""}
+  `);
+}
+
+function renderTestOutcome(index,type){
+  const q=questions[index];
+  const area=document.getElementById("testOutcomeArea");
+  if(!q || !area) return;
+  const correct=q.correct;
+  const correctLetter=String.fromCharCode(65+correct);
+  let personal="";
+
+  if(type==="none"){
+    personal=`<div class="notice">You did not answer yesterday's question.</div>`;
+  }else{
+    let chosen=correct;
+    if(type==="incorrect") chosen=[0,1,2,3].find(n=>n!==correct);
+    const yourLetter=String.fromCharCode(65+chosen);
+    personal=`
+      <div class="answer" style="margin-top:12px">
+        <strong>Your answer:</strong><br><br>
+        ${yourLetter}/ ${html(q.answers[chosen])}<br><br>
+        <strong>${type==="correct"?'✓ Correct!':'✗ Incorrect.'}</strong>
+      </div>`;
+  }
+
+  area.innerHTML=`
+    <div class="section quiz-section" style="margin-top:14px">
+      <h2 class="center">YESTERDAY'S ANSWER</h2>
+      <p><strong>Question ${questionNumber(index)}</strong></p>
+      <p>${html(q.question)}</p>
+      ${personal}
+      <div class="answer" style="margin-top:12px">
+        <strong>The correct answer is ${correctLetter}</strong><br><br>
+        ${html(q.answers[correct])}
+      </div>
+      <div class="notice">TEST PREVIEW — nothing was saved.</div>
+    </div>`;
+}
+
+function showTestPlay(index){
+  if(!testGuard()) return;
+  if(!Number.isInteger(index)) index=Math.max(0,Math.min(questions.length-1,quizDay()));
+  testPlayIndex=index;
+  testPlayAnswer=null;
+  renderTestPlay();
+}
+
+function renderTestPlay(){
+  if(!testGuard()) return;
+  const i=testPlayIndex;
+  const q=questions[i];
+  const options=questions.map((item,n)=>`<option value="${n}" ${n===i?'selected':''}>Q${questionNumber(n)} · ${testQuestionDateString(n)}</option>`).join("");
+  const issues=testQuestionIssues(q);
+
+  page(`
+    <div class="section quiz-section">
+      <h2 class="center">AMY.TEST — TEST PLAY</h2>
+      <div class="notice">
+        <strong>UNRESTRICTED PLAY</strong><br>
+        Dates, release status, previous answers and one-play limits are ignored.<br>
+        Nothing in TEST PLAY is submitted to the real quiz.
+      </div>
+
+      <label><strong>Choose any question</strong></label>
+      <select onchange="showTestPlay(Number(this.value))" style="width:100%;padding:14px;margin:8px 0 14px;border:2px solid #111;border-radius:12px;font-size:16px">${options}</select>
+
+      ${issues.length?`
+        <div class="notice"><strong>QUESTION DATA ERROR</strong><br>${issues.map(html).join("<br>")}</div>
+      `:`
+        <small style="margin-bottom:8px">${html(testQuestionDateLabel(i))} · Question ${questionNumber(i)}</small>
+        <h3>${html(q.question)}</h3>
+        <div id="testPlayAnswerButtons">
+          ${q.answers.map((a,n)=>`
+            <button id="test-play-answer-${n}" onclick="selectTestPlayAnswer(${n})">
+              <strong>${String.fromCharCode(65+n)}/</strong> ${html(a)}
+            </button>`).join("")}
+        </div>
+        <button id="testPlaySubmit" class="center" onclick="submitTestPlayAnswer()" disabled>SUBMIT TEST ANSWER</button>
+
+        <div class="notice" style="margin-top:14px">
+          <strong>QUICK SCENARIOS</strong><br>
+          Jump directly to a result without answering first.
+        </div>
+        <div class="menu">
+          <button onclick="showTestPlayScenario('correct')">SHOW CORRECT RESULT</button>
+          <button onclick="showTestPlayScenario('incorrect')">SHOW INCORRECT RESULT</button>
+          <button onclick="showTestPlayScenario('none')">SHOW NOT ANSWERED</button>
+        </div>
+        <div id="testPlayResult"></div>
+      `}
+    </div>
+    ${back("showTestMode")}
+  `);
+}
+
+function selectTestPlayAnswer(n){
+  testPlayAnswer=n;
+  document.querySelectorAll("#testPlayAnswerButtons button").forEach(b=>b.classList.remove("selected"));
+  const selected=document.getElementById("test-play-answer-"+n);
+  if(selected) selected.classList.add("selected");
+  const submit=document.getElementById("testPlaySubmit");
+  if(submit) submit.disabled=false;
+}
+
+function submitTestPlayAnswer(){
+  const q=questions[testPlayIndex];
+  if(!q || testPlayAnswer===null) return;
+  const type=testPlayAnswer===q.correct?"correct":"incorrect";
+  renderTestPlayResult(type,testPlayAnswer);
+}
+
+function showTestPlayScenario(type){
+  const q=questions[testPlayIndex];
+  if(!q) return;
+  if(type==="none"){
+    testPlayAnswer=null;
+    renderTestPlayResult("none",null);
+    return;
+  }
+  const chosen=type==="correct"?q.correct:[0,1,2,3].find(n=>n!==q.correct);
+  testPlayAnswer=chosen;
+  renderTestPlayResult(type,chosen);
+}
+
+function renderTestPlayResult(type,chosen){
+  const q=questions[testPlayIndex];
+  const area=document.getElementById("testPlayResult");
+  if(!q || !area) return;
+  const correct=q.correct;
+  const correctLetter=String.fromCharCode(65+correct);
+
+  let personal=`<div class="notice">You did not answer this question.</div>`;
+  if(chosen!==null){
+    const letter=String.fromCharCode(65+chosen);
+    personal=`
+      <div class="answer">
+        <strong>Your answer:</strong><br><br>
+        ${letter}/ ${html(q.answers[chosen])}<br><br>
+        <strong>${type==="correct"?'✓ Correct!':'✗ Incorrect.'}</strong>
+      </div>`;
+  }
+
+  area.innerHTML=`
+    <div style="margin-top:14px">
+      ${personal}
+      <div class="answer" style="margin-top:12px">
+        <strong>The correct answer is ${correctLetter}</strong><br><br>
+        ${html(q.answers[correct])}
+      </div>
+      <div class="notice"><strong>TEST PLAY ONLY</strong><br>No database answer, local saved answer, ranking result or winner data was created.</div>
+      <button class="settings-button" onclick="showTestPlay(${testPlayIndex})">PLAY THIS QUESTION AGAIN</button>
+    </div>`;
+}
 
 async function showTestSystemCheck(){
   if(!testGuard()) return;
