@@ -1,6 +1,6 @@
 /* AMY.TEST CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
-const TEST_PLATFORM_VERSION = "2.0";
+const TEST_PLATFORM_VERSION = "2.1";
 let testPreviewIndex = null;
 let testPreviewAnswer = null;
 let testPlayIndex = null;
@@ -92,6 +92,7 @@ function showTestControlPlatform(){
 
       <div class="menu">
         <button class="settings-button" onclick="showTestOutcomePreview()">ANSWER OUTCOMES</button>
+        <button class="settings-button" onclick="showPrivateTestRelease()">RELEASE NEW QUESTION</button>
         <button class="settings-button" onclick="showTestSystemCheck()">SYSTEM CHECK</button>
         <button class="settings-button" onclick="showTestQuizPreview()">QUIZ PREVIEW</button>
         <button class="settings-button" onclick="showTestQuestionsAudit()">QUESTIONS</button>
@@ -106,6 +107,71 @@ function showTestControlPlatform(){
       </div>
     </div>
     ${back("showTestMode")}
+  `);
+}
+
+function privateTestReleaseKey(){
+  return "bdlAmyTestPrivateReleasedQuestion";
+}
+
+function getPrivateTestReleasedIndex(){
+  const raw=localStorage.getItem(privateTestReleaseKey());
+  if(raw===null) return null;
+  const n=Number(raw);
+  return Number.isInteger(n)&&n>=0&&n<questions.length?n:null;
+}
+
+function showPrivateTestRelease(index){
+  if(!testGuard()) return;
+  const current=getPrivateTestReleasedIndex();
+  if(!Number.isInteger(index)) index=current!==null?Math.min(current+1,questions.length-1):Math.max(0,Math.min(questions.length-1,quizDay()+1));
+  const q=questions[index];
+  const issues=testQuestionIssues(q);
+  const options=questions.map((item,i)=>`<option value="${i}" ${i===index?'selected':''}>Q${questionNumber(i)} · ${testQuestionDateString(i)}</option>`).join("");
+  const released=current===null?"No private test question has been released yet.":`Currently released for Amy.TEST: Question ${questionNumber(current)}.`;
+  testShell("RELEASE NEW QUESTION",`
+    <div class="notice"><strong>AMY.TEST ONLY</strong><br>This release and push notification are private to your test account/device.</div>
+    <div class="settings-card">
+      <p><strong>${html(released)}</strong></p>
+      <label><strong>Choose question to release privately</strong></label>
+      <select onchange="showPrivateTestRelease(Number(this.value))" style="width:100%;padding:14px;margin:8px 0 14px;border:2px solid #111;border-radius:12px;font-size:16px">${options}</select>
+      ${issues.length?`<div class="notice"><strong>QUESTION DATA ERROR</strong><br>${issues.map(html).join("<br>")}</div>`:`<p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p><button class="settings-button" onclick="releasePrivateTestQuestion(${index})">RELEASE FOR AMY.TEST + PRIVATE PUSH</button>`}
+    </div>
+    ${current!==null?`<button class="settings-button" onclick="showTestPlay(${current})">OPEN CURRENTLY RELEASED TEST QUESTION</button>`:""}
+  `);
+}
+
+async function releasePrivateTestQuestion(index){
+  if(!testGuard()) return;
+  const q=questions[index];
+  if(!q||testQuestionIssues(q).length) return;
+  localStorage.setItem(privateTestReleaseKey(),String(index));
+  let pushStatus="Private release saved. Notifications are not available on this device.";
+  try{
+    if("Notification" in window){
+      let permission=Notification.permission;
+      if(permission!=="granted") permission=await Notification.requestPermission();
+      if(permission==="granted"){
+        const title="Amy.TEST — New Question Released";
+        const body=`Question ${questionNumber(index)} is now available in your private test environment.`;
+        if("serviceWorker" in navigator){
+          const reg=await navigator.serviceWorker.ready;
+          await reg.showNotification(title,{body,tag:`amy-test-release-${questionNumber(index)}`});
+        }else{
+          new Notification(title,{body});
+        }
+        pushStatus="Private push notification sent to this device only.";
+      }else{
+        pushStatus="Private release saved. Notification permission was not granted.";
+      }
+    }
+  }catch(e){
+    pushStatus="Private release saved, but the local notification could not be shown.";
+  }
+  testShell("QUESTION RELEASED",`
+    <div class="notice"><strong>✓ QUESTION ${questionNumber(index)} RELEASED FOR AMY.TEST</strong><br><br>${html(pushStatus)}<br><br>No real player, ranking, answer or public notification was affected.</div>
+    <button class="settings-button" onclick="showTestPlay(${index})">PLAY RELEASED QUESTION</button>
+    <button onclick="showPrivateTestRelease(${index})">RELEASE CONTROL</button>
   `);
 }
 
