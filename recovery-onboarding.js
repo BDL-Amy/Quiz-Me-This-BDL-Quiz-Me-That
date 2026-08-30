@@ -104,16 +104,14 @@ showYesterdayPage = async function(){
   }catch(error){console.log("Using local answer.");}
 
   const correct=q.correct;
-  const correctLetter=String.fromCharCode(65+correct);
-  const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
+  const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${html(q.answers[correct])}.</strong></div>`;
 
   let playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`;
   let personalResult=`<div class="notice"><strong>Oops, this one slipped by!</strong><br><br>No worries — today's question is waiting for you.</div>`;
 
   if(selected!==null){
-    const yourLetter=String.fromCharCode(65+selected);
     const isCorrect=selected===correct;
-    playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter} - ${html(q.answers[selected])}</div>`;
+    playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[selected])}</div>`;
     personalResult=isCorrect
       ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
       : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
@@ -122,30 +120,159 @@ showYesterdayPage = async function(){
   page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showQuizMenu")}`);
 };
 
-/* Amy.TEST uses the exact same player-facing result experience and copy as the live quiz. */
+/* Both dedicated test accounts use the same safe, non-submitting test platform. */
+if(typeof testGuard === "function"){
+  testGuard = function(){
+    if(!isTestIdentity()){
+      showMainMenu();
+      return false;
+    }
+    return true;
+  };
+}
+
+function bdlTestAccountLabel(){
+  return isDrBDLTestIdentity()?"DrBDL.test":"Amy.test";
+}
+
+if(typeof showTestMode === "function"){
+  showTestMode = function(){
+    if(!testGuard()) return;
+    const label=bdlTestAccountLabel();
+    page(`
+      <div class="section settings">
+        <h2 class="center">${html(label)}</h2>
+        <div class="notice"><strong>CHOOSE MODE</strong><br><br>This test account has three separate ways to use the quiz.</div>
+        <div class="menu">
+          <button class="settings-button" onclick="showMainMenu()">NORMAL MODE</button>
+          <button class="settings-button" onclick="showTestControlPlatform()">TEST MODE</button>
+          <button class="settings-button" onclick="showTestPlay()">TEST PLAY</button>
+        </div>
+        <div class="settings-card" style="margin-top:14px;text-align:left">
+          <p><strong>NORMAL MODE</strong><br>Use the quiz like a regular player.</p>
+          <p><strong>TEST MODE</strong><br>Inspect questions, systems, statistics, history, winner rules and notifications.</p>
+          <p><strong>TEST PLAY</strong><br>Play any question as often as you want. Nothing is submitted and nothing counts towards statistics, rankings or winner selection.</p>
+        </div>
+      </div>
+      ${back("showMainMenu")}
+    `);
+  };
+}
+
+/* Player-facing daily question: keep A/B/C/D internally, but never display them. */
+showTodayQuestion = function(){
+  const index=quizDay();
+  const q=questions[index];
+  if(!q||!q.question||!Array.isArray(q.answers)){
+    page(`<div class="section quiz-section"><h2 class="center">TODAY'S QUESTION</h2><div class="notice">Today's question is not available yet.</div></div>${back("showQuizMenu")}`);
+    return;
+  }
+  const existing=savedAnswer(index);
+  selectedAnswer=existing;
+  let answersHtml="";
+  q.answers.forEach((answer,i)=>{
+    const selected=existing===i?"selected":"";
+    const click=existing===null?`onclick="selectAnswer(${i})"`:"";
+    answersHtml+=`<button id="answer-${i}" class="${selected}" ${click}>${html(answer)}</button>`;
+  });
+  if(existing!==null){
+    page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><div class="notice">You already answered today's question.</div><h3>${html(q.question)}</h3>${answersHtml}<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[existing])}</div><p class="center">The correct answer will be revealed tomorrow.</p></div>${back("showQuizMenu")}`);
+    return;
+  }
+  page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><h3>${html(q.question)}</h3><div id="answerButtons">${answersHtml}</div><button id="submitButton" class="center" onclick="submitAnswer()" disabled>SUBMIT ANSWER</button></div>${back("showQuizMenu")}`);
+};
+
+showThankYouPage = function(){
+  const index=quizDay();
+  const q=questions[index];
+  const chosen=savedAnswer(index);
+  if(!q||chosen===null){showQuizMenu();return;}
+  page(`<div class="section quiz-section center"><h2>${html(playerName())}, thanks for playing today!</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>The question was:</p><p><strong>${html(q.question)}</strong></p><p>You answered:</p><div class="answer">${html(q.answers[chosen])}</div><p>Stay tuned! The correct answer will be revealed tomorrow together with a new Daily Quiz.</p></div>${back("showQuizMenu")}`);
+};
+
+/* Test play remains unlimited and mirrors the player-facing answer display without letters. */
+if(typeof renderTestPlay === "function"){
+  renderTestPlay = function(){
+    if(!testGuard()) return;
+    const i=testPlayIndex;
+    const q=questions[i];
+    const options=questions.map((item,n)=>`<option value="${n}" ${n===i?'selected':''}>Q${questionNumber(n)} · ${testQuestionDateString(n)}</option>`).join("");
+    const issues=testQuestionIssues(q);
+    page(`
+      <div class="section quiz-section">
+        <h2 class="center">${html(bdlTestAccountLabel())} — TEST PLAY</h2>
+        <div class="notice"><strong>UNRESTRICTED PLAY</strong><br>Replay and test any question as often as you want.<br>Nothing is submitted or counted.</div>
+        <label><strong>Choose any question</strong></label>
+        <select onchange="showTestPlay(Number(this.value))" style="width:100%;padding:14px;margin:8px 0 14px;border:2px solid #111;border-radius:12px;font-size:16px">${options}</select>
+        ${issues.length?`<div class="notice"><strong>QUESTION DATA ERROR</strong><br>${issues.map(html).join("<br>")}</div>`:`
+          <small style="margin-bottom:8px">${html(testQuestionDateLabel(i))} · Question ${questionNumber(i)}</small>
+          <h3>${html(q.question)}</h3>
+          <div id="testPlayAnswerButtons">${q.answers.map((a,n)=>`<button id="test-play-answer-${n}" onclick="selectTestPlayAnswer(${n})">${html(a)}</button>`).join("")}</div>
+          <button id="testPlaySubmit" class="center" onclick="submitTestPlayAnswer()" disabled>SUBMIT TEST ANSWER</button>
+          <div class="notice" style="margin-top:14px"><strong>QUICK SCENARIOS</strong><br>Jump directly to a result without answering first.</div>
+          <div class="menu"><button onclick="showTestPlayScenario('correct')">SHOW CORRECT RESULT</button><button onclick="showTestPlayScenario('incorrect')">SHOW INCORRECT RESULT</button><button onclick="showTestPlayScenario('none')">SHOW NOT ANSWERED</button></div>
+          <div id="testPlayResult"></div>`}
+      </div>
+      ${back("showTestMode")}
+    `);
+  };
+}
+
 if(typeof renderTestPlayResult === "function"){
   renderTestPlayResult = function(type,chosen){
     const index=testPlayIndex;
     const q=questions[index];
     if(!q) return;
-
     const correct=q.correct;
-    const correctLetter=String.fromCharCode(65+correct);
-    const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
-
+    const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${html(q.answers[correct])}.</strong></div>`;
     let playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`;
     let personalResult=`<div class="notice"><strong>Oops, this one slipped by!</strong><br><br>No worries — today's question is waiting for you.</div>`;
-
     if(chosen!==null){
-      const yourLetter=String.fromCharCode(65+chosen);
       const isCorrect=chosen===correct;
-      playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter} - ${html(q.answers[chosen])}</div>`;
-      personalResult=isCorrect
-        ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
-        : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
+      playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[chosen])}</div>`;
+      personalResult=isCorrect?`<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`:`<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
     }
+    page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}<div class="notice"><strong>TEST PLAY ONLY</strong><br>Nothing was saved or submitted.</div><button class="settings-button" onclick="showTestPlay(${index})">PLAY THIS QUESTION AGAIN</button></div>${back("showTestPlay")}`);
+  };
+}
 
-    page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showTestPlay")}`);
+if(typeof renderTestOutcome === "function"){
+  renderTestOutcome = function(index,type){
+    const q=questions[index];
+    const area=document.getElementById("testOutcomeArea");
+    if(!q||!area) return;
+    const correct=q.correct;
+    let personal="";
+    if(type==="none") personal=`<div class="notice">You did not answer yesterday's question.</div>`;
+    else{
+      let chosen=correct;
+      if(type==="incorrect") chosen=[0,1,2,3].find(n=>n!==correct);
+      personal=`<div class="answer" style="margin-top:12px"><strong>Your answer:</strong><br><br>${html(q.answers[chosen])}<br><br><strong>${type==="correct"?'✓ Correct!':'✗ Incorrect.'}</strong></div>`;
+    }
+    area.innerHTML=`<div class="section quiz-section" style="margin-top:14px"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${personal}<div class="answer" style="margin-top:12px"><strong>The correct answer is ${html(q.answers[correct])}</strong></div><div class="notice">TEST PREVIEW — nothing was saved.</div></div>`;
+  };
+}
+
+if(typeof renderTestQuestionPreview === "function"){
+  renderTestQuestionPreview = function(){
+    const area=document.getElementById("testQuestionPreview");
+    const i=testPreviewIndex;
+    const q=questions[i];
+    if(!area) return;
+    const issues=testQuestionIssues(q);
+    if(issues.length){area.innerHTML=`<div class="notice"><strong>QUESTION DATA ERROR</strong><br>${issues.map(html).join("<br>")}</div>`;return;}
+    const buttons=q.answers.map((a,n)=>`<button onclick="testSelectPreviewAnswer(${n})" style="text-align:left;${testPreviewAnswer===n?'border-width:4px':''}">${html(a)}</button>`).join("");
+    area.innerHTML=`<small style="margin-bottom:8px">${html(testQuestionDateLabel(i))} · Question ${questionNumber(i)}</small><p><strong>${html(q.question)}</strong></p>${buttons}<button class="settings-button" onclick="testEvaluatePreview()" ${testPreviewAnswer===null?'disabled':''}>CHECK TEST ANSWER</button><div id="testPreviewResult"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button onclick="showTestQuizPreview(${Math.max(0,i-1)})" ${i===0?'disabled':''}>PREVIOUS</button><button onclick="showTestQuizPreview(${Math.min(questions.length-1,i+1)})" ${i===questions.length-1?'disabled':''}>NEXT</button></div>`;
+  };
+}
+
+if(typeof testEvaluatePreview === "function"){
+  testEvaluatePreview = function(){
+    const q=questions[testPreviewIndex];
+    const area=document.getElementById("testPreviewResult");
+    if(!q||!area||testPreviewAnswer===null) return;
+    const ok=testPreviewAnswer===q.correct;
+    area.innerHTML=`<div class="notice"><strong>${ok?'✓ CORRECT':'✗ INCORRECT'}</strong><br>Correct answer: ${html(q.answers[q.correct])}<br><small style="margin:6px 0 0">Test only — nothing was saved.</small></div>`;
   };
 }
 
