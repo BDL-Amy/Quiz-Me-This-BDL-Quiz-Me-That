@@ -195,7 +195,7 @@ function bdlResultWordForIndex(index){
   return BDL_RESULT_WORDS[character] || "Correct";
 }
 
-/* Override yesterday's result page so a correct answer gets the scheduled BDL word. */
+/* Yesterday's answer: answer sentence first, then personal feedback. */
 showYesterdayPage = async function(){
   const index = quizDay()-1;
   const q = questions[index];
@@ -225,15 +225,17 @@ showYesterdayPage = async function(){
 
   const correct = q.correct;
   const correctLetter = String.fromCharCode(65+correct);
+  const answerSentence = `<div class="answer"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
+
   let personalResult = `<div class="notice">You did not answer yesterday's question.</div>`;
 
   if(selected !== null){
-    const yourLetter = String.fromCharCode(65+selected);
     const isCorrect = selected === correct;
-    const resultText = isCorrect ? `✓ ${html(bdlResultWordForIndex(index))}!` : "✗ Incorrect.";
 
-    personalResult = `<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter}/${html(q.answers[selected])}<br><br><strong>${resultText}</strong></div>`;
+    personalResult = isCorrect
+      ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
+      : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
   }
 
-  page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${personalResult}<div class="answer"><strong>The correct answer is ${correctLetter}</strong><br><br>${html(q.answers[correct])}</div></div>${back("showQuizMenu")}`);
+  page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${answerSentence}${personalResult}</div>${back("showQuizMenu")}`);
 };
