@@ -1,3 +1,4 @@
+/* BDL PWA UPDATE 2026-08-30 — force installed apps to refresh */
 self.addEventListener("install", event => {
   self.skipWaiting();
 });
