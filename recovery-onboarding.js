@@ -148,3 +148,32 @@ if(typeof renderTestPlayResult === "function"){
     page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showTestPlay")}`);
   };
 }
+
+/* Wall of Fame privacy: titles stay public, ranking performance is visible only to viewers who participate in rankings. */
+showWeeklyWallOfFame = async function(){
+  page(`<div class="loading">Loading Wall of Fame...</div>`);
+  try{
+    const pref=await accountApi({action:"ranking_preference",player_id:playerId()});
+    const data=await loadDashboard();
+    const canSee=pref.share_ranking===true && data?.ranking_access===true;
+    const rows=Array.isArray(data?.history?.weekly)?data.history.weekly:[];
+    const cards=rows.length?rows.map(row=>`<div class="wall-card week"><strong>SMARTEST BDL'ER OF THE WEEK</strong><h3>${html(row.player_name)}</h3>${canSee?`<div>${row.correct_answers??0} correct · ${row.days_played??0} days played</div>`:""}<small>${html(row.week_start)} — ${html(row.week_end)}</small></div>`).join(""):`<div class="notice">No weekly winners yet.</div>`;
+    page(`<div class="section history"><h2 class="center">SMARTEST BDL'ER OF THE WEEK</h2>${cards}</div>${back("showWallOfFameMenu")}`);
+  }catch(e){
+    page(`<div class="section history"><h2 class="center">SMARTEST BDL'ER OF THE WEEK</h2><div class="notice">The weekly Wall of Fame could not be loaded.</div></div>${back("showWallOfFameMenu")}`);
+  }
+};
+
+showSupremeWallOfFame = async function(){
+  page(`<div class="loading">Loading Wall of Fame...</div>`);
+  try{
+    const pref=await accountApi({action:"ranking_preference",player_id:playerId()});
+    const data=await loadDashboard();
+    const canSee=pref.share_ranking===true && data?.ranking_access===true;
+    const rows=Array.isArray(data?.history?.monthly)?data.history.monthly:[];
+    const cards=rows.length?rows.map(row=>`<div class="wall-card month"><strong>THE SUPREME BDL'ER</strong><h3>${html(row.player_name)}</h3>${canSee?`<div>${row.correct_answers??0} correct · ${row.days_played??0} days played</div>`:""}<small>${html(row.month_start)} — ${html(row.month_end)}</small></div>`).join(""):`<div class="notice">No Supreme BDL'er winners yet.</div>`;
+    page(`<div class="section history"><h2 class="center">SUPREME BDL'ER</h2>${cards}</div>${back("showWallOfFameMenu")}`);
+  }catch(e){
+    page(`<div class="section history"><h2 class="center">SUPREME BDL'ER</h2><div class="notice">The Supreme Wall of Fame could not be loaded.</div></div>${back("showWallOfFameMenu")}`);
+  }
+};
