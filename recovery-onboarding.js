@@ -84,7 +84,7 @@ function bdlWeeklyResultCharacters(monday){
 function bdlResultCharacterForIndex(index){const date=bdlQuestionDate(index);const schedule=bdlWeeklyResultCharacters(bdlMondayForDate(date));const day=date.getDay()||7;return schedule[day-1];}
 function bdlResultWordForIndex(index){return BDL_RESULT_WORDS[bdlResultCharacterForIndex(index)]||"Correct";}
 
-/* Yesterday's answer: answer sentence first, then personal feedback. */
+/* Yesterday's answer: show the player's answer first, then the correct answer and feedback. */
 showYesterdayPage = async function(){
   const index=quizDay()-1;
   const q=questions[index];
@@ -107,14 +107,17 @@ showYesterdayPage = async function(){
   const correctLetter=String.fromCharCode(65+correct);
   const answerSentence=`<div class="answer"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
 
+  let playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`;
   let personalResult=`<div class="notice"><strong>Oops, this one slipped by!</strong><br><br>No worries — today's question is waiting for you.</div>`;
 
   if(selected!==null){
+    const yourLetter=String.fromCharCode(65+selected);
     const isCorrect=selected===correct;
+    playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter}/${html(q.answers[selected])}</div>`;
     personalResult=isCorrect
       ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
       : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
   }
 
-  page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${answerSentence}${personalResult}</div>${back("showQuizMenu")}`);
+  page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${playerAnswer}${answerSentence}${personalResult}</div>${back("showQuizMenu")}`);
 };
