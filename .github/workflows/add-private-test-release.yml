@@ -118,3 +118,4 @@ async function releasePrivateTestQuestion(index){
           git add test-platform.js
           git commit -m "Add private Amy.TEST question release" || exit 0
           git push
+# trigger
