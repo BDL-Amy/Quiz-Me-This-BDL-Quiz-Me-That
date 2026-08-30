@@ -98,3 +98,142 @@ if(typeof questions !== "undefined"){
 setTimeout(()=>{
   checkExistingPlayerRecoveryOnboarding();
 },0);
+
+/* BDL correct-answer character words.
+   Weekly distribution:
+   - exactly 1x Bubu
+   - exactly 1x Dudu
+   - exactly 1x Alec or Masha
+   - exactly 1x Nick, Max or Tofi
+   - exactly 3x from the remaining characters
+   The seven selected characters are deterministically shuffled across the week,
+   so every player sees the same result word for the same question. */
+const BDL_RESULT_WORDS = {
+  Bubu:"Bubulicious",
+  Dudu:"Dudusational",
+  Alec:"Aleccredible",
+  Masha:"Mashazing",
+  Nick:"Nicktacular",
+  Max:"Maxitastic",
+  Tofi:"Tofeerific",
+  Amy:"Amydorable",
+  Babs:"Babsolutely",
+  Linda:"Lindazzling",
+  Dip:"Diphenomenal",
+  Mona:"Monarvel",
+  Cassandra:"Cassaglamorous",
+  Moly:"Molyficent",
+  Raka:"Rakabulous",
+  Muzo:"Muzovely",
+  Dora:"Doravishing"
+};
+
+const BDL_RESULT_OTHERS = [
+  "Amy","Babs","Linda","Dip","Mona","Cassandra","Moly","Raka","Muzo","Dora"
+];
+
+function bdlQuestionDate(index){
+  const d = new Date(2026,7,11);
+  d.setDate(d.getDate()+index);
+  return d;
+}
+
+function bdlMondayForDate(date){
+  const d = new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate()-day+1);
+  return d;
+}
+
+function bdlDayNumber(date){
+  return Math.floor(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())/86400000);
+}
+
+function bdlSeededRandom(seed){
+  let x = (seed >>> 0) || 1;
+  return function(){
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    return (x >>> 0) / 4294967296;
+  };
+}
+
+function bdlWeeklyResultCharacters(monday){
+  const weekSerial = Math.floor(bdlDayNumber(monday)/7);
+  const adult = weekSerial % 2 === 0 ? "Alec" : "Masha";
+  const kids = ["Nick","Max","Tofi"];
+  const kid = kids[((weekSerial % kids.length)+kids.length)%kids.length];
+
+  const otherStart = (((weekSerial*3) % BDL_RESULT_OTHERS.length)+BDL_RESULT_OTHERS.length)%BDL_RESULT_OTHERS.length;
+  const others = [];
+  for(let i=0;i<3;i++){
+    others.push(BDL_RESULT_OTHERS[(otherStart+i)%BDL_RESULT_OTHERS.length]);
+  }
+
+  const week = ["Bubu","Dudu",adult,kid,...others];
+  const random = bdlSeededRandom(bdlDayNumber(monday) ^ 0x42444c);
+
+  for(let i=week.length-1;i>0;i--){
+    const j = Math.floor(random()*(i+1));
+    [week[i],week[j]] = [week[j],week[i]];
+  }
+
+  return week;
+}
+
+function bdlResultCharacterForIndex(index){
+  const date = bdlQuestionDate(index);
+  const monday = bdlMondayForDate(date);
+  const schedule = bdlWeeklyResultCharacters(monday);
+  const day = date.getDay() || 7;
+  return schedule[day-1];
+}
+
+function bdlResultWordForIndex(index){
+  const character = bdlResultCharacterForIndex(index);
+  return BDL_RESULT_WORDS[character] || "Correct";
+}
+
+/* Override yesterday's result page so a correct answer gets the scheduled BDL word. */
+showYesterdayPage = async function(){
+  const index = quizDay()-1;
+  const q = questions[index];
+
+  if(index < 0 || !q || !q.question || !Array.isArray(q.answers)){
+    page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><div class="notice">Yesterday's answer is not available.</div></div>${back("showQuizMenu")}`);
+    return;
+  }
+
+  let selected = savedAnswer(index);
+
+  try{
+    const data = await api(QUIZ_SERVICE,{
+      action:"get_answer",
+      player_id:playerId(),
+      question_num:questionNumber(index)
+    });
+
+    if(data.answered && data.answer){
+      const letter = String(data.answer.answer || "").trim().toUpperCase();
+      const answerIndex = ["A","B","C","D"].indexOf(letter);
+      if(answerIndex >= 0) selected = answerIndex;
+    }
+  }catch(error){
+    console.log("Using local answer.");
+  }
+
+  const correct = q.correct;
+  const correctLetter = String.fromCharCode(65+correct);
+  let personalResult = `<div class="notice">You did not answer yesterday's question.</div>`;
+
+  if(selected !== null){
+    const yourLetter = String.fromCharCode(65+selected);
+    const isCorrect = selected === correct;
+    const resultText = isCorrect ? `✓ ${html(bdlResultWordForIndex(index))}!` : "✗ Incorrect.";
+
+    personalResult = `<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter}/${html(q.answers[selected])}<br><br><strong>${resultText}</strong></div>`;
+  }
+
+  page(`<div class="section quiz-section"><h2 class="center">YESTERDAY'S ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${personalResult}<div class="answer"><strong>The correct answer is ${correctLetter}</strong><br><br>${html(q.answers[correct])}</div></div>${back("showQuizMenu")}`);
+};
