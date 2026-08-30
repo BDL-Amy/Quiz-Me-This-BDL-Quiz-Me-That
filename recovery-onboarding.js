@@ -105,7 +105,7 @@ showYesterdayPage = async function(){
 
   const correct=q.correct;
   const correctLetter=String.fromCharCode(65+correct);
-  const answerSentence=`<div class="answer"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
+  const answerSentence=`<div class="answer" style="margin-top:18px"><strong>The correct answer is ${correctLetter} - ${html(q.answers[correct])}.</strong></div>`;
 
   let playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`;
   let personalResult=`<div class="notice"><strong>Oops, this one slipped by!</strong><br><br>No worries — today's question is waiting for you.</div>`;
@@ -113,7 +113,7 @@ showYesterdayPage = async function(){
   if(selected!==null){
     const yourLetter=String.fromCharCode(65+selected);
     const isCorrect=selected===correct;
-    playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter}/${html(q.answers[selected])}</div>`;
+    playerAnswer=`<div class="answer"><strong>Your answer:</strong><br><br>${yourLetter} - ${html(q.answers[selected])}</div>`;
     personalResult=isCorrect
       ? `<div class="notice"><strong>${html(bdlResultWordForIndex(index))}!</strong><br><br>You got it right!</div>`
       : `<div class="notice"><strong>Better luck next time!</strong><br><br>A new day, a new chance — today's question is waiting for you.</div>`;
