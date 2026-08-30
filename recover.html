@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recover player account</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:#eee;font-family:Arial,sans-serif;color:#111}
+main{max-width:650px;margin:auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 8px 30px #00000015}
+.card{background:#effaf8;border-top:7px solid #267c78;border-radius:18px;padding:18px}
+h1,h2{text-align:center;margin-top:0}
+input,button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:12px;font-size:16px}
+button{background:#267c78;color:#fff;border-color:#267c78;font-weight:bold;cursor:pointer}
+.notice{display:none;padding:14px;background:#fff;border-radius:12px;text-align:center;margin:12px 0}
+.back{background:#fff;color:#111;border-color:#111}
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h2>ACCOUNT RECOVERY</h2>
+    <p>Enter your existing player name and recovery code. This will reconnect this device to your existing quiz account.</p>
+
+    <input id="playerName" placeholder="Player name" maxlength="50" autocomplete="username">
+    <input id="recoveryCode" placeholder="BDL-XXXX-XXXX-XXXX-XXXX" maxlength="24" autocapitalize="characters" autocomplete="off">
+
+    <div id="message" class="notice"></div>
+
+    <button id="recoverButton" onclick="recoverAccount()">RECOVER THIS ACCOUNT</button>
+    <button class="back" onclick="location.href='./'">BACK TO QUIZ</button>
+  </div>
+</main>
+<script>
+const QUIZ_SERVICE="https://ggmcjycwrnpahauhwyrs.supabase.co/functions/v1/quiz-service";
+
+async function recoverAccount(){
+  const name=String(document.getElementById('playerName').value||'').trim();
+  const code=String(document.getElementById('recoveryCode').value||'').trim();
+  const button=document.getElementById('recoverButton');
+  const message=document.getElementById('message');
+
+  message.style.display='none';
+
+  if(!name||!code){
+    message.textContent='Enter both your player name and recovery code.';
+    message.style.display='block';
+    return;
+  }
+
+  button.disabled=true;
+  button.textContent='CHECKING...';
+
+  try{
+    const response=await fetch(QUIZ_SERVICE,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'recover_player',player_name:name,recovery_code:code})
+    });
+
+    const data=await response.json().catch(()=>({}));
+
+    if(!response.ok){
+      if(response.status===401){
+        throw new Error('The player name or recovery code is not correct.');
+      }
+      if(response.status===409&&String(data.error||'').includes('recovery_not_set')){
+        throw new Error('No recovery code has been created for this account yet.');
+      }
+      throw new Error('Your account could not be recovered.');
+    }
+
+    localStorage.setItem('bdlPlayerId',data.player_id);
+    localStorage.setItem('bdlPlayerName',data.player_name);
+    message.textContent='Account recovered successfully. Returning to the quiz...';
+    message.style.display='block';
+    setTimeout(()=>location.href='./',700);
+  }catch(error){
+    message.textContent=error.message||'Your account could not be recovered.';
+    message.style.display='block';
+    button.disabled=false;
+    button.textContent='RECOVER THIS ACCOUNT';
+  }
+}
+</script>
+</body>
+</html>
