@@ -30,17 +30,20 @@ async function recoverFromPersonalSettings(){const name=String(document.getEleme
 async function refreshRecoveryStatus(){const s=document.getElementById("recoveryStatus"),b=document.getElementById("recoveryButton");if(!s||!b)return;try{const d=await accountApi({action:"recovery_status",player_id:playerId(),player_name:playerName()});s.innerHTML=d.recovery_enabled?"<strong>Status: SET</strong>":"<strong>Status: NOT SET</strong>";b.textContent=d.recovery_enabled?"GENERATE NEW RECOVERY CODE":"CREATE RECOVERY CODE";b.disabled=false}catch(e){if(e.status===403){s.textContent="This app is not connected to this player account yet. Enter your recovery code above.";b.style.display="none"}else{s.textContent="Recovery status could not be checked.";b.textContent="TRY AGAIN";b.disabled=false}}}async function createOrRotateRecoveryCode(){const b=document.getElementById("recoveryButton");if(b){b.disabled=true;b.textContent="GENERATING..."}try{const s=await accountApi({action:"recovery_status",player_id:playerId(),player_name:playerName()});const d=s.recovery_enabled?await accountApi({action:"rotate_recovery_code",player_id:playerId(),player_name:playerName()}):await accountApi({action:"register_player",player_id:playerId(),player_name:playerName()});if(!d.recovery_code)throw new Error("No recovery code was returned.");showRecoveryCodeOnce(d.recovery_code)}catch(e){alert("A recovery code could not be generated. Reconnect your account first.");await refreshRecoveryStatus()}}
 submitAnswer=async function(){const index=quizDay(),q=questions[index];if(selectedAnswer===null||!q)return;const b=document.getElementById("submitButton");if(b){b.disabled=true;b.textContent="SUBMITTING..."}try{const r=await fetch(QUIZ_SERVICE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"submit_answer",player_id:playerId(),player_name:playerName(),quiz_date:dateString(effectiveDate()),question_num:questionNumber(index),answer:String.fromCharCode(65+selectedAnswer),is_correct:selectedAnswer===q.correct})});const d=await r.json().catch(()=>({}));if(r.ok){storeAnswer(index,selectedAnswer);dashboardCache=null;showThankYouPage();return}if(r.status===409&&String(d.error||"").includes("reserved_bdl_name")){showReservedNameChange();return}if(r.status===409&&String(d.error||"").includes("name_taken"))throw new Error("This app is not connected to this player account yet. Go to Personal Settings and enter your recovery code.");throw new Error(d.error||"Your answer could not be submitted.")}catch(e){if(b){b.disabled=false;b.textContent="SUBMIT ANSWER"}alert(e.message||"Your answer could not be submitted.")}};
 
-const baseShowMyStatistics=showMyStatistics;
-showMyStatistics=async function(){
-  await baseShowMyStatistics();
-  const stats=document.querySelector(".section.stats");
-  const grid=stats?.querySelector(".stat-grid");
-  if(!stats||!grid||document.getElementById("statsUpdateNote"))return;
-  const note=document.createElement("div");
-  note.id="statsUpdateNote";
-  note.className="notice";
-  note.innerHTML="<strong>Played</strong> updates immediately after you submit an answer. <strong>Correct, Incorrect and Accuracy</strong> are updated the following quiz day, when the correct answer is revealed.";
-  grid.insertAdjacentElement("afterend",note);
-};
+setTimeout(()=>{
+  if(typeof showMyStatistics!=="function")return;
+  const baseShowMyStatistics=showMyStatistics;
+  showMyStatistics=async function(){
+    await baseShowMyStatistics();
+    const stats=document.querySelector(".section.stats");
+    const grid=stats?.querySelector(".stat-grid");
+    if(!stats||!grid||document.getElementById("statsUpdateNote"))return;
+    const note=document.createElement("div");
+    note.id="statsUpdateNote";
+    note.className="notice";
+    note.innerHTML="<strong>Played</strong> updates immediately after you submit an answer. <strong>Correct, Incorrect and Accuracy</strong> are updated the following quiz day, when the correct answer is revealed.";
+    grid.insertAdjacentElement("afterend",note);
+  };
+},0);
 
 migrateLegacyAnswers();showStartScreen();
