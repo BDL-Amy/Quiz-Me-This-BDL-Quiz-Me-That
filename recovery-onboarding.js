@@ -446,7 +446,6 @@ function bdlTestStatisticsPeriod(type){
   const area=document.getElementById("bdlTestStatsPeriodArea");
   if(!data||!area)return;
   ["week","month","all"].forEach(key=>document.getElementById(`bdlTestStatsTab-${key}`)?.classList.toggle("active",key===type));
-  const stats=bdlStatsBlock(data,type);
   const label=type==="week"?"THIS WEEK":type==="month"?"THIS MONTH":"ALL TIME";
   let titleSection="";
   if(type==="all"){
@@ -457,16 +456,11 @@ function bdlTestStatisticsPeriod(type){
   }
   area.innerHTML=`
     <h3 class="center" style="margin-top:18px">${label}</h3>
-    <div class="stat-grid">
-      <div class="stat-card"><strong>${stats.played}</strong>Played</div>
-      <div class="stat-card"><strong>${stats.correct}</strong>Correct</div>
-      <div class="stat-card"><strong>${stats.incorrect}</strong>Incorrect</div>
-      <div class="stat-card"><strong>${stats.accuracy}%</strong>Accuracy</div>
-    </div>
+    <div class="notice" style="text-align:left"><strong>READ-ONLY ADMIN VIEW</strong><br>The test account itself is excluded from quiz statistics. The rankings below show the real player data for verification.</div>
     <h3 class="center" style="margin-top:24px">QUIZ TOP 20 — ${label}</h3>
     ${bdlTestGeneralTop20(data,type)}
     ${titleSection}
-    <div class="notice"><strong>TEST ACCOUNT</strong><br>This is a read-only admin/test view. Test accounts remain excluded from rankings and winner selection.</div>`;
+    <div class="notice"><strong>TEST ACCOUNT</strong><br>This is a read-only admin/test view. Test accounts remain excluded from statistics, rankings and winner selection.</div>`;
 }
 
 showTestStatistics=async function(){
