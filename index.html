@@ -193,6 +193,39 @@ button{
   background:var(--stats-light);
 }
 
+.title-summary{
+  margin-top:18px;
+}
+
+.title-points-note{
+  background:#fff;
+  border:1px solid var(--stats-light);
+  border-radius:14px;
+  padding:12px;
+  margin:12px 0 16px;
+  text-align:center;
+  font-size:14px;
+}
+
+.title-leader-row{
+  display:grid;
+  grid-template-columns:38px 1fr 58px 58px 58px;
+  gap:6px;
+  align-items:center;
+  padding:10px 8px;
+  border-bottom:1px solid #eee;
+  font-size:13px;
+}
+
+.title-leader-row.header{
+  font-weight:bold;
+  background:var(--stats-bg);
+}
+
+.title-leader-row.me{
+  background:var(--stats-light);
+}
+
 .wall-card{
   padding:15px;
   margin:10px 0;
@@ -2085,6 +2118,65 @@ async function loadDashboard(){
 }
 
 
+
+function buildTitleRanking(data){
+  const history=data?.history||{};
+  const weekly=Array.isArray(history.weekly)?history.weekly:[];
+  const monthly=Array.isArray(history.monthly)?history.monthly:[];
+  const players=new Map();
+  const add=(name,type)=>{
+    const clean=String(name||"").trim();
+    if(!clean)return;
+    const key=clean.toLowerCase();
+    if(!players.has(key))players.set(key,{player_name:clean,smartest:0,supreme:0,points:0});
+    const row=players.get(key);
+    if(type==="smartest")row.smartest+=1;
+    if(type==="supreme")row.supreme+=1;
+    row.points=row.smartest+(row.supreme*4);
+  };
+  weekly.forEach(row=>add(row.player_name,"smartest"));
+  monthly.forEach(row=>add(row.player_name,"supreme"));
+  const rows=[...players.values()].sort((a,b)=>b.points-a.points||b.supreme-a.supreme||b.smartest-a.smartest||a.player_name.localeCompare(b.player_name));
+  let rank=0,lastPoints=null,lastSupreme=null,lastSmartest=null;
+  rows.forEach((row,index)=>{
+    if(row.points!==lastPoints||row.supreme!==lastSupreme||row.smartest!==lastSmartest)rank=index+1;
+    row.rank=rank;
+    lastPoints=row.points;lastSupreme=row.supreme;lastSmartest=row.smartest;
+  });
+  return rows;
+}
+
+function renderPersonalTitleStats(data){
+  const rows=buildTitleRanking(data);
+  const me=rows.find(row=>String(row.player_name).toLowerCase()===String(playerName()).toLowerCase())||{smartest:0,supreme:0,points:0};
+  return `
+    <div class="title-summary">
+      <h3 class="center">MY TITLES</h3>
+      <div class="stat-grid">
+        <div class="stat-card"><strong>${me.smartest}</strong>Smartest wins</div>
+        <div class="stat-card"><strong>${me.supreme}</strong>Supreme wins</div>
+      </div>
+      <div class="stat-card" style="margin-top:10px"><strong>${me.points}</strong>Title Points</div>
+      <div class="title-points-note"><strong>HOW TITLE POINTS ARE CALCULATED</strong><br><br>Smartest BDL'er of the Week = <strong>1 point per win</strong><br>Supreme BDL'er of the Month = <strong>4 points per win</strong><br><br><strong>Total Title Points = Smartest wins + (Supreme wins × 4)</strong></div>
+    </div>`;
+}
+
+function renderTitleRanking(data){
+  const rows=buildTitleRanking(data).slice(0,20);
+  let body='';
+  if(!rows.length){
+    body='<div class="notice">No title winners are available yet.</div>';
+  }else{
+    body='<div class="leaderboard"><div class="title-leader-row header"><span>#</span><span>Player</span><span>Smartest</span><span>Supreme</span><span>Points</span></div>';
+    rows.forEach(row=>{
+      const me=String(row.player_name).toLowerCase()===String(playerName()).toLowerCase();
+      body+=`<div class="title-leader-row ${me?'me':''}"><strong>#${row.rank}</strong><span>${html(row.player_name)}</span><span>${row.smartest}</span><span>${row.supreme}</span><strong>${row.points}</strong></div>`;
+    });
+    body+='</div>';
+  }
+  return `<div style="margin-top:30px"><h3 class="center">TITLE RANKING — TOP 20</h3><div class="title-points-note">This is a separate title ranking and does not affect the general quiz ranking.</div>${body}</div>`;
+}
+
 /* MY STATISTICS */
 
 async function showMyStatistics(){
@@ -2149,6 +2241,8 @@ async function showMyStatistics(){
 
         </div>
 
+        ${renderPersonalTitleStats(data)}
+
         <div class="tabs">
 
           <button
@@ -2175,6 +2269,8 @@ async function showMyStatistics(){
         </div>
 
         <div id="rankingArea"></div>
+
+        ${renderTitleRanking(data)}
 
       </div>
 
