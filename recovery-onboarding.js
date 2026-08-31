@@ -304,3 +304,125 @@ showSupremeWallOfFame = async function(){
     page(`<div class="section history"><h2 class="center">SUPREME BDL'ER</h2><div class="notice">The Supreme Wall of Fame could not be loaded.</div></div>${back("showWallOfFameMenu")}`);
   }
 };
+
+/* Statistics are grouped consistently by week, month and all time. */
+function bdlTitleRowsForPeriod(data,type){
+  const history=data?.history||{};
+  const weekly=Array.isArray(history.weekly)?history.weekly:[];
+  const monthly=Array.isArray(history.monthly)?history.monthly:[];
+  let selectedWeekly=weekly;
+  let selectedMonthly=monthly;
+  if(type==="week"){
+    const start=currentWeekStart();
+    selectedWeekly=weekly.filter(row=>row.week_start===start);
+    selectedMonthly=[];
+  }else if(type==="month"){
+    const start=currentMonthStart();
+    selectedWeekly=weekly.filter(row=>String(row.week_start||"").slice(0,7)===start.slice(0,7));
+    selectedMonthly=monthly.filter(row=>row.month_start===start);
+  }
+  const players=new Map();
+  const add=(name,title)=>{
+    const clean=String(name||"").trim();
+    if(!clean)return;
+    const key=clean.toLowerCase();
+    if(!players.has(key))players.set(key,{player_name:clean,smartest:0,supreme:0,points:0});
+    const row=players.get(key);
+    if(title==="smartest")row.smartest++;
+    if(title==="supreme")row.supreme++;
+    row.points=row.smartest+(row.supreme*4);
+  };
+  selectedWeekly.forEach(row=>add(row.player_name,"smartest"));
+  selectedMonthly.forEach(row=>add(row.player_name,"supreme"));
+  const rows=[...players.values()].sort((a,b)=>b.points-a.points||b.supreme-a.supreme||b.smartest-a.smartest||a.player_name.localeCompare(b.player_name));
+  let rank=0,last=null;
+  rows.forEach((row,index)=>{
+    const key=`${row.points}|${row.supreme}|${row.smartest}`;
+    if(key!==last)rank=index+1;
+    row.rank=rank;
+    last=key;
+  });
+  return rows;
+}
+
+function bdlStatsBlock(data,type){
+  if(type==="all"){
+    const life=data?.lifetime||{};
+    return {played:life.played??0,correct:life.correct??0,incorrect:life.incorrect??Math.max(0,(life.played??0)-(life.correct??0)),accuracy:life.accuracy??0};
+  }
+  const period=data?.[type]||{};
+  const player=period.player||{};
+  const played=player.played??0;
+  const correct=player.correct??0;
+  return {played,correct,incorrect:player.incorrect??Math.max(0,played-correct),accuracy:player.accuracy??(played?Math.round((correct/played)*100):0)};
+}
+
+function bdlGeneralRows(data,type){
+  const block=type==="all"?(data?.top20||{}):(data?.[type]||{});
+  return Array.isArray(block.leaderboard)?block.leaderboard:[];
+}
+
+function bdlRenderGeneralTop20(data,type){
+  if(data?.ranking_access!==true){
+    return `<div class="notice">Your ranking information is private. Join the rankings in Personal Settings to see the Top 20.</div>`;
+  }
+  const rows=bdlGeneralRows(data,type).slice(0,20);
+  if(!rows.length)return `<div class="notice">No ranking data is available yet.</div>`;
+  const body=rows.map(row=>`<div class="leader-row ${String(row.player_name||"").toLowerCase()===String(playerName()).toLowerCase()?"me":""}"><strong>#${row.rank}</strong><span>${html(row.player_name)}</span><span>${row.correct??0} correct<br><small style="margin:0;text-align:right">${row.played??0} played</small></span></div>`).join("");
+  return `<div class="leaderboard">${body}</div>`;
+}
+
+function bdlRenderTitleTop20(data,type){
+  const rows=bdlTitleRowsForPeriod(data,type).slice(0,20);
+  if(!rows.length)return `<div class="notice">No title winners are available for this period yet.</div>`;
+  const header=`<div class="title-leader-row header"><span>#</span><span>Player</span><span>Smartest</span><span>Supreme</span><span>Points</span></div>`;
+  const body=rows.map(row=>`<div class="title-leader-row ${String(row.player_name).toLowerCase()===String(playerName()).toLowerCase()?"me":""}"><strong>#${row.rank}</strong><span>${html(row.player_name)}</span><span>${row.smartest}</span><span>${row.supreme}</span><strong>${row.points}</strong></div>`).join("");
+  return `<div class="leaderboard">${header}${body}</div>`;
+}
+
+function bdlRenderStatisticsPeriod(type){
+  if(!dashboardCache)return;
+  const data=dashboardCache;
+  const area=document.getElementById("bdlStatsPeriodArea");
+  if(!area)return;
+  ["week","month","all"].forEach(key=>document.getElementById(`bdlStatsTab-${key}`)?.classList.toggle("active",key===type));
+  const stats=bdlStatsBlock(data,type);
+  const titleRows=bdlTitleRowsForPeriod(data,type);
+  const me=titleRows.find(row=>String(row.player_name).toLowerCase()===String(playerName()).toLowerCase())||{smartest:0,supreme:0,points:0};
+  const label=type==="week"?"THIS WEEK":type==="month"?"THIS MONTH":"ALL TIME";
+  area.innerHTML=`
+    <h3 class="center" style="margin-top:18px">${label}</h3>
+    <div class="stat-grid">
+      <div class="stat-card"><strong>${stats.played}</strong>Played</div>
+      <div class="stat-card"><strong>${stats.correct}</strong>Correct</div>
+      <div class="stat-card"><strong>${stats.incorrect}</strong>Incorrect</div>
+      <div class="stat-card"><strong>${stats.accuracy}%</strong>Accuracy</div>
+    </div>
+    <div class="title-summary">
+      <h3 class="center">MY TITLES</h3>
+      <div class="stat-grid">
+        <div class="stat-card"><strong>${me.smartest}</strong>Smartest wins</div>
+        <div class="stat-card"><strong>${me.supreme}</strong>Supreme wins</div>
+      </div>
+      <div class="stat-card" style="margin-top:10px"><strong>${me.points}</strong>Title Points</div>
+      <div class="title-points-note"><strong>HOW TITLE POINTS ARE CALCULATED</strong><br><br>Smartest BDL'er of the Week = <strong>1 point per win</strong><br>Supreme BDL'er of the Month = <strong>4 points per win</strong><br><br><strong>Total Title Points = Smartest wins + (Supreme wins × 4)</strong></div>
+    </div>
+    <h3 class="center">QUIZ TOP 20 — ${label}</h3>
+    ${bdlRenderGeneralTop20(data,type)}
+    <h3 class="center" style="margin-top:28px">TITLE TOP 20 — ${label}</h3>
+    <div class="title-points-note">The Title Top 20 is separate from the general quiz ranking.</div>
+    ${bdlRenderTitleTop20(data,type)}
+  `;
+}
+
+showMyStatistics=async function(){
+  page(`<div class="loading">Loading your statistics...</div>`);
+  try{
+    const data=await loadDashboard();
+    dashboardCache=data;
+    page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="tabs" style="display:grid;grid-template-columns:1fr 1fr 1fr"><button id="bdlStatsTab-week" class="active" onclick="bdlRenderStatisticsPeriod('week')">THIS WEEK</button><button id="bdlStatsTab-month" onclick="bdlRenderStatisticsPeriod('month')">THIS MONTH</button><button id="bdlStatsTab-all" onclick="bdlRenderStatisticsPeriod('all')">ALL TIME</button></div><div id="bdlStatsPeriodArea"></div></div>${back("showMainMenu")}`);
+    bdlRenderStatisticsPeriod("week");
+  }catch(error){
+    page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="notice">Your statistics could not be loaded.</div></div>${back("showMainMenu")}`);
+  }
+};
