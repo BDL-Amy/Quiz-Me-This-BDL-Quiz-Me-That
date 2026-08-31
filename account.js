@@ -46,4 +46,12 @@ setTimeout(()=>{
   };
 },0);
 
+setTimeout(()=>{
+  if(document.getElementById("bdlStatsMenuScript"))return;
+  const s=document.createElement("script");
+  s.id="bdlStatsMenuScript";
+  s.src="stats-menu.js?v=20260831";
+  document.body.appendChild(s);
+},0);
+
 migrateLegacyAnswers();showStartScreen();
