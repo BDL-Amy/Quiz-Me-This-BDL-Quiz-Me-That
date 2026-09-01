@@ -308,6 +308,61 @@ button{
   text-align:center;
   font-weight:bold;
 }
+
+.winner-announcement{
+  position:relative;
+  overflow:hidden;
+  padding:28px 22px;
+  border-radius:22px;
+  text-align:center;
+}
+
+.winner-announcement.weekly-announcement{
+  color:#fff;
+  background:linear-gradient(145deg,#0b2d5b,#174f91);
+  border:4px solid var(--gold);
+  box-shadow:inset 0 0 0 2px #ffffff35;
+}
+
+.winner-announcement.monthly-announcement{
+  color:var(--champagne);
+  background:linear-gradient(145deg,#043d31,#08725a);
+  border:4px solid var(--copper);
+  box-shadow:inset 0 0 0 2px #f1dfbd45;
+}
+
+.winner-announcement .ceremony-mark{
+  font-size:42px;
+  line-height:1;
+  margin-bottom:14px;
+}
+
+.winner-announcement .announcement-label{
+  font-size:13px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+.winner-announcement h1{
+  margin:10px 0 18px;
+  font-size:27px;
+  line-height:1.15;
+}
+
+.winner-announcement .winner-name{
+  margin:12px 0;
+  font-size:38px;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+
+.winner-announcement button{
+  margin-top:20px;
+  background:#fff;
+  color:#111;
+  border-color:currentColor;
+  font-weight:bold;
+}
 </style>
 </head>
 
@@ -921,6 +976,20 @@ function currentMonthStart(){
 }
 
 
+function previousMonthStart(){
+
+  const d = effectiveDate();
+
+  return dateString(
+    new Date(
+      d.getFullYear(),
+      d.getMonth()-1,
+      1
+    )
+  );
+}
+
+
 /* PLAYER */
 
 function playerName(){
@@ -1286,8 +1355,165 @@ function saveNameAndContinue(){
 }
 
 
-function startQuiz(){
-  showMainMenu();
+let pendingWinnerAnnouncements = [];
+
+
+function winnerAnnouncementKey(type, period){
+  return [
+    "bdlWinnerAnnouncementSeen",
+    playerId(),
+    type,
+    period
+  ].join("_");
+}
+
+
+function shouldOfferWinnerAnnouncement(type, period){
+  return localStorage.getItem(
+    winnerAnnouncementKey(type, period)
+  ) !== "yes";
+}
+
+
+async function loadWinnerAnnouncements(){
+
+  const d = effectiveDate();
+  const announcements = [];
+
+  if(
+    d.getDay() === 1
+    && shouldOfferWinnerAnnouncement(
+      "weekly",
+      previousWeekStart()
+    )
+  ){
+    try{
+      const data = await api(
+        RESULTS_SERVICE,
+        {
+          action:"weekly_winner",
+          week_start:previousWeekStart()
+        }
+      );
+
+      if(data?.winner?.player_name){
+        announcements.push({
+          type:"weekly",
+          period:previousWeekStart(),
+          winner:data.winner
+        });
+      }
+    }catch(error){}
+  }
+
+  if(
+    d.getDate() === 1
+    && shouldOfferWinnerAnnouncement(
+      "monthly",
+      previousMonthStart()
+    )
+  ){
+    try{
+      const response = await fetch(
+        MONTHLY_WINNER_SERVICE,
+        {cache:"no-store"}
+      );
+      const data = await response.json().catch(()=>({}));
+
+      if(response.ok && data?.winner?.player_name){
+        announcements.push({
+          type:"monthly",
+          period:previousMonthStart(),
+          winner:data.winner
+        });
+      }
+    }catch(error){}
+  }
+
+  return announcements;
+}
+
+
+async function startQuiz(){
+
+  page(`
+    <div class="loading">
+      Loading...
+    </div>
+  `);
+
+  pendingWinnerAnnouncements =
+    await loadWinnerAnnouncements();
+
+  showNextWinnerAnnouncement();
+}
+
+
+function showNextWinnerAnnouncement(){
+
+  const announcement =
+    pendingWinnerAnnouncements.shift();
+
+  if(!announcement){
+    showMainMenu();
+    return;
+  }
+
+  const monthly =
+    announcement.type === "monthly";
+
+  page(`
+    <div class="winner-announcement ${
+      monthly
+      ? "monthly-announcement"
+      : "weekly-announcement"
+    }">
+      <div class="ceremony-mark">
+        ${monthly ? "✦" : "♛"}
+      </div>
+
+      <div class="announcement-label">
+        ${monthly ? "WE HONOR" : "CONGRATULATIONS"}
+      </div>
+
+      <h1>
+        ${
+          monthly
+          ? "THE SUPREME BDL’ER OF THE MONTH"
+          : "THE SMARTEST BDL’ER OF THE WEEK"
+        }
+      </h1>
+
+      <div class="winner-name">
+        ${html(announcement.winner.player_name)}
+      </div>
+
+      <p>
+        ${
+          monthly
+          ? "Welcome to The Supreme Order of BDL."
+          : "You are the smartest kid in town — at least till next Monday!"
+        }
+      </p>
+
+      <button onclick="continueWinnerAnnouncement('${
+        announcement.type
+      }','${announcement.period}')">
+        CONTINUE
+      </button>
+    </div>
+  `);
+}
+
+
+function continueWinnerAnnouncement(type, period){
+
+  localStorage.setItem(
+    winnerAnnouncementKey(type, period),
+    "yes"
+  );
+
+  showNextWinnerAnnouncement();
 }
 
 
