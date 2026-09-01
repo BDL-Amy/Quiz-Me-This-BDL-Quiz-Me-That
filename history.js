@@ -1,5 +1,46 @@
 /* BDL HISTORY + RANKINGS + QUIZ POLICY */
-loadDashboard=async function(){if(dashboardCache)return dashboardCache;dashboardCache=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});return dashboardCache};
+async function addCurrentTitleWinners(data){
+  data=data||{};
+  data.history=data.history||{};
+  data.history.weekly=Array.isArray(data.history.weekly)?data.history.weekly:[];
+  data.history.monthly=Array.isArray(data.history.monthly)?data.history.monthly:[];
+
+  const [weeklyResult,monthlyResult]=await Promise.allSettled([
+    api(RESULTS_SERVICE,{action:"weekly_winner",week_start:previousWeekStart()}),
+    fetch(MONTHLY_WINNER_SERVICE,{cache:"no-store"}).then(async response=>{
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(result.error||"Unable to load monthly winner.");
+      return result;
+    })
+  ]);
+
+  if(weeklyResult.status==="fulfilled"&&weeklyResult.value?.winner?.player_name){
+    const weekStart=weeklyResult.value.week_start||previousWeekStart();
+    if(!data.history.weekly.some(row=>row.week_start===weekStart)){
+      data.history.weekly.unshift({
+        ...weeklyResult.value.winner,
+        week_start:weekStart,
+        week_end:weeklyResult.value.week_end
+      });
+    }
+  }
+
+  if(monthlyResult.status==="fulfilled"&&monthlyResult.value?.winner?.player_name){
+    const winner=monthlyResult.value.winner;
+    if(!data.history.monthly.some(row=>row.month_start===winner.month_start)){
+      data.history.monthly.unshift(winner);
+    }
+  }
+
+  return data;
+}
+
+loadDashboard=async function(){
+  if(dashboardCache)return dashboardCache;
+  const data=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});
+  dashboardCache=await addCurrentTitleWinners(data);
+  return dashboardCache;
+};
 function historyDateForIndex(index){const d=new Date(2026,7,11);d.setDate(d.getDate()+index);return d}
 function historyDateLabel(d){return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
 function historyShortDate(d){return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"}).toUpperCase()}
