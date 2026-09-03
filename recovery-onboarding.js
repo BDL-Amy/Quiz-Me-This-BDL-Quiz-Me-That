@@ -179,7 +179,7 @@ showTodayQuestion = function(){
     page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><div class="notice">You already answered today's question.</div><h3>${html(q.question)}</h3>${answersHtml}<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[existing])}</div><p class="center">The correct answer will be revealed tomorrow.</p></div>${back("showQuizMenu")}`);
     return;
   }
-  page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><h3>${html(q.question)}</h3><div id="answerButtons">${answersHtml}</div><button id="submitButton" class="center" onclick="submitAnswer()" disabled>SUBMIT ANSWER</button></div>${back("showQuizMenu")}`);
+  page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><h3>${html(q.question)}</h3><div id="answerButtons">${answersHtml}</div><button id="submitButton" class="center" style="background:var(--quiz);border-color:var(--quiz);color:#111;font-weight:bold" onclick="submitAnswer()" disabled>SUBMIT ANSWER</button></div>${back("showQuizMenu")}`);
 };
 
 showThankYouPage = function(){
