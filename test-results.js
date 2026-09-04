@@ -63,8 +63,36 @@ async function loadTestResults(index){
       area.innerHTML='<div class="notice">No player has answered this question yet.</div>';
       return;
     }
+
+    const correct=rows.filter(r=>r.is_correct===true).length;
+    const incorrect=rows.filter(r=>r.is_correct===false).length;
+    const scored=correct+incorrect;
+    const correctPct=scored?Math.round(correct/scored*100):0;
+    const incorrectPct=scored?100-correctPct:0;
+
     area.innerHTML=`
       <div class="notice"><strong>${rows.length} ANSWER${rows.length===1?'':'S'}</strong></div>
+
+      <div class="settings-card" style="margin:10px 0 16px;text-align:left">
+        <h3 style="margin-bottom:12px">CORRECT / INCORRECT</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">
+          <div class="stat-card">
+            <strong>${correct}</strong>
+            Correct<br>
+            <small style="margin:5px 0 0">${correctPct}%</small>
+          </div>
+          <div class="stat-card">
+            <strong>${incorrect}</strong>
+            Incorrect<br>
+            <small style="margin:5px 0 0">${incorrectPct}%</small>
+          </div>
+        </div>
+        <div style="display:flex;width:100%;height:14px;border-radius:999px;overflow:hidden;margin-top:12px;background:#eee" aria-label="${correctPct}% correct, ${incorrectPct}% incorrect">
+          <div style="width:${correctPct}%;background:#267c78"></div>
+          <div style="width:${incorrectPct}%;background:#b42318"></div>
+        </div>
+      </div>
+
       ${rows.map(r=>{
         const answer=String(r.answer||'—');
         const mark=r.is_correct===true?'✓ CORRECT':r.is_correct===false?'✗ INCORRECT':'—';
