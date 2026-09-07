@@ -33,18 +33,19 @@
     if(!rows.length){
       body='<div class="notice">No title winners are available yet.</div>';
     }else{
-      body=`<div style="background:#fff;border:1px solid var(--stats-light);border-radius:14px;overflow:hidden;width:100%">
-        <div style="display:grid;grid-template-columns:34px minmax(92px,1fr) 68px 68px 74px;align-items:center;gap:2px;padding:10px 7px;background:var(--stats);color:#fff;font-size:10px;font-weight:bold;text-align:center">
-          <span>#</span><span style="text-align:left">PLAYER</span><span>SMARTEST</span><span>SUPREME</span><span>TOTAL<br>POINTS</span>
-        </div>`;
+      body='<div class="title-leaderboard">';
       rows.forEach(row=>{
         const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
-        body+=`<div style="display:grid;grid-template-columns:34px minmax(92px,1fr) 68px 68px 74px;align-items:center;gap:2px;padding:12px 7px;border-top:1px solid #eee;${me?'background:var(--stats-light);':''}text-align:center">
-          <strong style="color:var(--stats)">#${row.rank}</strong>
-          <strong style="text-align:left;overflow-wrap:anywhere">${html(row.player_name)}</strong>
-          <span>${row.smartest}</span>
-          <span>${row.supreme}</span>
-          <strong style="color:var(--stats);font-size:18px">${row.points}</strong>
+        body+=`<div class="title-leader-card ${me?'me':''}">
+          <div class="title-leader-head">
+            <strong class="title-leader-rank">#${row.rank}</strong>
+            <span class="title-leader-name">${html(row.player_name)}</span>
+          </div>
+          <div class="title-leader-stats">
+            <div class="title-leader-stat"><span>Smartest wins</span><strong>${row.smartest}</strong></div>
+            <div class="title-leader-stat"><span>Supreme wins</span><strong>${row.supreme}</strong></div>
+            <div class="title-leader-stat"><span>Title Points</span><strong>${row.points}</strong></div>
+          </div>
         </div>`;
       });
       body+='</div>';
@@ -73,11 +74,11 @@
   window.showStatisticsPeriod=async function(type){
     try{
       const data=await getStatsDashboard();
-      let title='THIS WEEK',stats=data?.week?.player||{},ranking=data?.week,topTitle='TOP 20 — THIS WEEK';
+      let title='THIS WEEK',stats=data?.week?.player||{},ranking=data?.week,topTitle='QUIZ TOP 20 — THIS WEEK';
       if(type==='month'){
-        title='THIS MONTH';stats=data?.month?.player||{};ranking=data?.month;topTitle='TOP 20 — THIS MONTH';
+        title='THIS MONTH';stats=data?.month?.player||{};ranking=data?.month;topTitle='QUIZ TOP 20 — THIS MONTH';
       }else if(type==='all'){
-        title='ALL TIME';stats=data?.lifetime||{};ranking=data?.top20;topTitle='TOP 20 — ALL TIME';
+        title='ALL TIME';stats=data?.lifetime||{};ranking=data?.top20;topTitle='QUIZ TOP 20 — ALL TIME';
       }
       const rankingHtml=data?.ranking_access===true?statsLeaderboard(ranking,topTitle):`<h3 class="center">${topTitle}</h3><div class="notice">Your results are private. Join the rankings in Personal Settings to view the Top 20.</div>`;
       page(`<div class="section stats"><h2 class="center">${title}</h2>${statsCards(stats)}${statsTimingNote()}<div style="margin-top:24px">${rankingHtml}</div></div>${back('showMyStatistics')}`);
