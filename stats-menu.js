@@ -28,24 +28,24 @@
   }
 
   function titleTop20(data){
-    const allRows=buildTitleRanking(data);
-    const rows=allRows.slice(0,20);
-    const totalPlayers=allRows.length;
+    const rows=buildTitleRanking(data).slice(0,20);
     let body='';
     if(!rows.length){
       body='<div class="notice">No title winners are available yet.</div>';
     }else{
-      body=`<div style="background:#fff;border:1px solid var(--stats-light);border-radius:14px;overflow:hidden">
-        <div style="display:grid;grid-template-columns:34px minmax(90px,1fr) 64px 64px 58px;align-items:center;gap:4px;padding:10px 8px;background:var(--stats);color:#fff;font-size:11px;font-weight:bold;text-align:center">
-          <span>#</span><span style="text-align:left">PLAYER</span><span>SMARTEST</span><span>SUPREME</span><span>POINTS</span>
+      body=`<div style="background:#fff;border:1px solid var(--stats-light);border-radius:14px;overflow:hidden;min-width:500px">
+        <div style="display:grid;grid-template-columns:34px minmax(105px,1fr) 64px 64px 54px 58px;align-items:center;gap:4px;padding:10px 8px;background:var(--stats);color:#fff;font-size:10px;font-weight:bold;text-align:center">
+          <span>#</span><span style="text-align:left">PLAYER</span><span>SMARTEST</span><span>SUPREME</span><span>TOTAL</span><span>POINTS</span>
         </div>`;
       rows.forEach(row=>{
         const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
-        body+=`<div style="display:grid;grid-template-columns:34px minmax(90px,1fr) 64px 64px 58px;align-items:center;gap:4px;padding:12px 8px;border-top:1px solid #eee;${me?'background:var(--stats-light);':''}text-align:center">
+        const total=(row.smartest??0)+(row.supreme??0);
+        body+=`<div style="display:grid;grid-template-columns:34px minmax(105px,1fr) 64px 64px 54px 58px;align-items:center;gap:4px;padding:12px 8px;border-top:1px solid #eee;${me?'background:var(--stats-light);':''}text-align:center">
           <strong style="color:var(--stats)">#${row.rank}</strong>
           <strong style="text-align:left;overflow-wrap:anywhere">${html(row.player_name)}</strong>
           <span>${row.smartest}</span>
           <span>${row.supreme}</span>
+          <strong>${total}</strong>
           <strong style="color:var(--stats);font-size:18px">${row.points}</strong>
         </div>`;
       });
@@ -54,7 +54,6 @@
     return `<div class="section stats" style="margin-top:18px">
       <h2 class="center">TITLE TOP 20 — ALL TIME</h2>
       <div class="notice" style="border:1px solid var(--stats-light)">The Title Top 20 is separate from the general quiz ranking.</div>
-      <div class="notice" style="border:1px solid var(--stats-light);font-weight:bold">TOTAL: ${totalPlayers} ${totalPlayers===1?'PLAYER':'PLAYERS'}</div>
       <div style="overflow-x:auto">${body}</div>
     </div>`;
   }
