@@ -27,6 +27,35 @@
     return `<h3 class="center">${title}</h3>${body}`;
   }
 
+  function titleTop20(data){
+    const rows=buildTitleRanking(data).slice(0,20);
+    let body='';
+    if(!rows.length){
+      body='<div class="notice">No title winners are available yet.</div>';
+    }else{
+      body=`<div style="background:#fff;border:1px solid var(--stats-light);border-radius:14px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:34px minmax(90px,1fr) 64px 64px 58px;align-items:center;gap:4px;padding:10px 8px;background:var(--stats);color:#fff;font-size:11px;font-weight:bold;text-align:center">
+          <span>#</span><span style="text-align:left">PLAYER</span><span>SMARTEST</span><span>SUPREME</span><span>POINTS</span>
+        </div>`;
+      rows.forEach(row=>{
+        const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
+        body+=`<div style="display:grid;grid-template-columns:34px minmax(90px,1fr) 64px 64px 58px;align-items:center;gap:4px;padding:12px 8px;border-top:1px solid #eee;${me?'background:var(--stats-light);':''}text-align:center">
+          <strong style="color:var(--stats)">#${row.rank}</strong>
+          <strong style="text-align:left;overflow-wrap:anywhere">${html(row.player_name)}</strong>
+          <span>${row.smartest}</span>
+          <span>${row.supreme}</span>
+          <strong style="color:var(--stats);font-size:18px">${row.points}</strong>
+        </div>`;
+      });
+      body+='</div>';
+    }
+    return `<div class="section stats" style="margin-top:18px">
+      <h2 class="center">TITLE TOP 20 — ALL TIME</h2>
+      <div class="notice" style="border:1px solid var(--stats-light)">The Title Top 20 is separate from the general quiz ranking.</div>
+      <div style="overflow-x:auto">${body}</div>
+    </div>`;
+  }
+
   async function getStatsDashboard(){
     page('<div class="loading">Loading your statistics...</div>');
     return await loadDashboard();
@@ -61,8 +90,8 @@
     try{
       const data=await getStatsDashboard();
       const personal=renderPersonalTitleStats(data);
-      const ranking=data?.ranking_access===true?renderTitleRanking(data):'<div class="notice">Your results are private. Join the rankings in Personal Settings to view the Title Top 20.</div>';
-      page(`<div class="section stats"><h2 class="center">MY TITLES</h2>${personal}${ranking}</div>${back('showMyStatistics')}`);
+      const ranking=data?.ranking_access===true?titleTop20(data):`<div class="section stats" style="margin-top:18px"><h2 class="center">TITLE TOP 20 — ALL TIME</h2><div class="notice">Your results are private. Join the rankings in Personal Settings to view the Title Top 20.</div></div>`;
+      page(`<div class="section stats" style="background:var(--stats-bg);border:2px solid var(--stats-light);border-top:7px solid var(--stats)">${personal}</div>${ranking}${back('showMyStatistics')}`);
     }catch(e){
       page(`<div class="section stats"><h2 class="center">MY TITLES</h2><div class="notice">Your title statistics could not be loaded.</div></div>${back('showMyStatistics')}`);
     }
