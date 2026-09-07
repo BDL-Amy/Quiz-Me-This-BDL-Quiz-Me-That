@@ -1,4 +1,4 @@
-/* BDL PWA UPDATE 2026-09-07 — force installed apps to refresh */
+/* BDL PWA UPDATE 2026-09-07B — force installed apps to refresh */
 self.addEventListener("install", event => {
   self.skipWaiting();
 });
@@ -34,7 +34,7 @@ self.addEventListener("fetch", event => {
 
   if (url.pathname.endsWith("/stats-menu.js")) {
     const freshUrl = new URL(url.href);
-    freshUrl.searchParams.set("v", "20260907");
+    freshUrl.searchParams.set("v", "20260907b");
 
     event.respondWith(
       fetch(freshUrl.href, { cache: "no-store" })
