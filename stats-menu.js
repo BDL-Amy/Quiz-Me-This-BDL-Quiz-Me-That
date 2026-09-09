@@ -28,7 +28,9 @@
   }
 
   function titleTop20(data){
-    const rows=buildTitleRanking(data).slice(0,20);
+    const allRows=buildTitleRanking(data);
+    const rows=allRows.slice(0,20);
+    const totalPlayers=allRows.length;
     let body='';
     if(!rows.length){
       body='<div class="notice">No title winners are available yet.</div>';
@@ -53,6 +55,7 @@
     return `<div class="section stats" style="margin-top:18px">
       <h2 class="center">TITLE TOP 20 — ALL TIME</h2>
       <div class="notice" style="border:1px solid var(--stats-light)">The Title Top 20 is separate from the general quiz ranking.</div>
+      <div class="notice" style="border:1px solid var(--stats-light);font-weight:bold">TOTAL: ${totalPlayers} ${totalPlayers===1?'PLAYER':'PLAYERS'}</div>
       ${body}
     </div>`;
   }
