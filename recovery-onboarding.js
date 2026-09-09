@@ -420,18 +420,6 @@ function bdlRenderStatisticsPeriod(type){
   `;
 }
 
-showMyStatistics=async function(){
-  page(`<div class="loading">Loading your statistics...</div>`);
-  try{
-    const data=await loadDashboard();
-    dashboardCache=data;
-    page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="tabs" style="display:grid;grid-template-columns:1fr 1fr 1fr"><button id="bdlStatsTab-week" class="active" onclick="bdlRenderStatisticsPeriod('week')">THIS WEEK</button><button id="bdlStatsTab-month" onclick="bdlRenderStatisticsPeriod('month')">THIS MONTH</button><button id="bdlStatsTab-all" onclick="bdlRenderStatisticsPeriod('all')">ALL TIME</button></div><div id="bdlStatsPeriodArea"></div></div>${back("showMainMenu")}`);
-    bdlRenderStatisticsPeriod("week");
-  }catch(error){
-    page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="notice">Your statistics could not be loaded.</div></div>${back("showMainMenu")}`);
-  }
-};
-
 /* TEST STATISTICS PERIOD VIEW */
 function bdlTestGeneralTop20(data,type){
   const block=type==="all"?(data?.top20||{}):(data?.[type]||{});
