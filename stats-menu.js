@@ -69,7 +69,7 @@
     page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="menu">
       <button onclick="showStatisticsPeriod('week')" style="border-color:var(--stats);font-weight:bold">THIS WEEK</button>
       <button onclick="showStatisticsPeriod('month')" style="border-color:var(--stats);font-weight:bold">THIS MONTH</button>
-      <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">ALL TIME</button>
+      <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">TOP 20 ALL TIME</button>
       <button onclick="showMyTitles()" style="border-color:var(--stats);font-weight:bold">MY TITLES</button>
     </div></div>${back('showMainMenu')}`);
   };
