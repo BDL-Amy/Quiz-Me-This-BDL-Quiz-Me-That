@@ -474,8 +474,8 @@ showTestStatistics=async function(){
   }
 };
 
-/* POLICY UPDATE NOTICE 2026-08-31 */
-const BDL_POLICY_NOTICE_VERSION="2026-08-31-statistics-rankings";
+/* POLICY UPDATE NOTICE 2026-09-10 */
+const BDL_POLICY_NOTICE_VERSION="2026-09-10-question-neutralisation";
 const BDL_POLICY_NOTICE_KEY=`bdlPolicyNoticeSeen:${BDL_POLICY_NOTICE_VERSION}`;
 
 function bdlClosePolicyUpdateNotice(markSeen=true){
@@ -502,13 +502,13 @@ function bdlShowPolicyUpdateNotice(){
   overlay.innerHTML=`
     <div style="width:min(520px,100%);max-height:88vh;overflow:auto;background:#fff;color:#111;border:3px solid #111;border-radius:18px;padding:22px;box-sizing:border-box;box-shadow:0 18px 60px rgba(0,0,0,.35)">
       <h2 id="bdlPolicyUpdateTitle" class="center" style="margin-top:0">POLICY UPDATED</h2>
-      <p class="center"><strong>31 AUGUST 2026</strong></p>
+      <p class="center"><strong>10 SEPTEMBER 2026</strong></p>
       <div class="notice" style="text-align:left">
-        Our Quiz Policy has been updated to explain the new Statistics & Rankings system more clearly.
+        Our Quiz Policy has been updated with new rules about fairness and question neutralisation.
       </div>
       <p style="text-align:left"><strong>What changed?</strong></p>
-      <p style="text-align:left">The policy now explains This Week, This Month and All Time statistics, the Quiz Top 20 rankings, Title Points, the All-Time Title Top 20, ranking privacy, and read-only test/admin access.</p>
-      <p style="text-align:left">Your ranking privacy choice still does <strong>not</strong> affect your chances of becoming a weekly or monthly winner.</p>
+      <p style="text-align:left">The policy now explains when a question may be neutralised, that a poll is first held in the BDL WhatsApp group when neutralisation for everyone is being considered, what happens to scores when a question is neutralised, and how individual circumstances such as colour blindness can be handled privately during the day the question is running.</p>
+      <p style="text-align:left">Please read the updated <strong>Fair Play & Question Neutralisation</strong> section for the full rules.</p>
       <div class="menu" style="margin-top:18px">
         <button class="settings-button" onclick="bdlOpenUpdatedPolicy()">READ UPDATED POLICY</button>
         <button onclick="bdlClosePolicyUpdateNotice(true)">CONTINUE</button>
