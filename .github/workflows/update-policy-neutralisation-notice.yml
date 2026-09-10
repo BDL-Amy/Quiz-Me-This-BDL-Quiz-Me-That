@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '.policy-neutralisation-trigger'
 
 permissions:
   contents: write
 
 jobs:
-  update-notice:
+  update-policy-notice:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,26 +18,33 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('recovery-onboarding.js')
-          s=p.read_text(encoding='utf-8')
-          old='''/* POLICY UPDATE NOTICE 2026-08-31 */
-const BDL_POLICY_NOTICE_VERSION="2026-08-31-statistics-rankings";'''
-          new='''/* POLICY UPDATE NOTICE 2026-09-10 */
-const BDL_POLICY_NOTICE_VERSION="2026-09-10-question-neutralisation";'''
-          if old not in s:
-              raise SystemExit('Policy notice version marker not found')
-          s=s.replace(old,new,1)
-          s=s.replace('<p class="center"><strong>31 AUGUST 2026</strong></p>','<p class="center"><strong>10 SEPTEMBER 2026</strong></p>',1)
-          s=s.replace('Our Quiz Policy has been updated to explain the new Statistics & Rankings system more clearly.','Our Quiz Policy has been updated with new rules about fairness and question neutralisation.',1)
-          s=s.replace('The policy now explains This Week, This Month and All Time statistics, the Quiz Top 20 rankings, Title Points, the All-Time Title Top 20, ranking privacy, and read-only test/admin access.','The policy now explains when a question may be neutralised, that a poll is first held in the BDL WhatsApp group when neutralisation for everyone is being considered, what happens to scores when a question is neutralised, and how individual circumstances such as colour blindness can be handled privately during the day the question is running.',1)
-          s=s.replace('Your ranking privacy choice still does <strong>not</strong> affect your chances of becoming a weekly or monthly winner.','Please read the updated <strong>Fair Play & Question Neutralisation</strong> section for the full rules.',1)
-          p.write_text(s,encoding='utf-8')
+          p = Path("recovery-onboarding.js")
+          s = p.read_text(encoding="utf-8")
+          replacements = {
+              '/* POLICY UPDATE NOTICE 2026-08-31 */': '/* POLICY UPDATE NOTICE 2026-09-10 */',
+              'const BDL_POLICY_NOTICE_VERSION="2026-08-31-statistics-rankings";': 'const BDL_POLICY_NOTICE_VERSION="2026-09-10-question-neutralisation";',
+              '<p class="center"><strong>31 AUGUST 2026</strong></p>': '<p class="center"><strong>10 SEPTEMBER 2026</strong></p>',
+              'Our Quiz Policy has been updated to explain the new Statistics & Rankings system more clearly.': 'Our Quiz Policy has been updated with new rules about fairness and question neutralisation.',
+              'The policy now explains This Week, This Month and All Time statistics, the Quiz Top 20 rankings, Title Points, the All-Time Title Top 20, ranking privacy, and read-only test/admin access.': 'The policy now explains when a question may be neutralised, that a poll is first held in the BDL WhatsApp group when neutralisation for everyone is being considered, what happens to scores when a question is neutralised, and how individual circumstances such as colour blindness can be handled privately during the day the question is running.',
+              'Your ranking privacy choice still does <strong>not</strong> affect your chances of becoming a weekly or monthly winner.': 'Please read the updated <strong>Fair Play & Question Neutralisation</strong> section for the full rules.'
+          }
+          changed = False
+          for old, new in replacements.items():
+              if old in s:
+                  s = s.replace(old, new, 1)
+                  changed = True
+          if not changed:
+              raise SystemExit("No policy notice text was updated")
+          p.write_text(s, encoding="utf-8")
           PY
-      - name: Commit update
+      - name: Commit changes
         shell: bash
         run: |
+          if git diff --quiet -- recovery-onboarding.js; then
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add recovery-onboarding.js
-          git commit -m "Show mandatory policy neutralisation update notice"
+          git commit -m "Show mandatory policy update notice"
           git push
