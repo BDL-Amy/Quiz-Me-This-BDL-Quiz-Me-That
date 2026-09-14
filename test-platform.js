@@ -70,21 +70,41 @@ if(typeof MutationObserver !== "undefined"){
 
 document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
 
+/* SECURITY / MIGRATION GUARD
+   The old inline question list may still exist in index.html for historical
+   compatibility, but it is no longer allowed to supply today's or any future
+   player-facing question. Remove current/future local entries immediately,
+   before the secure request completes. This prevents a stale cached question
+   from briefly appearing or being answered. */
+const SECURE_CURRENT_INDEX =
+  typeof quizDay === "function"
+    ? Math.max(0,quizDay())
+    : 0;
+
+if(typeof questions !== "undefined" && Array.isArray(questions)){
+  const historicalOnly = questions.slice(0,SECURE_CURRENT_INDEX);
+  questions.splice(0,questions.length,...historicalOnly);
+
+  /* If an old local question was already rendered, replace that screen now.
+     Until Supabase returns today's question, unavailable is safer than wrong. */
+  if(typeof showStartScreen === "function"){
+    showStartScreen();
+  }
+}
+
 (async function loadSecureQuizQuestions(){
   try{
-    const currentIndex =
-      typeof quizDay === "function"
-        ? Math.max(0,quizDay())
-        : 0;
+    const currentIndex = SECURE_CURRENT_INDEX;
 
-    /* Keep only questions that are already over from the old local list.
-       This makes the historical quiz keep working during the migration. */
+    /* Historical local data is only a temporary fallback while the public
+       archive is fetched. Current and future local questions were removed
+       synchronously above and can never become authoritative. */
     const merged =
       typeof questions !== "undefined" && Array.isArray(questions)
         ? questions.slice(0,currentIndex)
         : [];
 
-    /* Merge anything that has already expired in the private question bank. */
+    /* Merge expired questions that still remain in the private bank. */
     try{
       const archiveData = await api(
         QUESTION_SERVICE,
@@ -94,7 +114,7 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
       if(archiveData && Array.isArray(archiveData.archive)){
         archiveData.archive.forEach(q=>{
           const i = Number(q.question_num) - FIRST_QUESTION_NUMBER;
-          if(i >= 0){
+          if(i >= 0 && i < currentIndex){
             merged[i] = {
               question:q.question,
               answers:q.answers,
@@ -107,7 +127,7 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
       console.error("Could not load expired private questions:",error);
     }
 
-    /* A public GitHub archive can override historical entries when present. */
+    /* The GitHub archive is authoritative for completed questions. */
     try{
       const archiveUrl =
         "https://raw.githubusercontent.com/BDL-Amy/Quiz-Me-This-BDL-Quiz-Me-That/quiz-questions/questions.json?ts="
@@ -118,7 +138,7 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
         const publicArchive = await response.json();
         if(Array.isArray(publicArchive)){
           publicArchive.forEach((q,i)=>{
-            if(q && q.question){
+            if(i < currentIndex && q && q.question && Array.isArray(q.answers)){
               merged[i] = q;
             }
           });
@@ -128,7 +148,7 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
       console.error("Could not load public question archive:",error);
     }
 
-    /* Load today's question without the correct answer. */
+    /* Today's question comes only from Supabase and never contains correct_index. */
     const currentData = await api(
       QUESTION_SERVICE,
       {action:"get_current_question"}
@@ -138,11 +158,17 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
       const q = currentData.question;
       const i = Number(q.question_num) - FIRST_QUESTION_NUMBER;
 
-      if(i >= 0){
+      if(i === currentIndex){
         merged[i] = {
           question:q.question,
           answers:q.answers
         };
+      }else{
+        console.error(
+          "Secure question number/date mismatch; refusing to display stale question.",
+          q.question_num,
+          currentIndex + FIRST_QUESTION_NUMBER
+        );
       }
     }
 
@@ -155,8 +181,13 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
     }
   }catch(error){
     console.error("Could not load secure quiz questions:",error);
+
+    /* Never restore an inline current/future question when secure loading fails. */
+    if(typeof questions !== "undefined" && Array.isArray(questions)){
+      questions.splice(SECURE_CURRENT_INDEX);
+    }
   }
 })();
 
-document.write('<script src="test-platform-core.js?v=20260904"><\/script>');
-document.write('<script src="test-results.js?v=20260904"><\/script>');
+document.write('<script src="test-platform-core.js?v=20260914-secure2"><\/script>');
+document.write('<script src="test-results.js?v=20260914-secure2"><\/script>');
