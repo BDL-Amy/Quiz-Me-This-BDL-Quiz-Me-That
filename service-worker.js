@@ -34,7 +34,7 @@ self.addEventListener("fetch", event => {
 
   if (url.pathname.endsWith("/stats-menu.js")) {
     const freshUrl = new URL(url.href);
-    freshUrl.searchParams.set("v", "20260914a");
+    freshUrl.searchParams.set("v", "20260914b");
 
     event.respondWith(
       fetch(freshUrl.href, { cache: "no-store" })
