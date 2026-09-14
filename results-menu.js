@@ -44,8 +44,8 @@
             <span class="title-leader-name">${html(row.player_name)}</span>
           </div>
           <div class="title-leader-stats">
-            <div class="title-leader-stat"><span>Smartest wins</span><strong>${row.smartest}</strong></div>
-            <div class="title-leader-stat"><span>Supreme wins</span><strong>${row.supreme}</strong></div>
+            <div class="title-leader-stat weekly-accent"><span>Smartest wins</span><strong>${row.smartest}</strong></div>
+            <div class="title-leader-stat supreme-accent"><span>Supreme wins</span><strong>${row.supreme}</strong></div>
             <div class="title-leader-stat"><span>Title Points</span><strong>${row.points}</strong></div>
           </div>
         </div>`;
@@ -92,8 +92,8 @@
         </div>
         <div class="title-leader-stats" style="border-top:1px solid #eee">
           <div class="title-leader-stat"><span>Title Points</span><strong>${grandmasterNumber(row.title_points_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat"><span>Supreme</span><strong>${grandmasterNumber(row.supreme_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat"><span>Weekly</span><strong>${grandmasterNumber(row.weekly_score).toFixed(2)}</strong></div>
+          <div class="title-leader-stat supreme-accent"><span>Supreme</span><strong>${grandmasterNumber(row.supreme_score).toFixed(2)}</strong></div>
+          <div class="title-leader-stat weekly-accent"><span>Weekly</span><strong>${grandmasterNumber(row.weekly_score).toFixed(2)}</strong></div>
         </div>
       </div>`;
     });
@@ -116,8 +116,8 @@
         <div class="stat-card"><strong>${grandmasterScore(player.participation_score,25)}</strong>Participation</div>
         <div class="stat-card"><strong>${grandmasterScore(player.accuracy_score,15)}</strong>Accuracy</div>
         <div class="stat-card"><strong>${grandmasterScore(player.title_points_score,10)}</strong>Total Title Points</div>
-        <div class="stat-card"><strong>${grandmasterScore(player.supreme_score,4)}</strong>Supreme Title Points</div>
-        <div class="stat-card"><strong>${grandmasterScore(player.weekly_score,1)}</strong>Weekly Title Points</div>
+        <div class="stat-card supreme-accent"><strong>${grandmasterScore(player.supreme_score,4)}</strong>Supreme Title Points</div>
+        <div class="stat-card weekly-accent"><strong>${grandmasterScore(player.weekly_score,1)}</strong>Weekly Title Points</div>
       </div>
       <div class="title-points-note" style="text-align:left">
         <strong>YOUR YEAR SO FAR</strong><br><br>
@@ -133,8 +133,8 @@
         <div class="title-point-rule"><span>Participation</span><strong>25%</strong></div>
         <div class="title-point-rule"><span>Accuracy</span><strong>15%</strong></div>
         <div class="title-point-rule"><span>Total Title Points</span><strong>10%</strong></div>
-        <div class="title-point-rule"><span>Supreme Title Points</span><strong>4%</strong></div>
-        <div class="title-point-rule"><span>Weekly Title Points</span><strong>1%</strong></div>
+        <div class="title-point-rule supreme-accent"><span>Supreme Title Points</span><strong>4%</strong></div>
+        <div class="title-point-rule weekly-accent"><span>Weekly Title Points</span><strong>1%</strong></div>
         <div class="title-point-total"><span>TOTAL</span><strong>100%</strong></div>
       </div>
     </div>`;

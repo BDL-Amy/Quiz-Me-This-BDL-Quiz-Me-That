@@ -15,6 +15,14 @@
   --grandmaster:#9b111e;
   --grandmaster-light:#e3abb1;
   --grandmaster-bg:#fff4f5;
+  --weekly:#4169e1;
+  --weekly-dark:#2748b3;
+  --weekly-light:#dce4ff;
+  --weekly-bg:#f3f6ff;
+  --supreme:#009b77;
+  --supreme-dark:#006b52;
+  --supreme-light:#ccefe6;
+  --supreme-bg:#f1fbf8;
   --quiz:#f3a712;
   --quiz-bg:#fff4d7;
   --history:#7b263d;
@@ -32,6 +40,16 @@
   --stats:var(--grandmaster);
   --stats-light:var(--grandmaster-light);
   --stats-bg:var(--grandmaster-bg);
+}
+
+.weekly-theme{
+  background:var(--weekly-bg);
+  border-top:7px solid var(--weekly);
+}
+
+.supreme-theme{
+  background:var(--supreme-bg);
+  border-top:7px solid var(--supreme);
 }
 
 *{box-sizing:border-box}
@@ -123,13 +141,15 @@ button{
 }
 
 .quiz-menu .weekly{
-  border-color:var(--blue);
-  border-left-color:var(--gold);
+  border-color:var(--weekly);
+  border-left-color:var(--weekly);
+  color:var(--weekly);
 }
 
 .quiz-menu .supreme{
-  border-color:var(--green);
-  border-left-color:var(--copper);
+  border-color:var(--supreme);
+  border-left-color:var(--supreme);
+  color:var(--supreme);
 }
 
 .quiz-menu .grandmaster{
@@ -162,6 +182,28 @@ button{
   display:block;
   color:var(--stats);
   font-size:25px;
+}
+
+.stat-card.weekly-accent{
+  background:var(--weekly-bg);
+  border:2px solid var(--weekly);
+}
+
+.stat-card.weekly-accent strong,
+.title-leader-stat.weekly-accent strong,
+.title-point-rule.weekly-accent strong{
+  color:var(--weekly);
+}
+
+.stat-card.supreme-accent{
+  background:var(--supreme-bg);
+  border:2px solid var(--supreme);
+}
+
+.stat-card.supreme-accent strong,
+.title-leader-stat.supreme-accent strong,
+.title-point-rule.supreme-accent strong{
+  color:var(--supreme);
 }
 
 .tabs{
@@ -340,13 +382,13 @@ button{
 }
 
 .wall-card.week{
-  border:2px solid var(--gold);
-  background:#eef5ff;
+  border:2px solid var(--weekly);
+  background:var(--weekly-bg);
 }
 
 .wall-card.month{
-  border:2px solid var(--copper);
-  background:#eef8f4;
+  border:2px solid var(--supreme);
+  background:var(--supreme-bg);
 }
 
 .wall-card.grandmaster{
@@ -355,25 +397,25 @@ button{
 }
 
 .weekly-holder{
-  background:var(--blue);
+  background:var(--weekly);
   color:#fff;
-  border:4px solid var(--gold);
+  border:4px solid var(--weekly-dark);
   border-radius:20px;
   padding:30px 20px;
   text-align:center;
 }
 
 .weekly-holder .name{
-  color:var(--gold);
+  color:#fff;
   font-size:34px;
   font-weight:bold;
   margin:20px 0;
 }
 
 .supreme-holder{
-  background:var(--green);
-  color:var(--champagne);
-  border:4px solid var(--copper);
+  background:var(--supreme);
+  color:#fff;
+  border:4px solid var(--supreme-dark);
   border-radius:20px;
   padding:32px 20px;
   text-align:center;
@@ -430,16 +472,16 @@ button{
 
 .winner-announcement.weekly-announcement{
   color:#fff;
-  background:linear-gradient(145deg,#0b2d5b,#174f91);
-  border:4px solid var(--gold);
+  background:linear-gradient(145deg,var(--weekly-dark),var(--weekly));
+  border:4px solid var(--weekly);
   box-shadow:inset 0 0 0 2px #ffffff35;
 }
 
 .winner-announcement.monthly-announcement{
-  color:var(--champagne);
-  background:linear-gradient(145deg,#043d31,#08725a);
-  border:4px solid var(--copper);
-  box-shadow:inset 0 0 0 2px #f1dfbd45;
+  color:#fff;
+  background:linear-gradient(145deg,var(--supreme-dark),var(--supreme));
+  border:4px solid var(--supreme);
+  box-shadow:inset 0 0 0 2px #ffffff35;
 }
 
 .winner-announcement .ceremony-mark{
@@ -2496,14 +2538,14 @@ function renderPersonalTitleStats(data){
     <div class="title-summary">
       <h3 class="center">MY TITLES</h3>
       <div class="stat-grid">
-        <div class="stat-card"><strong>${me.smartest}</strong>Smartest wins</div>
-        <div class="stat-card"><strong>${me.supreme}</strong>Supreme wins</div>
+        <div class="stat-card weekly-accent"><strong>${me.smartest}</strong>Smartest wins</div>
+        <div class="stat-card supreme-accent"><strong>${me.supreme}</strong>Supreme wins</div>
       </div>
       <div class="stat-card" style="margin-top:10px"><strong>${me.points}</strong>Title Points</div>
       <div class="title-points-note title-points-calculation">
         <h3>HOW TITLE POINTS ARE CALCULATED</h3>
-        <div class="title-point-rule"><span>Smartest BDL'er of the Week</span><strong>1 point</strong></div>
-        <div class="title-point-rule"><span>Supreme BDL'er of the Month</span><strong>4 points</strong></div>
+        <div class="title-point-rule weekly-accent"><span>Smartest BDL'er of the Week</span><strong>1 point</strong></div>
+        <div class="title-point-rule supreme-accent"><span>Supreme BDL'er of the Month</span><strong>4 points</strong></div>
         <div class="title-point-total"><span>TOTAL TITLE POINTS</span><strong>Smartest wins + (Supreme wins × 4)</strong></div>
       </div>
     </div>`;
@@ -2524,8 +2566,8 @@ function renderTitleRanking(data){
           <span class="title-leader-name">${html(row.player_name)}</span>
         </div>
         <div class="title-leader-stats">
-          <div class="title-leader-stat"><span>Smartest</span><strong>${row.smartest}</strong></div>
-          <div class="title-leader-stat"><span>Supreme</span><strong>${row.supreme}</strong></div>
+          <div class="title-leader-stat weekly-accent"><span>Smartest</span><strong>${row.smartest}</strong></div>
+          <div class="title-leader-stat supreme-accent"><span>Supreme</span><strong>${row.supreme}</strong></div>
           <div class="title-leader-stat"><span>Points</span><strong>${row.points}</strong></div>
         </div>
       </div>`;
@@ -3413,9 +3455,9 @@ showStartScreen();
 
 </script>
 <script src="account.js?v=20260909c"></script>
-<script src="history.js?v=20260914b"></script>
+<script src="history.js?v=20260914c"></script>
 <script src="test-platform.js"></script>
 <script src="recovery-onboarding.js?v=20260909"></script>
-<script id="bdlStatsMenuScript" src="results-menu.js?v=20260914c"></script>
+<script id="bdlStatsMenuScript" src="results-menu.js?v=20260914d"></script>
 </body>
 </html>
