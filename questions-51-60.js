@@ -1,4 +1,4 @@
-/* BDL QUIZ QUESTIONS 51-60 */
+/* BDL QUIZ QUESTIONS 51-65 */
 
 if (typeof questions !== "undefined" && Array.isArray(questions)) {
   questions.splice(
@@ -113,6 +113,61 @@ if (typeof questions !== "undefined" && Array.isArray(questions)) {
         "Max 4 boxes and Moly 1"
       ],
       correct:1
+    },
+    {
+      question:
+        "Why is Amy no longer allowed to see Moly according to André?",
+      answers:[
+        "She hits him",
+        "She spoils him",
+        "She ignores him",
+        "She scares him"
+      ],
+      correct:1
+    },
+    {
+      question:
+        "Who is currently pregnant?",
+      answers:[
+        "Leticia",
+        "Mona",
+        "Chad",
+        "Babs"
+      ],
+      correct:0
+    },
+    {
+      question:
+        "Who will help in Dr Toño's household and take care of Golu?",
+      answers:[
+        "Amy",
+        "Leticia",
+        "Cassandra",
+        "Linda"
+      ],
+      correct:3
+    },
+    {
+      question:
+        "What word describes Minnie best?",
+      answers:[
+        "Lazy",
+        "Dirty",
+        "Cute",
+        "Angry"
+      ],
+      correct:2
+    },
+    {
+      question:
+        "Who has never given birth?",
+      answers:[
+        "Leticia",
+        "Mona",
+        "Masha",
+        "Cassandra"
+      ],
+      correct:3
     }
   );
 
