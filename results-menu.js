@@ -148,7 +148,7 @@
       <h3>${html(row.player_name)}</h3>
       <div>${grandmasterNumber(row.grandmaster_score).toFixed(2)} / 100</div>
     </div>`).join('');
-    return `<div class="section stats" style="margin-top:18px"><h2 class="center">GRANDMASTER TITLE HOLDERS</h2>${cards}</div>`;
+    return `<div class="section stats grandmaster-theme" style="margin-top:18px"><h2 class="center">GRANDMASTER TITLE HOLDERS</h2>${cards}</div>`;
   }
 
   async function getStatsDashboard(){
@@ -162,7 +162,7 @@
       <button onclick="showStatisticsPeriod('month')" style="border-color:var(--stats);font-weight:bold">THIS MONTH</button>
       <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">TOP 20 ALL TIME</button>
       <button onclick="showMyTitles()" style="border-color:var(--stats);font-weight:bold">MY TITLES</button>
-      <button onclick="showGrandmaster()" style="border-color:var(--gold);font-weight:bold">GRANDMASTER</button>
+      <button onclick="showGrandmaster()" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button>
     </div></div>${back('showMainMenu')}`);
   };
 
@@ -200,17 +200,17 @@
       const personal=grandmasterPersonal(data);
       const ranking=grandmasterLeaderboard(data);
       const total=data?.ranking_access===true?`<div class="notice" style="font-weight:bold">TOTAL: ${grandmasterNumber(data?.grandmaster?.total_players)} ${grandmasterNumber(data?.grandmaster?.total_players)===1?'PLAYER':'PLAYERS'}</div>`:'';
-      page(`<div class="section stats" style="background:var(--stats-bg);border:2px solid var(--stats-light);border-top:7px solid var(--gold)">
+      page(`<div class="section stats grandmaster-theme" style="background:var(--stats-bg);border:2px solid var(--stats-light);border-top:7px solid var(--stats)">
         ${personal}
       </div>
-      <div class="section stats" style="margin-top:18px">
+      <div class="section stats grandmaster-theme" style="margin-top:18px">
         <h2 class="center">GRANDMASTER ${year} — LIVE TOP 20</h2>
         <div class="notice">The live score is recalculated per category. The official annual title is awarded after the year has ended.</div>
         ${total}
         ${ranking}
       </div>${grandmasterWinners(data)}${back('showMyStatistics')}`);
     }catch(e){
-      page(`<div class="section stats"><h2 class="center">GRANDMASTER</h2><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back('showMyStatistics')}`);
+      page(`<div class="section stats grandmaster-theme"><h2 class="center">GRANDMASTER</h2><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back('showMyStatistics')}`);
     }
   };
 })();
