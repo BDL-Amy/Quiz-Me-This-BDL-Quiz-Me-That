@@ -9,14 +9,25 @@
       background:var(--stats-bg);
       border-top-color:var(--stats);
     }
-    .section.stats:not(.grandmaster-theme) > .menu button{
-      background:#ffd83d;
-      border-color:var(--stats) !important;
-      color:#4a176a;
+    .section.stats:not(.grandmaster-theme) > .menu button:not(.weekly):not(.supreme):not(.grandmaster){
+      background:#6f2da8;
+      border-color:#6f2da8 !important;
+      color:#ffd83d;
     }
-    .section.stats:not(.grandmaster-theme) > .menu button:hover,
-    .section.stats:not(.grandmaster-theme) > .menu button:focus{
-      background:#ffed86;
+    .section.stats:not(.grandmaster-theme) > .menu button:not(.weekly):not(.supreme):not(.grandmaster):hover,
+    .section.stats:not(.grandmaster-theme) > .menu button:not(.weekly):not(.supreme):not(.grandmaster):focus{
+      background:#5b238c;
+      color:#ffe66f;
+    }
+    .section.stats:not(.grandmaster-theme) > .menu .weekly{
+      background:var(--weekly-bg);
+      border-color:var(--weekly) !important;
+      color:var(--weekly);
+    }
+    .section.stats:not(.grandmaster-theme) > .menu .supreme{
+      background:var(--supreme-bg);
+      border-color:var(--supreme) !important;
+      color:var(--supreme);
     }
     .section.stats:not(.grandmaster-theme) > .menu .grandmaster{
       background:#fff;
