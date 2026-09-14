@@ -25,6 +25,32 @@ if(typeof api === "function"){
   };
 }
 
+/* Player-facing answer buttons show only the answer text.
+   A/B/C/D remain internal so submissions and scoring still work normally.
+   TEST PLAY uses different button ids and keeps its labels for testing. */
+function hidePlayerAnswerLetters(){
+  document.querySelectorAll('button[id^="answer-"]').forEach(button=>{
+    const text = String(button.textContent || "").trim();
+    const cleaned = text.replace(/^[A-D]\s*\/\s*/i,"");
+    if(cleaned !== text){
+      button.textContent = cleaned;
+    }
+  });
+}
+
+if(typeof MutationObserver !== "undefined"){
+  const answerLabelObserver = new MutationObserver(()=>{
+    hidePlayerAnswerLetters();
+  });
+
+  answerLabelObserver.observe(document.documentElement,{
+    childList:true,
+    subtree:true
+  });
+}
+
+document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
+
 (async function loadSecureQuizQuestions(){
   try{
     const currentIndex =
