@@ -3,6 +3,25 @@
 const QUESTION_SERVICE =
   BASE + "/quiz-question-service";
 
+/* Award colours: deep royal navy and dark ceremonial green,
+   matched to the Weekly and Supreme BDL artwork. */
+(function applyBDLAwardColours(){
+  const style = document.createElement("style");
+  style.textContent = `
+    :root{
+      --weekly:#123A78;
+      --weekly-dark:#061A3D;
+      --weekly-light:#D9E3F3;
+      --weekly-bg:#F3F6FB;
+      --supreme:#173F2C;
+      --supreme-dark:#0A2118;
+      --supreme-light:#D8E5DD;
+      --supreme-bg:#F3F7F4;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 /* Route answer submissions through the secure question service.
    The browser no longer decides whether an answer is correct. */
 if(typeof api === "function"){
