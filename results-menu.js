@@ -1,5 +1,31 @@
 /* BDL STATISTICS SUBMENU */
 (function(){
+  const statsThemeStyle=document.createElement('style');
+  statsThemeStyle.textContent=`
+    .section.stats:not(.grandmaster-theme){
+      --stats:#6f2da8;
+      --stats-light:#d9b8f0;
+      --stats-bg:#fff7c2;
+      background:var(--stats-bg);
+      border-top-color:var(--stats);
+    }
+    .section.stats:not(.grandmaster-theme) > .menu button{
+      background:#ffd83d;
+      border-color:var(--stats) !important;
+      color:#4a176a;
+    }
+    .section.stats:not(.grandmaster-theme) > .menu button:hover,
+    .section.stats:not(.grandmaster-theme) > .menu button:focus{
+      background:#ffed86;
+    }
+    .section.stats:not(.grandmaster-theme) > .menu .grandmaster{
+      background:#fff;
+      border-color:var(--grandmaster) !important;
+      color:var(--grandmaster);
+    }
+  `;
+  document.head.appendChild(statsThemeStyle);
+
   const statsTimingNote=()=>`<div class="notice"><strong>Played</strong> updates immediately after you submit an answer. <strong>Correct and Accuracy</strong> are updated the following quiz day, when the correct answer is revealed.</div>`;
 
   function statsCards(stats){
@@ -163,7 +189,7 @@
       <button onclick="showStatisticsPeriod('month')" style="border-color:var(--stats);font-weight:bold">THIS MONTH</button>
       <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">TOP 20 ALL TIME</button>
       <button onclick="showMyTitles()" style="border-color:var(--stats);font-weight:bold">MY TITLES</button>
-      <button onclick="showGrandmaster()" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button>
+      <button class="grandmaster" onclick="showGrandmaster()" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button>
     </div></div>${back('showMainMenu')}`);
   };
 
