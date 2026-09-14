@@ -143,8 +143,9 @@
   function grandmasterWinners(data){
     const rows=Array.isArray(data?.grandmaster?.official_winners)?data.grandmaster.official_winners:[];
     if(!rows.length)return '';
+    const newestYear=Math.max(...rows.map(row=>Number(row.competition_year)||0));
     const cards=rows.map((row,index)=>`<div class="wall-card month">
-      <strong>${index===0?'REIGNING BDL GRANDMASTER':'BDL GRANDMASTER'} ${row.competition_year}</strong>
+      <strong>${Number(row.competition_year)===newestYear?'REIGNING BDL GRANDMASTER':'BDL GRANDMASTER'} ${row.competition_year}</strong>
       <h3>${html(row.player_name)}</h3>
       <div>${grandmasterNumber(row.grandmaster_score).toFixed(2)} / 100</div>
     </div>`).join('');
