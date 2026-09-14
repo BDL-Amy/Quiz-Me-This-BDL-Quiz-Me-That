@@ -1,4 +1,4 @@
-/* BDL PWA UPDATE 2026-09-14E — force installed apps to refresh */
+/* BDL PWA UPDATE 2026-09-14F — secure question source refresh */
 self.addEventListener("install", event => {
   self.skipWaiting();
 });
@@ -22,7 +22,7 @@ self.addEventListener("activate", event => {
   })());
 });
 
-/* Always request the newest app files instead of reusing an old browser cache copy. */
+/* Always request the newest app files instead of reusing old quiz code. */
 self.addEventListener("fetch", event => {
   const request = event.request;
 
@@ -32,20 +32,19 @@ self.addEventListener("fetch", event => {
 
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.endsWith("/stats-menu.js")) {
-    const freshUrl = new URL(url.href);
-    freshUrl.searchParams.set("v", "20260914e");
+  const freshUrl = new URL(url.href);
 
-    event.respondWith(
-      fetch(freshUrl.href, { cache: "no-store" })
-        .catch(() => fetch(request, { cache: "no-store" }))
-    );
-    return;
+  if (url.pathname.endsWith("/stats-menu.js")) {
+    freshUrl.searchParams.set("v", "20260914f");
+  }
+
+  if (url.pathname.endsWith("/test-platform.js")) {
+    freshUrl.searchParams.set("v", "20260914-secure2");
   }
 
   event.respondWith(
-    fetch(request, { cache: "no-store" })
-      .catch(() => fetch(request))
+    fetch(freshUrl.href, { cache: "no-store" })
+      .catch(() => fetch(request, { cache: "no-store" }))
   );
 });
 
