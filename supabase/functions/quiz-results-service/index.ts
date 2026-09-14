@@ -349,7 +349,8 @@ Deno.serve(async (req) => {
         db.rpc("get_grandmaster_standings", { p_year: grandmasterYear }),
         db.from("grandmaster_winners")
           .select("competition_year,player_name,grandmaster_score,awarded_at")
-          .order("competition_year", { ascending: false }).limit(20),
+          .order("competition_year", { ascending: false })
+          .order("player_name", { ascending: true }).limit(100),
       ]);
 
     const error = week.error || month.error || all.error || lifetime.error ||
