@@ -193,7 +193,8 @@
     }
   };
 
-  window.showGrandmaster=async function(){
+  window.showGrandmaster=async function(backTarget){
+    const returnTo=backTarget==='showQuizMenu'?'showQuizMenu':'showMyStatistics';
     try{
       const data=await getStatsDashboard();
       const year=data?.grandmaster?.year||new Date().getFullYear();
@@ -208,9 +209,9 @@
         <div class="notice">The live score is recalculated per category. The official annual title is awarded after the year has ended.</div>
         ${total}
         ${ranking}
-      </div>${grandmasterWinners(data)}${back('showMyStatistics')}`);
+      </div>${grandmasterWinners(data)}${back(returnTo)}`);
     }catch(e){
-      page(`<div class="section stats grandmaster-theme"><h2 class="center">GRANDMASTER</h2><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back('showMyStatistics')}`);
+      page(`<div class="section stats grandmaster-theme"><h2 class="center">GRANDMASTER</h2><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back(returnTo)}`);
     }
   };
 })();
