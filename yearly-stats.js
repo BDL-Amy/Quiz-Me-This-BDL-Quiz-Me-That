@@ -1,6 +1,5 @@
 /* BDL Yearly statistics navigation */
 (function(){
-  const originalTitles=window.showMyTitles;
   const originalPeriod=window.showStatisticsPeriod;
 
   window.showMyStatistics=function(){
@@ -40,16 +39,5 @@
     }catch(e){
       page(`<div class="section stats"><h2 class="center">YEARLY</h2><div class="notice">Your yearly statistics could not be loaded.</div></div>${back('showMyStatistics')}`);
     }
-  };
-
-  window.showMyTitles=async function(){
-    await originalTitles();
-    const section=document.querySelector('.section.stats');
-    if(!section) return;
-    const holder=document.createElement('div');
-    holder.className='menu';
-    holder.style.marginTop='18px';
-    holder.innerHTML=`<button class="grandmaster" onclick="showGrandmaster('showMyTitles')" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button>`;
-    section.appendChild(holder);
   };
 })();
