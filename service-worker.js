@@ -1,4 +1,4 @@
-/* BDL PWA UPDATE 2026-09-15C — direct Grandmaster results implementation */
+/* BDL PWA UPDATE 2026-09-15D — consolidated statistics implementation */
 self.addEventListener("install", event => {
   self.skipWaiting();
 });
@@ -21,9 +21,8 @@ self.addEventListener("fetch", event => {
   const url=new URL(request.url);
   if(url.origin!==self.location.origin) return;
   const freshUrl=new URL(url.href);
-  if(url.pathname.endsWith("/stats-menu.js")) freshUrl.searchParams.set("v","20260915c");
-  if(url.pathname.endsWith("/results-menu.js")) freshUrl.searchParams.set("v","20260915c");
-  if(url.pathname.endsWith("/test-platform.js")) freshUrl.searchParams.set("v","20260915c");
+  if(url.pathname.endsWith("/results-menu.js")) freshUrl.searchParams.set("v","20260915d");
+  if(url.pathname.endsWith("/test-platform.js")) freshUrl.searchParams.set("v","20260915d");
   event.respondWith(fetch(freshUrl.href,{cache:"no-store"}).catch(()=>fetch(request,{cache:"no-store"})));
 });
 
