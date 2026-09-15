@@ -69,6 +69,7 @@
     page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="menu">
       <button onclick="showStatisticsPeriod('week')" style="border-color:var(--stats);font-weight:bold">THIS WEEK</button>
       <button onclick="showStatisticsPeriod('month')" style="border-color:var(--stats);font-weight:bold">THIS MONTH</button>
+      <button onclick="showStatisticsPeriod('year')" style="border-color:var(--stats);font-weight:bold">YEARLY</button>
       <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">TOP 20 ALL TIME</button>
       <button onclick="showMyTitles()" style="border-color:var(--stats);font-weight:bold">MY TITLES</button>
     </div></div>${back('showMainMenu')}`);
@@ -80,6 +81,12 @@
       let title='THIS WEEK',stats=data?.week?.player||{},ranking=data?.week,topTitle='QUIZ TOP 20 — THIS WEEK';
       if(type==='month'){
         title='THIS MONTH';stats=data?.month?.player||{};ranking=data?.month;topTitle='QUIZ TOP 20 — THIS MONTH';
+      }else if(type==='year'){
+        const year=String(new Date().getFullYear());
+        title='YEARLY';
+        stats=data?.year?.player||data?.lifetime||{};
+        ranking=data?.year||data?.top20;
+        topTitle='QUIZ TOP 20 — '+year;
       }else if(type==='all'){
         title='ALL TIME';stats=data?.lifetime||{};ranking=data?.top20;topTitle='QUIZ TOP 20 — ALL TIME';
       }
