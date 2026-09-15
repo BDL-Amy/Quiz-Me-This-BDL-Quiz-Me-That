@@ -78,11 +78,3 @@ if(typeof questions!=="undefined"&&Array.isArray(questions)){
 
 document.write('<script src="test-platform-core.js?v=20260914-secure2"><\/script>');
 document.write('<script src="test-results.js?v=20260914-secure2"><\/script>');
-
-/* results-menu.js is loaded later in index.html. Apply the Yearly navigation
-   override only after all parser-loaded scripts have finished. */
-document.addEventListener("DOMContentLoaded",()=>{
-  const script=document.createElement("script");
-  script.src="yearly-stats.js?v=20260915a";
-  document.body.appendChild(script);
-});
