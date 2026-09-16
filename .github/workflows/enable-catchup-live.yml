@@ -1,0 +1,44 @@
+name: Enable Catch Up live
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-live-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable Catch Up scripts in live page
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<script src="account.js?v=20260909c"></script>'
+          inject='''<script src="questions-51-60.js?v=20260916-live2"></script>\n<script src="quiz-schedule-1530.js?v=20260916-live2"></script>\n'''
+          if 'quiz-schedule-1530.js?v=20260916-live2' not in s:
+              if marker not in s:
+                  raise SystemExit('index insertion marker not found')
+              s=s.replace(marker, inject+marker, 1)
+          # Force a fresh test-platform fetch as well.
+          s=s.replace('<script src="test-platform.js"></script>', '<script src="test-platform.js?v=20260916-live2"></script>')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit live index
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Enable Catch Up and Previous Answer live"
+          git push
