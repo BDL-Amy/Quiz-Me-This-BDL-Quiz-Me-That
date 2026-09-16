@@ -35,8 +35,7 @@ document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
 const SECURE_CURRENT_INDEX=typeof quizDay==="function"?Math.max(0,quizDay()):0;
 const TEST_ACCOUNT_HAS_FULL_ACCESS=typeof isTestIdentity==="function"&&isTestIdentity();
 
-/* Regular players only keep historical questions locally. Test accounts keep the
-   complete local question bank so TEST PLAY can inspect future scheduled questions. */
+/* Normal players must never retain future questions in the browser. */
 if(!TEST_ACCOUNT_HAS_FULL_ACCESS&&typeof questions!=="undefined"&&Array.isArray(questions)){
   const historicalOnly=questions.slice(0,SECURE_CURRENT_INDEX);
   questions.splice(0,questions.length,...historicalOnly);
@@ -44,15 +43,23 @@ if(!TEST_ACCOUNT_HAS_FULL_ACCESS&&typeof questions!=="undefined"&&Array.isArray(
 }
 
 (async function loadSecureQuizQuestions(){
-  /* Amy.test and DrBDL.test are deliberately unrestricted in TEST PLAY. The
-     questions-51-60.js bank currently contains Q51-Q65 including correct indexes,
-     so do not replace today's test copy with the public version that omits the key. */
-  if(TEST_ACCOUNT_HAS_FULL_ACCESS){
-    if(typeof showStartScreen==="function")showStartScreen();
-    return;
-  }
-
   try{
+    if(TEST_ACCOUNT_HAS_FULL_ACCESS){
+      /* Test Play gets the authoritative database bank, including future dates and
+         correct indexes. This is restricted server-side to Amy.test and DrBDL.test. */
+      const testData=await api(QUESTION_SERVICE,{action:"get_test_questions",player_id:playerId(),player_name:playerName()});
+      if(testData&&Array.isArray(testData.questions)&&typeof questions!=="undefined"&&Array.isArray(questions)){
+        const merged=[];
+        testData.questions.forEach(q=>{
+          const i=Number(q.question_num)-FIRST_QUESTION_NUMBER;
+          if(i>=0)merged[i]={question:q.question,answers:q.answers,correct:Number(q.correct),quiz_date:q.quiz_date};
+        });
+        questions.splice(0,questions.length,...merged);
+        if(typeof showStartScreen==="function")showStartScreen();
+      }
+      return;
+    }
+
     const currentIndex=SECURE_CURRENT_INDEX;
     const merged=typeof questions!=="undefined"&&Array.isArray(questions)?questions.slice(0,currentIndex):[];
     try{
@@ -84,15 +91,14 @@ if(!TEST_ACCOUNT_HAS_FULL_ACCESS&&typeof questions!=="undefined"&&Array.isArray(
     }
   }catch(error){
     console.error("Could not load secure quiz questions:",error);
-    if(typeof questions!=="undefined"&&Array.isArray(questions))questions.splice(SECURE_CURRENT_INDEX);
+    if(!TEST_ACCOUNT_HAS_FULL_ACCESS&&typeof questions!=="undefined"&&Array.isArray(questions))questions.splice(SECURE_CURRENT_INDEX);
   }
 })();
 
-document.write('<script src="test-platform-core.js?v=20260916-test-access"><\/script>');
-document.write('<script src="test-results.js?v=20260916-test-access"><\/script>');
+document.write('<script src="test-platform-core.js?v=20260916-test-db2"><\/script>');
+document.write('<script src="test-results.js?v=20260916-test-db2"><\/script>');
 
-/* test-platform-core.js originally guarded Amy.test only. Expand that guard to
-   the shared test-account identity check after the core has loaded. */
+/* Both dedicated test identities share the complete test platform. */
 setTimeout(()=>{
   if(typeof testGuard==="function"&&typeof isTestIdentity==="function"){
     testGuard=function(){
