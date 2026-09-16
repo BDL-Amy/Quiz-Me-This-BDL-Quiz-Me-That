@@ -33,13 +33,25 @@ if(typeof MutationObserver!=="undefined"){
 document.addEventListener("DOMContentLoaded",hidePlayerAnswerLetters);
 
 const SECURE_CURRENT_INDEX=typeof quizDay==="function"?Math.max(0,quizDay()):0;
-if(typeof questions!=="undefined"&&Array.isArray(questions)){
+const TEST_ACCOUNT_HAS_FULL_ACCESS=typeof isTestIdentity==="function"&&isTestIdentity();
+
+/* Regular players only keep historical questions locally. Test accounts keep the
+   complete local question bank so TEST PLAY can inspect future scheduled questions. */
+if(!TEST_ACCOUNT_HAS_FULL_ACCESS&&typeof questions!=="undefined"&&Array.isArray(questions)){
   const historicalOnly=questions.slice(0,SECURE_CURRENT_INDEX);
   questions.splice(0,questions.length,...historicalOnly);
   if(typeof showStartScreen==="function")showStartScreen();
 }
 
 (async function loadSecureQuizQuestions(){
+  /* Amy.test and DrBDL.test are deliberately unrestricted in TEST PLAY. The
+     questions-51-60.js bank currently contains Q51-Q65 including correct indexes,
+     so do not replace today's test copy with the public version that omits the key. */
+  if(TEST_ACCOUNT_HAS_FULL_ACCESS){
+    if(typeof showStartScreen==="function")showStartScreen();
+    return;
+  }
+
   try{
     const currentIndex=SECURE_CURRENT_INDEX;
     const merged=typeof questions!=="undefined"&&Array.isArray(questions)?questions.slice(0,currentIndex):[];
@@ -76,5 +88,19 @@ if(typeof questions!=="undefined"&&Array.isArray(questions)){
   }
 })();
 
-document.write('<script src="test-platform-core.js?v=20260914-secure2"><\/script>');
-document.write('<script src="test-results.js?v=20260914-secure2"><\/script>');
+document.write('<script src="test-platform-core.js?v=20260916-test-access"><\/script>');
+document.write('<script src="test-results.js?v=20260916-test-access"><\/script>');
+
+/* test-platform-core.js originally guarded Amy.test only. Expand that guard to
+   the shared test-account identity check after the core has loaded. */
+setTimeout(()=>{
+  if(typeof testGuard==="function"&&typeof isTestIdentity==="function"){
+    testGuard=function(){
+      if(!isTestIdentity()){
+        showMainMenu();
+        return false;
+      }
+      return true;
+    };
+  }
+},0);
