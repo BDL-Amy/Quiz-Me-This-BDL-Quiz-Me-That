@@ -4,7 +4,7 @@ const QUESTION_SERVICE = BASE + "/quiz-question-service";
 
 (function applyBDLAwardColours(){
   const style=document.createElement("style");
-  style.textContent=`:root{--weekly:#123A78;--weekly-dark:#061A3D;--weekly-light:#D9E3F3;--weekly-bg:#F3F6FB;--supreme:#173F2C;--supreme-dark:#0A2118;--supreme-light:#D8E5DD;--supreme-bg:#F3F7F4;}`;
+  style.textContent=`:root{--weekly:#123A78;--weekly-dark:#061A3D;--weekly-light:#D9E3F3;--weekly-bg:#F3F6FB;--supreme:#173F2C;--supreme-dark:#0A2118;--supreme-light:#D8E5DD;--supreme-bg:#F3F7F4;}#submitButton{background:var(--quiz);border-color:var(--quiz);color:#111;font-weight:bold;}#submitButton:disabled{background:var(--quiz);border-color:var(--quiz);color:#111;opacity:.65;}`;
   document.head.appendChild(style);
 })();
 
