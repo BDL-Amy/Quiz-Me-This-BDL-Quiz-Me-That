@@ -10,13 +10,25 @@ setTimeout(()=>{
     if(index<0||!q?.question||!Array.isArray(q.answers)||!Number.isInteger(q.correct)){
       page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><div class="notice">No closed previous answer is available yet.</div></div>${back("showQuizMenu")}`);return;
     }
-    let selected=savedAnswer(index);
-    try{const d=await accountApi({action:"get_answer",player_id:playerId(),question_num:questionNumber(index)});if(d?.answered&&d.answer){const x=["A","B","C","D"].indexOf(String(d.answer.answer||"").trim().toUpperCase());if(x>=0)selected=x}}catch(e){}
-    const status=selected===null?"not_played":(selected===q.correct?"correct":"incorrect");
+    page(`<div class="loading">Checking your recorded answer...</div>`);
+    let record=null;
+    try{
+      const d=await accountApi({action:"get_answer",player_id:playerId(),question_num:questionNumber(index)});
+      if(!d?.success)throw new Error("answer_lookup_failed");
+      record=d.answered&&d.answer?d.answer:null;
+    }catch(e){
+      page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><div class="notice" style="background:#fff0df;border:2px solid #c65d00;color:#8a4100"><strong>Your recorded answer could not be verified.</strong><br><br>No result has been assumed. Please try again.</div></div>${back("showQuizMenu")}`);return;
+    }
+    let selected=null;
+    if(record){
+      selected=["A","B","C","D"].indexOf(String(record.answer||"").trim().toUpperCase());
+      if(selected<0){page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><div class="notice" style="background:#fff0df;border:2px solid #c65d00;color:#8a4100"><strong>Your recorded answer could not be verified.</strong><br><br>No result has been assumed. Please try again.</div></div>${back("showQuizMenu")}`);return;}
+    }
+    const status=!record?"not_played":(record.is_correct===true?"correct":"incorrect");
     const cp=await bdlLoadResultCatchphrase(questionNumber(index),status);
     const character=cp?.success?html(cp.character):"";
     const phrase=cp?.success?html(cp.phrase):"";
-    const player=selected===null?`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`:`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[selected])}</div>`;
+    const player=!record?`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`:`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[selected])}</div>`;
     const fixed=status==="correct"?"You got it right!":status==="incorrect"?"Better luck next time!":"This question was not answered.";
     let reaction="";
     if(phrase){reaction=status==="correct"?`<strong>${phrase}!</strong><br><br>`:`<strong>${character} ${status==="not_played"?"notes":"says"}:</strong><br>${phrase}<br><br>`;}
