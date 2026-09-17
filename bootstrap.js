@@ -1,7 +1,8 @@
-/* BDL bootstrap — keeps the stable legacy shell separate from current modules. */
+/* BDL bootstrap — fast cached legacy shell + current modules. */
 (function(){
   const LEGACY_SHELL='https://raw.githubusercontent.com/BDL-Amy/Quiz-Me-This-BDL-Quiz-Me-That/18a31bcbb2c83c1dbc405b3b1d23bd0492b23567/index.html';
-  const VERSION='20260917-modules';
+  const VERSION='20260917-fast';
+  const CACHE_KEY='bdl_legacy_shell_v1';
 
   function modernize(html){
     return html
@@ -17,8 +18,17 @@
       .replace('results-menu.js?v=20260914e',`results-menu.js?v=${VERSION}`);
   }
 
-  fetch(LEGACY_SHELL,{cache:'no-store'})
+  function launch(t){document.open();document.write(modernize(t));document.close()}
+  let cached=null;
+  try{cached=localStorage.getItem(CACHE_KEY)}catch(e){}
+  if(cached){
+    launch(cached);
+    /* refresh shell quietly for the next visit */
+    fetch(LEGACY_SHELL,{cache:'force-cache'}).then(r=>r.ok?r.text():null).then(t=>{if(t)try{localStorage.setItem(CACHE_KEY,t)}catch(e){}}).catch(()=>{});
+    return;
+  }
+  fetch(LEGACY_SHELL,{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('legacy_shell_unavailable');return r.text()})
-    .then(t=>{document.open();document.write(modernize(t));document.close()})
+    .then(t=>{try{localStorage.setItem(CACHE_KEY,t)}catch(e){}launch(t)})
     .catch(()=>{const el=document.getElementById('restore');if(el)el.textContent='The quiz could not be loaded. Please refresh.'});
 })();
