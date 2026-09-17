@@ -17,10 +17,10 @@ setTimeout(()=>{
     const character=cp?.success?html(cp.character):"";
     const phrase=cp?.success?html(cp.phrase):"";
     const player=selected===null?`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`:`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[selected])}</div>`;
-    let fixed=status==="correct"?"You got it right!":status==="incorrect"?"Better luck next time!":"This question was not answered.";
+    const fixed=status==="correct"?"You got it right!":status==="incorrect"?"Better luck next time!":"This question was not answered.";
     let reaction="";
-    if(phrase){reaction=status==="correct"?`<br><br><strong>${phrase}!</strong>`:`<br><br><strong>${character} ${status==="not_played"?"notes":"says"}:</strong><br>${phrase}`;}
-    const feedback=`<div class="notice"><strong>${fixed}</strong>${reaction}</div>`;
+    if(phrase){reaction=status==="correct"?`<strong>${phrase}!</strong><br><br>`:`<strong>${character} ${status==="not_played"?"notes":"says"}:</strong><br>${phrase}<br><br>`;}
+    const feedback=`<div class="notice">${reaction}<strong>${fixed}</strong></div>`;
     page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${player}<div class="answer" style="margin-top:18px"><strong>The correct answer is ${html(q.answers[q.correct])}.</strong></div>${feedback}</div>${back("showQuizMenu")}`);
   };
   window.showYesterdayPage=window.showPreviousAnswer;
