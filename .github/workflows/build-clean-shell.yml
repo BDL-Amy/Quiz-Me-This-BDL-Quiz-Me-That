@@ -1,0 +1,46 @@
+name: Build clean quiz shell
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-clean-shell.yml'
+      - 'quiz-schedule-1530.js'
+      - 'result-catchphrases.js'
+      - 'account.js'
+      - 'history.js'
+      - 'questions-51-60.js'
+      - 'results-menu.js'
+      - 'test-platform.js'
+      - 'recovery-onboarding.js'
+      - 'performance.js'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build local shell from canonical base
+        shell: python
+        run: |
+          import subprocess, re
+          base = subprocess.check_output(['git','show','18a31bcbb2c83c1dbc405b3b1d23bd0492b23567:index.html'], text=True)
+          # Remove historical duplicate extension loads. Current modules are loaded once, below.
+          for name in ['questions-51-60.js','quiz-schedule-1530.js','result-catchphrases.js','account.js','history.js','test-platform.js','recovery-onboarding.js','results-menu.js','performance.js']:
+              base = re.sub(r'<script[^>]+src=["\'][^"\']*'+re.escape(name)+r'[^"\']*["\'][^>]*></script>', '', base, flags=re.I)
+          modules = '''\n<script src="questions-51-60.js?v=20260917-clean-shell"></script>\n<script src="account.js?v=20260917-clean-shell"></script>\n<script src="history.js?v=20260917-clean-shell"></script>\n<script src="result-catchphrases.js?v=20260917-clean-shell"></script>\n<script src="quiz-schedule-1530.js?v=20260917-clean-shell"></script>\n<script src="test-platform.js?v=20260917-clean-shell"></script>\n<script src="recovery-onboarding.js?v=20260917-clean-shell"></script>\n<script src="results-menu.js?v=20260917-clean-shell"></script>\n<script src="performance.js?v=20260917-clean-shell"></script>\n'''
+          base = base.replace('</body>', modules + '</body>')
+          open('index.html','w',encoding='utf-8').write(base)
+      - name: Remove obsolete bootstrap
+        run: rm -f bootstrap.js
+      - name: Commit generated clean shell
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add index.html bootstrap.js
+          git diff --cached --quiet || git commit -m "Generate standalone local quiz shell"
+          git push
