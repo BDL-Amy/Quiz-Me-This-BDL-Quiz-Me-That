@@ -20,7 +20,8 @@ setTimeout(()=>{
     const fixed=status==="correct"?"You got it right!":status==="incorrect"?"Better luck next time!":"This question was not answered.";
     let reaction="";
     if(phrase){reaction=status==="correct"?`<strong>${phrase}!</strong><br><br>`:`<strong>${character} ${status==="not_played"?"notes":"says"}:</strong><br>${phrase}<br><br>`;}
-    const feedback=`<div class="notice">${reaction}<strong>${fixed}</strong></div>`;
+    const feedbackStyle=status==="correct"?"background:#e7f7ec;border:2px solid #238636;color:#145c2a":status==="incorrect"?"background:#fdeaea;border:2px solid #c62828;color:#8b1a1a":"background:#fff0df;border:2px solid #c65d00;color:#8a4100";
+    const feedback=`<div class="notice" style="${feedbackStyle}">${reaction}<strong>${fixed}</strong></div>`;
     page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${player}<div class="answer" style="margin-top:18px"><strong>The correct answer is ${html(q.answers[q.correct])}.</strong></div>${feedback}</div>${back("showQuizMenu")}`);
   };
   window.showYesterdayPage=window.showPreviousAnswer;
