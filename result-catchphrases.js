@@ -1,28 +1,27 @@
-/* BDL QUIZ RESULT CATCHPHRASES */
-const BDL_CORRECT_CATCHPHRASES=[
-  "Spot on!",
-  "Nailed it!",
-  "Sharp thinking!",
-  "BDL brilliance!",
-  "You know your BDL!",
-  "Right on target!",
-  "Excellent memory!",
-  "That was clever!",
-  "Perfect answer!",
-  "Quiz magic!"
-];
-const BDL_WRONG_CATCHPHRASES=[
-  "Almost!",
-  "So close!",
-  "Nice try!",
-  "Better luck next time!",
-  "That one was tricky!",
-  "The BDL archives got you this time!"
-];
-function bdlCatchphraseForIndex(index,correct){
-  const list=correct?BDL_CORRECT_CATCHPHRASES:BDL_WRONG_CATCHPHRASES;
-  const n=Math.abs(Number(index)||0)%list.length;
-  return list[n];
+/* BDL QUIZ RESULT CATCHPHRASES — Supabase driven */
+const BDL_CATCHPHRASE_SERVICE=BASE+"/quiz-catchphrase-service";
+async function bdlLoadResultCatchphrase(questionNum,status){
+  try{return await api(BDL_CATCHPHRASE_SERVICE,{action:"get",question_num:Number(questionNum),status});}
+  catch(e){return null;}
 }
-function bdlResultWordForIndex(index){return bdlCatchphraseForIndex(index,true).replace(/[!.?]+$/,'');}
-function bdlResultFeedbackForIndex(index,correct){return bdlCatchphraseForIndex(index,correct);}
+setTimeout(()=>{
+  window.showPreviousAnswer=async function(){
+    const index=(typeof bdlClosedAnswerIndex==="function"?bdlClosedAnswerIndex():quizDay()-2),q=questions[index];
+    if(index<0||!q?.question||!Array.isArray(q.answers)||!Number.isInteger(q.correct)){
+      page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><div class="notice">No closed previous answer is available yet.</div></div>${back("showQuizMenu")}`);return;
+    }
+    let selected=savedAnswer(index);
+    try{const d=await accountApi({action:"get_answer",player_id:playerId(),question_num:questionNumber(index)});if(d?.answered&&d.answer){const x=["A","B","C","D"].indexOf(String(d.answer.answer||"").trim().toUpperCase());if(x>=0)selected=x}}catch(e){}
+    const status=selected===null?"not_played":(selected===q.correct?"correct":"incorrect");
+    const cp=await bdlLoadResultCatchphrase(questionNumber(index),status);
+    const character=cp?.success?html(cp.character):"";
+    const phrase=cp?.success?html(cp.phrase):"";
+    const player=selected===null?`<div class="answer"><strong>Your answer:</strong><br><br>No answer submitted.</div>`:`<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[selected])}</div>`;
+    let fixed=status==="correct"?"You got it right!":status==="incorrect"?"Better luck next time!":"This question was not answered.";
+    let reaction="";
+    if(phrase){reaction=status==="correct"?`<br><br><strong>${phrase}!</strong>`:`<br><br><strong>${character} ${status==="not_played"?"notes":"says"}:</strong><br>${phrase}`;}
+    const feedback=`<div class="notice"><strong>${fixed}</strong>${reaction}</div>`;
+    page(`<div class="section quiz-section"><h2 class="center">PREVIOUS ANSWER</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>${html(q.question)}</p>${player}<div class="answer" style="margin-top:18px"><strong>The correct answer is ${html(q.answers[q.correct])}.</strong></div>${feedback}</div>${back("showQuizMenu")}`);
+  };
+  window.showYesterdayPage=window.showPreviousAnswer;
+},0);
