@@ -1,1 +1,12 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quiz Me This, BDL, Quiz Me That</title></head><body><div id="restore">Loading quiz…</div><script>fetch('https://raw.githubusercontent.com/BDL-Amy/Quiz-Me-This-BDL-Quiz-Me-That/18a31bcbb2c83c1dbc405b3b1d23bd0492b23567/index.html',{cache:'no-store'}).then(r=>r.text()).then(t=>{t=t.replace('<script src="questions-51-60.js?v=20260916-live2"></script>','').replace('<script src="quiz-schedule-1530.js?v=20260917a"></script>','').replace('questions-51-60.js?v=20260916-live3','questions-51-60.js?v=20260917-clean').replace('quiz-schedule-1530.js?v=20260917a','quiz-schedule-1530.js?v=20260917-clean').replace('test-platform.js?v=20260917a','test-platform.js?v=20260917-clean').replace('results-menu.js?v=20260914e','results-menu.js?v=20260917-clean');document.open();document.write(t);document.close()}).catch(()=>{document.getElementById('restore').textContent='The quiz could not be loaded. Please refresh.'})</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Me This, BDL, Quiz Me That</title>
+</head>
+<body>
+  <div id="restore">Loading quiz…</div>
+  <script src="bootstrap.js?v=20260917-modules"></script>
+</body>
+</html>
