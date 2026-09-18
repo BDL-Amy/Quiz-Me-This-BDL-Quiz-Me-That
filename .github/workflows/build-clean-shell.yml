@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.clean-shell-trigger'
+      - '.clean-shell-trigger-2'
       - '.github/workflows/build-clean-shell.yml'
       - 'quiz-schedule-1530.js'
       - 'result-catchphrases.js'
