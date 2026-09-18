@@ -140,6 +140,38 @@ button{
   font-weight:bold;
 }
 
+.quiz-section.quiz-level-1{
+  background:#f6a21a;
+  border-top-color:#123c73;
+}
+.quiz-section.quiz-level-1 .quiz-menu button{
+  background:#123c73;
+  border-color:#123c73;
+  color:#f6a21a;
+  border-left-width:2px;
+}
+.quiz-section.quiz-level-2{
+  background:#123c73;
+  border-top-color:#f6a21a;
+}
+.quiz-section.quiz-level-2 h2{color:#ffd18a}
+.quiz-section.quiz-level-2 .quiz-menu button{
+  background:#f6a21a;
+  border-color:#f6a21a;
+  color:#123c73;
+  border-left-width:2px;
+}
+.quiz-section.quiz-level-3{
+  background:#ffc56b;
+  border-top-color:#1d4f8c;
+}
+.quiz-section.quiz-level-3 .quiz-menu button{
+  background:#1d4f8c;
+  border-color:#1d4f8c;
+  color:#ffc56b;
+  border-left-width:2px;
+}
+
 .quiz-menu .weekly{
   border-color:var(--weekly);
   border-left-color:var(--weekly);
@@ -1714,55 +1746,7 @@ function showMainMenu(){
 }
 
 
-/* QUIZ MENU */
-
-function showQuizMenu(){
-
-  page(`
-    <div class="section quiz-section">
-
-      <h2 class="center">
-        QUIZ
-      </h2>
-
-      <div class="menu quiz-menu">
-
-        <button
-          onclick="showTodayQuestion()">
-          TODAY'S QUESTION
-        </button>
-
-        <button
-          onclick="showYesterdayPage()">
-          YESTERDAY'S ANSWER
-        </button>
-
-        <button
-          class="weekly"
-          onclick="showCurrentWeeklyHolder()">
-          SMARTEST BDL'ER OF THE WEEK
-        </button>
-
-        <button
-          class="supreme"
-          onclick="showSupremeBDLer()">
-          THE SUPREME BDL'ER
-        </button>
-
-        <button
-          class="grandmaster"
-          onclick="showGrandmaster('showQuizMenu')">
-          THE BDL GRANDMASTER
-        </button>
-
-      </div>
-
-    </div>
-
-    ${back("showMainMenu")}
-  `);
-}
-
+/* QUIZ NAVIGATION lives only in quiz-schedule-1530.js. */
 
 /* TODAY'S QUESTION */
 
@@ -2739,7 +2723,7 @@ showStartScreen();
 <script src="account.js?v=20260917-clean-shell"></script>
 <script src="history.js?v=20260917-clean-shell"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
-<script src="quiz-schedule-1530.js?v=20260918-clean-quiz-flow"></script>
+<script src="quiz-schedule-1530.js?v=20260918-quiz-nav-v2"></script>
 <script src="test-platform.js?v=20260918-test-clean"></script>
 <script src="recovery-onboarding.js?v=20260917-clean-shell"></script>
 <script src="results-menu.js?v=20260918-stats-clean-v3"></script>
