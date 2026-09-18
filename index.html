@@ -27,6 +27,7 @@
   --quiz:#f3a712;
   --quiz-bg:#fff4d7;
   --history:#7b263d;
+  --history-contrast:#28b8b0;
   --history-bg:#fff4f3;
   --settings:#267c78;
   --settings-bg:#effaf8;
@@ -126,8 +127,30 @@ button{
 }
 
 .history{
-  background:var(--history-bg);
-  border-top:7px solid var(--history);
+  background:var(--history);
+  border-top:7px solid var(--history-contrast);
+  color:#fff;
+}
+
+.history h2,.history h3,.history p{color:#fff;}
+.history .notice{color:#111;}
+.history .wall-card{color:#111;}
+.history-menu button{
+  background:var(--history-contrast);
+  border-color:var(--history-contrast);
+  color:var(--history);
+  font-weight:bold;
+}
+.history-level-2{
+  background:var(--history-contrast);
+  border-top-color:var(--history);
+  color:var(--history);
+}
+.history-level-2 h2,.history-level-2 h3,.history-level-2 p{color:var(--history);}
+.history-level-2 .history-menu button{
+  background:var(--history);
+  border-color:var(--history);
+  color:var(--history-contrast);
 }
 
 .settings{
