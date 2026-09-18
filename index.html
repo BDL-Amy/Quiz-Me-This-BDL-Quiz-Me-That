@@ -3453,7 +3453,6 @@ async function disablePushNotifications(
 playerId();
 showStartScreen();
 
-(async()=>{try{const d=await api(QUIZ_SERVICE,{action:"get_answer",player_id:playerId(),question_num:52});if(d?.answer?.result_adjustment==="neutralised"){const k="bdl-neutralised-"+d.answer.question_num+"-"+d.answer.quiz_date;if(localStorage.getItem(k)!=="shown"){alert("Your question has been neutralised");localStorage.setItem(k,"shown");}}}catch(e){}})();
 
 </script>
 
