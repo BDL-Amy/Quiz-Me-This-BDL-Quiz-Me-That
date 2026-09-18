@@ -1747,7 +1747,7 @@ function showMainMenu(){
 }
 
 
-/* QUIZ NAVIGATION — BASE AND LIVE FALLBACK */
+/* QUIZ NAVIGATION — SINGLE IMPLEMENTATION */
 function showQuizMenu(){page(`<div class="section quiz-section quiz-level-1"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showQuizPlayMenu()">PLAY</button><button onclick="showCurrentTitlesMenu()">CURRENT TITLES</button></div></div>${back("showMainMenu")}`);}
 function showQuizPlayMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">PLAY</h2><div class="menu quiz-menu"><button onclick="showQuizPlayQuizMenu()">QUIZ</button><button onclick="showQuizResultMenu()">RESULT</button></div></div>${back("showQuizMenu")}`);}
 function showQuizPlayQuizMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showTodayQuestion()">TODAY'S QUESTION</button><button onclick="showCatchupQuestion()">CATCH UP</button></div></div>${back("showQuizPlayMenu")}`);}
@@ -1819,8 +1819,23 @@ async function showCurrentWeeklyHolder(){
         }
       );
 
+    let winner = data && data.winner ? data.winner : null;
+
+    /* The weekly title is stored only after the week closes.
+       If the calculated lookup misses during a schedule transition,
+       load the latest published weekly winner instead of showing a blank card. */
+    if(!winner){
+      const dashboard = await loadDashboard();
+      const weeklyHistory = Array.isArray(dashboard?.history?.weekly)
+        ? dashboard.history.weekly
+        : [];
+      if(weeklyHistory.length){
+        winner = weeklyHistory[0];
+      }
+    }
+
     renderWeeklyHolder(
-      data.winner
+      winner
     );
 
   }catch(error){
