@@ -1,9 +1,7 @@
 name: Enable Catch Up live
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
   workflow_dispatch:
 
 permissions:
