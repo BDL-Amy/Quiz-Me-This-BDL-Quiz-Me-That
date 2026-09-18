@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- BDL live build: 2026-09-18 quiz-nav-v2 -->
+<!-- BDL live build: 2026-09-18 quiz-nav-v3 authoritative -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -1747,7 +1747,12 @@ function showMainMenu(){
 }
 
 
-/* QUIZ NAVIGATION lives only in quiz-schedule-1530.js. */
+/* QUIZ NAVIGATION — BASE AND LIVE FALLBACK */
+function showQuizMenu(){page(`<div class="section quiz-section quiz-level-1"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showQuizPlayMenu()">PLAY</button><button onclick="showCurrentTitlesMenu()">CURRENT TITLES</button></div></div>${back("showMainMenu")}`);}
+function showQuizPlayMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">PLAY</h2><div class="menu quiz-menu"><button onclick="showQuizPlayQuizMenu()">QUIZ</button><button onclick="showQuizResultMenu()">RESULT</button></div></div>${back("showQuizMenu")}`);}
+function showQuizPlayQuizMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showTodayQuestion()">TODAY'S QUESTION</button><button onclick="showCatchupQuestion()">CATCH UP</button></div></div>${back("showQuizPlayMenu")}`);}
+function showQuizResultMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">RESULT</h2><div class="menu quiz-menu"><button onclick="showPreviousAnswer()">PREVIOUS QUESTION</button></div></div>${back("showQuizPlayMenu")}`);}
+function showCurrentTitlesMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">CURRENT TITLES</h2><div class="menu quiz-menu"><button onclick="showCurrentWeeklyHolder()">SMARTEST</button><button onclick="showSupremeBDLer()">SUPREME</button><button onclick="showGrandmaster('showCurrentTitlesMenu')">GRANDMASTER</button></div></div>${back("showQuizMenu")}`);}
 
 /* TODAY'S QUESTION */
 
