@@ -9,7 +9,7 @@
     .section.stats>.menu .grandmaster{background:var(--grandmaster-bg);border-color:var(--grandmaster)!important;color:var(--grandmaster)}
   `;
   document.head.appendChild(style);
-  const timing=()=>`<div class="notice"><strong>Played is counted immediately.</strong><br>An answer submitted in Today or Catch Up counts as Played straight away. Correct, Incorrect and Accuracy update only when that question reaches Previous Answer.</div>`;
+  const timing=()=>`<div class="notice"><strong>Results are published at Previous Answer.</strong><br>While a question is in Today or Catch Up, Played, Correct, Incorrect and Accuracy remain hidden and are not counted in the visible statistics. As soon as that question reaches Previous Answer, Played and its Correct or Incorrect result are published together and Accuracy is updated.</div>`;
   const cards=s=>`<div class="stat-grid"><div class="stat-card"><strong>${s?.played??0}</strong>Played</div><div class="stat-card"><strong>${s?.correct??0}</strong>Correct</div><div class="stat-card" style="grid-column:1/-1"><strong>${s?.accuracy??0}%</strong>Accuracy</div></div>`;
   const num=v=>Number.isFinite(Number(v))?Number(v):0;
   const sameName=(a,b)=>String(a||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===String(b||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
