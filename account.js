@@ -41,7 +41,7 @@ setTimeout(()=>{
     const note=document.createElement("div");
     note.id="statsUpdateNote";
     note.className="notice";
-    note.innerHTML="<strong>Played</strong> updates immediately after you submit an answer. <strong>Correct, Incorrect and Accuracy</strong> are updated the following quiz day, when the correct answer is revealed.";
+    note.innerHTML="<strong>Played, Correct, Incorrect and Accuracy</strong> stay hidden while a question is in Today or Catch Up. They are published together as soon as that question reaches <strong>Previous Answer</strong>.";
     grid.insertAdjacentElement("afterend",note);
   };
 },0);
