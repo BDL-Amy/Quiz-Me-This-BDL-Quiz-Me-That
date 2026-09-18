@@ -1,9 +1,7 @@
 name: Update policy neutralisation notice
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
