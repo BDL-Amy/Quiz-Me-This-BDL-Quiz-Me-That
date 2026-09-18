@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- BDL live build: 2026-09-18 quiz-nav-v3 authoritative -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -138,6 +139,38 @@ button{
   border-color:var(--quiz);
   border-left:7px solid var(--quiz);
   font-weight:bold;
+}
+
+.quiz-section.quiz-level-1{
+  background:#f6a21a;
+  border-top-color:#123c73;
+}
+.quiz-section.quiz-level-1 .quiz-menu button{
+  background:#123c73;
+  border-color:#123c73;
+  color:#f6a21a;
+  border-left-width:2px;
+}
+.quiz-section.quiz-level-2{
+  background:#123c73;
+  border-top-color:#f6a21a;
+}
+.quiz-section.quiz-level-2 h2{color:#ffd18a}
+.quiz-section.quiz-level-2 .quiz-menu button{
+  background:#f6a21a;
+  border-color:#f6a21a;
+  color:#123c73;
+  border-left-width:2px;
+}
+.quiz-section.quiz-level-3{
+  background:#ffc56b;
+  border-top-color:#1d4f8c;
+}
+.quiz-section.quiz-level-3 .quiz-menu button{
+  background:#1d4f8c;
+  border-color:#1d4f8c;
+  color:#ffc56b;
+  border-left-width:2px;
 }
 
 .quiz-menu .weekly{
@@ -1714,537 +1747,57 @@ function showMainMenu(){
 }
 
 
-/* QUIZ MENU */
-
-function showQuizMenu(){
-
-  page(`
-    <div class="section quiz-section">
-
-      <h2 class="center">
-        QUIZ
-      </h2>
-
-      <div class="menu quiz-menu">
-
-        <button
-          onclick="showTodayQuestion()">
-          TODAY'S QUESTION
-        </button>
-
-        <button
-          onclick="showYesterdayPage()">
-          YESTERDAY'S ANSWER
-        </button>
-
-        <button
-          class="weekly"
-          onclick="showCurrentWeeklyHolder()">
-          SMARTEST BDL'ER OF THE WEEK
-        </button>
-
-        <button
-          class="supreme"
-          onclick="showSupremeBDLer()">
-          THE SUPREME BDL'ER
-        </button>
-
-        <button
-          class="grandmaster"
-          onclick="showGrandmaster('showQuizMenu')">
-          THE BDL GRANDMASTER
-        </button>
-
-      </div>
-
-    </div>
-
-    ${back("showMainMenu")}
-  `);
-}
-
+/* QUIZ NAVIGATION — BASE AND LIVE FALLBACK */
+function showQuizMenu(){page(`<div class="section quiz-section quiz-level-1"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showQuizPlayMenu()">PLAY</button><button onclick="showCurrentTitlesMenu()">CURRENT TITLES</button></div></div>${back("showMainMenu")}`);}
+function showQuizPlayMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">PLAY</h2><div class="menu quiz-menu"><button onclick="showQuizPlayQuizMenu()">QUIZ</button><button onclick="showQuizResultMenu()">RESULT</button></div></div>${back("showQuizMenu")}`);}
+function showQuizPlayQuizMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showTodayQuestion()">TODAY'S QUESTION</button><button onclick="showCatchupQuestion()">CATCH UP</button></div></div>${back("showQuizPlayMenu")}`);}
+function showQuizResultMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">RESULT</h2><div class="menu quiz-menu"><button onclick="showPreviousAnswer()">PREVIOUS QUESTION</button></div></div>${back("showQuizPlayMenu")}`);}
+function showCurrentTitlesMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">CURRENT TITLES</h2><div class="menu quiz-menu"><button onclick="showCurrentWeeklyHolder()">SMARTEST</button><button onclick="showSupremeBDLer()">SUPREME</button><button onclick="showGrandmaster('showCurrentTitlesMenu')">GRANDMASTER</button></div></div>${back("showQuizMenu")}`);}
 
 /* TODAY'S QUESTION */
 
-function showTodayQuestion(){
-
-  const index =
-    quizDay();
-
-  const q =
-    questions[index];
-
-  if(
-    !q
-    ||
-    !q.question
-    ||
-    !Array.isArray(q.answers)
-  ){
-
-    page(`
-      <div class="section quiz-section">
-
-        <h2 class="center">
-          TODAY'S QUESTION
-        </h2>
-
-        <div class="notice">
-          Today's question
-          is not available yet.
-        </div>
-
-      </div>
-
-      ${back("showQuizMenu")}
-    `);
-
-    return;
-  }
-
-  const existing =
-    savedAnswer(index);
-
-  selectedAnswer =
-    existing;
-
-  let answersHtml = "";
-
-  q.answers.forEach(
-    (answer,i)=>{
-
-      const letter =
-        String.fromCharCode(
-          65+i
-        );
-
-      const selected =
-        existing === i
-        ? "selected"
-        : "";
-
-      const click =
-        existing === null
-        ? `onclick="selectAnswer(${i})"`
-        : "";
-
-      answersHtml += `
-        <button
-          id="answer-${i}"
-          class="${selected}"
-          ${click}>
-          ${letter}/
-          ${html(answer)}
-        </button>
-      `;
-    }
-  );
-
-  if(existing !== null){
-
-    page(`
-      <div class="section quiz-section">
-
-        <h2 class="center">
-          QUESTION
-          ${questionNumber(index)}
-        </h2>
-
-        <div class="notice">
-          You already answered
-          today's question.
-        </div>
-
-        <h3>
-          ${html(q.question)}
-        </h3>
-
-        ${answersHtml}
-
-        <div class="answer">
-
-          <strong>
-            Your answer:
-          </strong>
-
-          ${
-            String.fromCharCode(
-              65+existing
-            )
-          }/
-          ${html(q.answers[existing])}
-
-        </div>
-
-        <p class="center">
-          The correct answer
-          will be revealed tomorrow.
-        </p>
-
-      </div>
-
-      ${back("showQuizMenu")}
-    `);
-
-    return;
-  }
-
-  page(`
-    <div class="section quiz-section">
-
-      <h2 class="center">
-        QUESTION
-        ${questionNumber(index)}
-      </h2>
-
-      <h3>
-        ${html(q.question)}
-      </h3>
-
-      <div id="answerButtons">
-        ${answersHtml}
-      </div>
-
-      <button
-        id="submitButton"
-        class="center"
-        onclick="submitAnswer()"
-        disabled>
-        SUBMIT ANSWER
-      </button>
-
-    </div>
-
-    ${back("showQuizMenu")}
-  `);
+async function showTodayQuestion(){
+  page('<div class="loading">Loading today\'s question...</div>');
+  try{
+    const data=await api(QUESTION_SERVICE_V2,{action:"get_current_question"});
+    const q=data?.question;
+    if(!q){page(`<div class="section quiz-section"><h2 class="center">TODAY'S QUESTION</h2><div class="notice">Today's question is not available yet.</div></div>${back("showQuizMenu")}`);return;}
+    const index=Number(q.question_num)-FIRST_QUESTION_NUMBER;
+    const existing=savedAnswer(index);
+    selectedAnswer=existing;
+    const answersHtml=q.answers.map((answer,i)=>`<button id="answer-${i}" class="${existing===i?"selected":""}" ${existing===null?`onclick="selectAnswer(${i})"`:""}>${html(answer)}</button>`).join("");
+    if(existing!==null){page(`<div class="section quiz-section"><h2 class="center">QUESTION ${q.question_num}</h2><div class="notice">You already answered today's question.</div><h3>${html(q.question)}</h3>${answersHtml}<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[existing])}</div><p class="center">The correct answer will be available after the catch-up period closes.</p></div>${back("showQuizMenu")}`);return;}
+    page(`<div class="section quiz-section"><h2 class="center">QUESTION ${q.question_num}</h2><h3>${html(q.question)}</h3><div id="answerButtons">${answersHtml}</div><button id="submitButton" class="center" onclick="submitAnswer()" disabled>SUBMIT ANSWER</button></div>${back("showQuizMenu")}`);
+    window.__bdlCurrentQuestion=q;
+  }catch(e){page(`<div class="section quiz-section"><h2 class="center">TODAY'S QUESTION</h2><div class="notice">Today's question could not be loaded.</div></div>${back("showQuizMenu")}`);}
 }
-
 
 function selectAnswer(index){
-
-  selectedAnswer =
-    index;
-
-  document
-    .querySelectorAll(
-      "#answerButtons button"
-    )
-    .forEach(
-      button=>
-        button.classList.remove(
-          "selected"
-        )
-    );
-
-  document
-    .getElementById(
-      "answer-"+index
-    )
-    .classList.add(
-      "selected"
-    );
-
-  document
-    .getElementById(
-      "submitButton"
-    )
-    .disabled =
-      false;
+  selectedAnswer=index;
+  document.querySelectorAll("#answerButtons button").forEach(button=>button.classList.remove("selected"));
+  document.getElementById("answer-"+index)?.classList.add("selected");
+  const b=document.getElementById("submitButton");if(b)b.disabled=false;
 }
-
 
 async function submitAnswer(){
-
-  const index =
-    quizDay();
-
-  const q =
-    questions[index];
-
-  if(
-    selectedAnswer === null
-    ||
-    !q
-  ){
-    return;
-  }
-
-  const button =
-    document.getElementById(
-      "submitButton"
-    );
-
-  if(button){
-
-    button.disabled =
-      true;
-
-    button.textContent =
-      "SUBMITTING...";
-  }
-
+  const q=window.__bdlCurrentQuestion;
+  if(selectedAnswer===null||!q)return;
+  const button=document.getElementById("submitButton");
+  if(button){button.disabled=true;button.textContent="SUBMITTING...";}
   try{
-
-    await api(
-  QUIZ_SERVICE,
-  {
-    action:"submit_answer",
-    player_id:playerId(),
-    player_name:playerName(),
-    quiz_date:dateString(effectiveDate()),
-    question_num:questionNumber(index),
-    answer:String.fromCharCode(65+selectedAnswer),
-    is_correct:selectedAnswer === q.correct
-  }
-);
-
-    storeAnswer(
-      index,
-      selectedAnswer
-    );
-
-    dashboardCache =
-      null;
-
-    showThankYouPage();
-
-  }catch(error){
-
-    if(button){
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "SUBMIT ANSWER";
-    }
-
-    alert(
-      error.message
-      ||
-      "Your answer could not be submitted."
-    );
-  }
+    await api(QUESTION_SERVICE_V2,{action:"submit_answer",player_id:playerId(),player_name:playerName(),quiz_date:q.quiz_date,question_num:q.question_num,answer:String.fromCharCode(65+selectedAnswer)});
+    storeAnswer(Number(q.question_num)-FIRST_QUESTION_NUMBER,selectedAnswer);
+    dashboardCache=null;
+    showThankYouPage(q,selectedAnswer);
+  }catch(error){if(button){button.disabled=false;button.textContent="SUBMIT ANSWER";}alert(error.message||"Your answer could not be submitted.");}
 }
 
-
-/* THANK YOU */
-
-function showThankYouPage(){
-
-  const index =
-    quizDay();
-
-  const q =
-    questions[index];
-
-  const chosen =
-    savedAnswer(index);
-
-  if(
-    !q
-    ||
-    chosen === null
-  ){
-    showQuizMenu();
-    return;
-  }
-
-  page(`
-    <div class="section quiz-section center">
-
-      <h2>
-        ${html(playerName())},
-        thanks for playing today!
-      </h2>
-
-      <p>
-        <strong>
-          Question
-          ${questionNumber(index)}
-        </strong>
-      </p>
-
-      <p>
-        The question was:
-      </p>
-
-      <p>
-        <strong>
-          ${html(q.question)}
-        </strong>
-      </p>
-
-      <p>
-        You answered:
-      </p>
-
-      <div class="answer">
-
-        ${
-          String.fromCharCode(
-            65+chosen
-          )
-        }/
-
-        ${html(q.answers[chosen])}
-
-      </div>
-
-      <p>
-        Stay tuned!
-        The correct answer
-        will be revealed tomorrow
-        together with a new Daily Quiz.
-      </p>
-
-    </div>
-
-    ${back("showQuizMenu")}
-  `);
+function showThankYouPage(q,chosen){
+  if(!q||chosen===null||chosen===undefined){showQuizMenu();return;}
+  page(`<div class="section quiz-section center"><h2>${html(playerName())}, thanks for playing today!</h2><p><strong>Question ${q.question_num}</strong></p><p>The question was:</p><p><strong>${html(q.question)}</strong></p><p>You answered:</p><div class="answer">${html(q.answers[chosen])}</div><p>Thanks for playing today! The answer will be published after the catch-up period closes.</p></div>${back("showQuizMenu")}`);
 }
 
-
-/* YESTERDAY'S ANSWER */
-
-async function showYesterdayPage(){
-
-  const index = quizDay()-1;
-  const q = questions[index];
-
-  if(
-    index < 0 ||
-    !q ||
-    !q.question ||
-    !Array.isArray(q.answers)
-  ){
-    page(`
-      <div class="section quiz-section">
-        <h2 class="center">
-          YESTERDAY'S ANSWER
-        </h2>
-
-        <div class="notice">
-          Yesterday's answer is not available.
-        </div>
-      </div>
-
-      ${back("showQuizMenu")}
-    `);
-
-    return;
-  }
-
-  let selected = savedAnswer(index);
-
-  try{
-    const data = await api(
-      QUIZ_SERVICE,
-      {
-        action:"get_answer",
-        player_id:playerId(),
-        question_num:questionNumber(index)
-      }
-    );
-
-    if(data.answered && data.answer){
-      const letter =
-        String(data.answer.answer || "")
-          .trim()
-          .toUpperCase();
-
-      const answerIndex =
-        ["A","B","C","D"].indexOf(letter);
-
-      if(answerIndex >= 0){
-        selected = answerIndex;
-      }
-    }
-  }catch(error){
-    console.log(
-      "Using local answer."
-    );
-  }
-
-  const correct = q.correct;
-  const correctLetter =
-    String.fromCharCode(65+correct);
-
-  let personalResult = `
-    <div class="notice">
-      You did not answer yesterday's question.
-    </div>
-  `;
-
-  if(selected !== null){
-
-    const yourLetter =
-      String.fromCharCode(65+selected);
-
-    const isCorrect =
-      selected === correct;
-
-    personalResult = `
-      <div class="answer">
-
-        <strong>Your answer:</strong>
-        <br><br>
-
-        ${yourLetter}/
-        ${html(q.answers[selected])}
-
-        <br><br>
-
-        <strong>
-          ${
-            isCorrect
-            ? "✓ Correct!"
-            : "✗ Incorrect."
-          }
-        </strong>
-
-      </div>
-    `;
-  }
-
-  page(`
-    <div class="section quiz-section">
-
-      <h2 class="center">
-        YESTERDAY'S ANSWER
-      </h2>
-
-      <p>
-        <strong>
-          Question ${questionNumber(index)}
-        </strong>
-      </p>
-
-      <p>
-        ${html(q.question)}
-      </p>
-
-      ${personalResult}
-
-      <div class="answer">
-
-        <strong>
-          The correct answer is
-          ${correctLetter}
-        </strong>
-
-        <br><br>
-
-        ${html(q.answers[correct])}
-
-      </div>
-
-    </div>
-
-    ${back("showQuizMenu")}
-  `);
-}
-  /* WEEKLY TITLE HOLDER */
+/* WEEKLY TITLE HOLDER */
 
 async function showCurrentWeeklyHolder(){
 
@@ -2492,6 +2045,8 @@ async function loadDashboard(){
         action:"dashboard",
         player_id:
           playerId(),
+        player_name:
+          playerName(),
         week_start:
           currentWeekStart(),
         month_start:
@@ -2579,307 +2134,8 @@ function renderTitleRanking(data){
 
 /* MY STATISTICS */
 
-async function showMyStatistics(){
+/* Statistics UI lives only in results-menu.js. */
 
-  page(`
-    <div class="loading">
-      Loading your statistics...
-    </div>
-  `);
-
-  try{
-
-    const data =
-      await loadDashboard();
-
-    const lifetime =
-      data.lifetime
-      ||
-      {
-        played:0,
-        correct:0,
-        incorrect:0,
-        accuracy:0
-      };
-
-    page(`
-      <div class="section stats">
-
-        <h2 class="center">
-          MY STATISTICS
-        </h2>
-
-        <div class="stat-grid">
-
-          <div class="stat-card">
-            <strong>
-              ${lifetime.played ?? 0}
-            </strong>
-            Played
-          </div>
-
-          <div class="stat-card">
-            <strong>
-              ${lifetime.correct ?? 0}
-            </strong>
-            Correct
-          </div>
-
-          <div class="stat-card">
-            <strong>
-              ${lifetime.incorrect ?? 0}
-            </strong>
-            Incorrect
-          </div>
-
-          <div class="stat-card">
-            <strong>
-              ${lifetime.accuracy ?? 0}%
-            </strong>
-            Accuracy
-          </div>
-
-        </div>
-
-        ${renderPersonalTitleStats(data)}
-
-        <div class="tabs">
-
-          <button
-            id="weekTab"
-            class="active"
-            onclick="
-              renderRanking(
-                'week'
-              )
-            ">
-            THIS WEEK
-          </button>
-
-          <button
-            id="monthTab"
-            onclick="
-              renderRanking(
-                'month'
-              )
-            ">
-            THIS MONTH
-          </button>
-
-        </div>
-
-        <div id="rankingArea"></div>
-
-        ${renderTitleRanking(data)}
-
-      </div>
-
-      ${back("showMainMenu")}
-    `);
-
-    renderRanking(
-      "week"
-    );
-
-  }catch(error){
-
-    page(`
-      <div class="section stats">
-
-        <h2 class="center">
-          MY STATISTICS
-        </h2>
-
-        <div class="notice">
-          Your statistics
-          could not be loaded.
-        </div>
-
-      </div>
-
-      ${back("showMainMenu")}
-    `);
-  }
-}
-
-
-function renderRanking(type){
-
-  if(!dashboardCache){
-    return;
-  }
-
-  const period =
-    dashboardCache[type];
-
-  const area =
-    document.getElementById(
-      "rankingArea"
-    );
-
-  const weekTab =
-    document.getElementById(
-      "weekTab"
-    );
-
-  const monthTab =
-    document.getElementById(
-      "monthTab"
-    );
-
-  if(
-    !area
-    ||
-    !period
-  ){
-    return;
-  }
-
-  if(weekTab){
-    weekTab.classList.toggle(
-      "active",
-      type==="week"
-    );
-  }
-
-  if(monthTab){
-    monthTab.classList.toggle(
-      "active",
-      type==="month"
-    );
-  }
-
-  let rankHtml = "";
-
-  if(period.player){
-
-    rankHtml = `
-      <div class="rank-card">
-
-        <strong>
-          #${period.player.rank}
-        </strong>
-
-        <p>
-          of
-          ${period.total_players ?? 0}
-          players
-        </p>
-
-        <p>
-          ${period.player.correct ?? 0}
-          correct ·
-          ${period.player.played ?? 0}
-          days played
-        </p>
-
-      </div>
-    `;
-
-  }else{
-
-    rankHtml = `
-      <div class="rank-card">
-
-        <strong>
-          Not ranked yet
-        </strong>
-
-        <p>
-          Play this period
-          to enter the ranking.
-        </p>
-
-      </div>
-    `;
-  }
-
-  const rows =
-    Array.isArray(
-      period.leaderboard
-    )
-    ?
-    period.leaderboard
-    :
-    [];
-
-  let leaderboardHtml = "";
-
-  if(rows.length === 0){
-
-    leaderboardHtml = `
-      <div class="notice">
-        No ranking data
-        is available yet.
-      </div>
-    `;
-
-  }else{
-
-    leaderboardHtml =
-      `<div class="leaderboard">`;
-
-    rows.forEach(row=>{
-
-      const me =
-        String(
-          row.player_name
-          ||
-          ""
-        ).toLowerCase()
-        ===
-        String(
-          playerName()
-        ).toLowerCase();
-
-      leaderboardHtml += `
-        <div
-          class="
-            leader-row
-            ${me ? "me" : ""}
-          ">
-
-          <strong>
-            #${row.rank}
-          </strong>
-
-          <span>
-            ${html(
-              row.player_name
-            )}
-          </span>
-
-          <span>
-            ${row.correct ?? 0}
-            correct
-            <br>
-            <small style="
-              margin:0;
-              text-align:right;
-            ">
-              ${row.played ?? 0}
-              played
-            </small>
-          </span>
-
-        </div>
-      `;
-    });
-
-    leaderboardHtml +=
-      `</div>`;
-  }
-
-  area.innerHTML = `
-    ${rankHtml}
-
-    <h3 class="center">
-      TOP 20
-    </h3>
-
-    ${leaderboardHtml}
-  `;
-}
   /* HISTORY / WALL OF FAME */
 
 async function showHistory(){
@@ -3453,11 +2709,30 @@ async function disablePushNotifications(
 playerId();
 showStartScreen();
 
+/* One-off notice: Matthias Q52 is already at Previous Answer. */
+(async()=>{try{const d=await api(QUIZ_SERVICE,{action:"get_answer",player_id:playerId(),question_num:52});if(d?.answer?.player_name==="Matthias"&&d?.answer?.result_adjustment==="neutralised"){const k="bdl-neutralised-52-2026-09-16";if(localStorage.getItem(k)!=="shown"){alert("Your question has been neutralised");localStorage.setItem(k,"shown");}}}catch(e){}})();
+
+
 </script>
-<script src="account.js?v=20260909c"></script>
-<script src="history.js?v=20260914d"></script>
-<script src="test-platform.js"></script>
-<script src="recovery-onboarding.js?v=20260909"></script>
-<script id="bdlStatsMenuScript" src="results-menu.js?v=20260914e"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script src="questions-51-60.js?v=20260917-clean-shell"></script>
+<script src="account.js?v=20260918-account-clean-v2"></script>
+<script src="history.js?v=20260917-clean-shell"></script>
+<script src="result-catchphrases.js?v=20260917-clean-shell"></script>
+<script src="quiz-schedule-1530.js?v=20260918-single-nav-v1"></script>
+<script src="test-platform.js?v=20260918-test-clean"></script>
+<script src="recovery-onboarding.js?v=20260917-clean-shell"></script>
+<script src="results-menu.js?v=20260918-stats-clean-v3"></script>
+<script src="performance.js?v=20260917-clean-shell"></script>
 </body>
 </html>
