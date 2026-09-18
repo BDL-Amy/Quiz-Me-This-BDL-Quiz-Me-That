@@ -1,218 +1,44 @@
-/* BDL STATISTICS SUBMENU */
+/* BDL STATISTICS — SINGLE IMPLEMENTATION */
 (function(){
-  const statsTimingNote=()=>`<div class="notice"><strong>Played</strong> updates immediately after you submit an answer. <strong>Correct and Accuracy</strong> are updated the following quiz day, when the correct answer is revealed.</div>`;
-
-  function statsCards(stats){
-    const s=stats||{};
-    return `<div class="stat-grid">
-      <div class="stat-card"><strong>${s.played??0}</strong>Played</div>
-      <div class="stat-card"><strong>${s.correct??0}</strong>Correct</div>
-      <div class="stat-card" style="grid-column:1/-1"><strong>${s.accuracy??0}%</strong>Accuracy</div>
-    </div>`;
-  }
-
-  function statsLeaderboard(block,title){
-    const rows=Array.isArray(block?.leaderboard)?block.leaderboard:[];
-    let body='';
-    if(!rows.length){
-      body='<div class="notice">No ranking data is available yet.</div>';
-    }else{
-      body='<div class="leaderboard">';
-      rows.slice(0,20).forEach(row=>{
-        const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
-        body+=`<div class="leader-row ${me?'me':''}"><strong>#${row.rank}</strong><span>${html(row.player_name)}</span><span>${row.correct??0} correct<br><small style="margin:0;text-align:right">${row.played??0} played</small></span></div>`;
-      });
-      body+='</div>';
-    }
-    return `<h3 class="center">${title}</h3>${body}`;
-  }
-
-  function titleTop20(data){
-    const allRows=buildTitleRanking(data);
-    const rows=allRows.slice(0,20);
-    const totalPlayers=allRows.length;
-    let body='';
-    if(!rows.length){
-      body='<div class="notice">No title winners are available yet.</div>';
-    }else{
-      body='<div class="title-leaderboard">';
-      rows.forEach(row=>{
-        const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
-        body+=`<div class="title-leader-card ${me?'me':''}">
-          <div class="title-leader-head">
-            <strong class="title-leader-rank">#${row.rank}</strong>
-            <span class="title-leader-name">${html(row.player_name)}</span>
-          </div>
-          <div class="title-leader-stats">
-            <div class="title-leader-stat weekly-accent"><span>Smartest wins</span><strong>${row.smartest}</strong></div>
-            <div class="title-leader-stat supreme-accent"><span>Supreme wins</span><strong>${row.supreme}</strong></div>
-            <div class="title-leader-stat"><span>Title Points</span><strong>${row.points}</strong></div>
-          </div>
-        </div>`;
-      });
-      body+='</div>';
-    }
-    return `<div class="section stats" style="margin-top:18px">
-      <h2 class="center">TITLE TOP 20 — ALL TIME</h2>
-      <div class="notice" style="border:1px solid var(--stats-light)">The Title Top 20 is separate from the general quiz ranking.</div>
-      <div class="notice" style="border:1px solid var(--stats-light);font-weight:bold">TOTAL: ${totalPlayers} ${totalPlayers===1?'PLAYER':'PLAYERS'}</div>
-      ${body}
-    </div>`;
-  }
-
-  const grandmasterNumber=value=>{
-    const number=Number(value);
-    return Number.isFinite(number)?number:0;
-  };
-
-  const grandmasterScore=(value,maximum)=>`${grandmasterNumber(value).toFixed(2)} / ${maximum}`;
-
-  function grandmasterLeaderboard(data){
-    const grandmaster=data?.grandmaster||{};
-    const rows=Array.isArray(grandmaster.leaderboard)?grandmaster.leaderboard:[];
-    if(data?.ranking_access!==true){
-      return `<div class="notice">Your results are private. Join the rankings in Personal Settings to view the Grandmaster Top 20.</div>`;
-    }
-    if(!rows.length){
-      return `<div class="notice">No Grandmaster ranking data is available yet.</div>`;
-    }
-    let body='<div class="title-leaderboard">';
-    rows.forEach(row=>{
-      const me=String(row.player_name||'').toLowerCase()===String(playerName()||'').toLowerCase();
-      body+=`<div class="title-leader-card ${me?'me':''}">
-        <div class="title-leader-head">
-          <strong class="title-leader-rank">#${row.rank}</strong>
-          <span class="title-leader-name">${html(row.player_name)}</span>
-          <strong style="margin-left:auto;color:var(--stats);font-size:20px">${grandmasterNumber(row.grandmaster_score).toFixed(2)}</strong>
-        </div>
-        <div class="title-leader-stats">
-          <div class="title-leader-stat"><span>Correct</span><strong>${grandmasterNumber(row.correct_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat"><span>Participation</span><strong>${grandmasterNumber(row.participation_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat"><span>Accuracy</span><strong>${grandmasterNumber(row.accuracy_score).toFixed(2)}</strong></div>
-        </div>
-        <div class="title-leader-stats" style="border-top:1px solid #eee">
-          <div class="title-leader-stat"><span>Title Points</span><strong>${grandmasterNumber(row.title_points_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat supreme-accent"><span>Supreme</span><strong>${grandmasterNumber(row.supreme_score).toFixed(2)}</strong></div>
-          <div class="title-leader-stat weekly-accent"><span>Weekly</span><strong>${grandmasterNumber(row.weekly_score).toFixed(2)}</strong></div>
-        </div>
-      </div>`;
-    });
-    body+='</div>';
-    return body;
-  }
-
-  function grandmasterPersonal(data){
-    const grandmaster=data?.grandmaster||{};
-    const player=grandmaster.player;
-    const year=grandmaster.year||new Date().getFullYear();
-    if(!player){
-      return `<div class="notice">You do not have a Grandmaster score for ${year} yet.</div>`;
-    }
-    return `<div class="title-summary">
-      <h2 class="center">THE BDL GRANDMASTER ${year}</h2>
-      <div class="stat-card" style="margin:12px 0 16px"><strong>${grandmasterNumber(player.grandmaster_score).toFixed(2)}</strong>Your Grandmaster Score / 100</div>
-      <div class="stat-grid">
-        <div class="stat-card"><strong>${grandmasterScore(player.correct_score,45)}</strong>Correct answers</div>
-        <div class="stat-card"><strong>${grandmasterScore(player.participation_score,25)}</strong>Participation</div>
-        <div class="stat-card"><strong>${grandmasterScore(player.accuracy_score,15)}</strong>Accuracy</div>
-        <div class="stat-card"><strong>${grandmasterScore(player.title_points_score,10)}</strong>Total Title Points</div>
-        <div class="stat-card supreme-accent"><strong>${grandmasterScore(player.supreme_score,4)}</strong>Supreme Title Points</div>
-        <div class="stat-card weekly-accent"><strong>${grandmasterScore(player.weekly_score,1)}</strong>Weekly Title Points</div>
-      </div>
-      <div class="title-points-note" style="text-align:left">
-        <strong>YOUR YEAR SO FAR</strong><br><br>
-        ${player.correct} correct answers from ${player.available_questions} available questions ·
-        ${player.played} participations · ${grandmasterNumber(player.accuracy).toFixed(2)}% accuracy<br><br>
-        ${player.title_points} of ${player.possible_title_points} total Title Points ·
-        ${player.supreme_wins} Supreme win${player.supreme_wins===1?'':'s'} ·
-        ${player.smartest_wins} Weekly win${player.smartest_wins===1?'':'s'}
-      </div>
-      <div class="title-points-note title-points-calculation">
-        <h3>GRANDMASTER FORMULA</h3>
-        <div class="title-point-rule"><span>Correct answers</span><strong>45%</strong></div>
-        <div class="title-point-rule"><span>Participation</span><strong>25%</strong></div>
-        <div class="title-point-rule"><span>Accuracy</span><strong>15%</strong></div>
-        <div class="title-point-rule"><span>Total Title Points</span><strong>10%</strong></div>
-        <div class="title-point-rule supreme-accent"><span>Supreme Title Points</span><strong>4%</strong></div>
-        <div class="title-point-rule weekly-accent"><span>Weekly Title Points</span><strong>1%</strong></div>
-        <div class="title-point-total"><span>TOTAL</span><strong>100%</strong></div>
-      </div>
-    </div>`;
-  }
-
-  function grandmasterWinners(data){
-    const rows=Array.isArray(data?.grandmaster?.official_winners)?data.grandmaster.official_winners:[];
-    if(!rows.length)return '';
-    const newestYear=Math.max(...rows.map(row=>Number(row.competition_year)||0));
-    const cards=rows.map((row,index)=>`<div class="wall-card month">
-      <strong>${Number(row.competition_year)===newestYear?'REIGNING BDL GRANDMASTER':'BDL GRANDMASTER'} ${row.competition_year}</strong>
-      <h3>${html(row.player_name)}</h3>
-      <div>${grandmasterNumber(row.grandmaster_score).toFixed(2)} / 100</div>
-    </div>`).join('');
-    return `<div class="section stats grandmaster-theme" style="margin-top:18px"><h2 class="center">GRANDMASTER TITLE HOLDERS</h2>${cards}</div>`;
-  }
-
-  async function getStatsDashboard(){
-    page('<div class="loading">Loading your statistics...</div>');
-    return await loadDashboard();
-  }
-
-  window.showMyStatistics=function(){
-    page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="menu">
-      <button onclick="showStatisticsPeriod('week')" style="border-color:var(--stats);font-weight:bold">THIS WEEK</button>
-      <button onclick="showStatisticsPeriod('month')" style="border-color:var(--stats);font-weight:bold">THIS MONTH</button>
-      <button onclick="showStatisticsPeriod('all')" style="border-color:var(--stats);font-weight:bold">TOP 20 ALL TIME</button>
-      <button onclick="showMyTitles()" style="border-color:var(--stats);font-weight:bold">MY TITLES</button>
-      <button onclick="showGrandmaster()" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button>
-    </div></div>${back('showMainMenu')}`);
-  };
-
-  window.showStatisticsPeriod=async function(type){
-    try{
-      const data=await getStatsDashboard();
-      let title='THIS WEEK',stats=data?.week?.player||{},ranking=data?.week,topTitle='QUIZ TOP 20 — THIS WEEK';
-      if(type==='month'){
-        title='THIS MONTH';stats=data?.month?.player||{};ranking=data?.month;topTitle='QUIZ TOP 20 — THIS MONTH';
-      }else if(type==='all'){
-        title='ALL TIME';stats=data?.lifetime||{};ranking=data?.top20;topTitle='QUIZ TOP 20 — ALL TIME';
-      }
-      const rankingHtml=data?.ranking_access===true?statsLeaderboard(ranking,topTitle):`<h3 class="center">${topTitle}</h3><div class="notice">Your results are private. Join the rankings in Personal Settings to view the Top 20.</div>`;
-      page(`<div class="section stats"><h2 class="center">${title}</h2>${statsCards(stats)}${statsTimingNote()}<div style="margin-top:24px">${rankingHtml}</div></div>${back('showMyStatistics')}`);
-    }catch(e){
-      page(`<div class="section stats"><h2 class="center">MY STATISTICS</h2><div class="notice">Your statistics could not be loaded.</div></div>${back('showMyStatistics')}`);
-    }
-  };
-
-  window.showMyTitles=async function(){
-    try{
-      const data=await getStatsDashboard();
-      const personal=renderPersonalTitleStats(data);
-      const ranking=data?.ranking_access===true?titleTop20(data):`<div class="section stats" style="margin-top:18px"><h2 class="center">TITLE TOP 20 — ALL TIME</h2><div class="notice">Your results are private. Join the rankings in Personal Settings to view the Title Top 20.</div></div>`;
-      page(`<div class="section stats" style="background:var(--stats-bg);border:2px solid var(--stats-light);border-top:7px solid var(--stats)">${personal}</div>${ranking}${back('showMyStatistics')}`);
-    }catch(e){
-      page(`<div class="section stats"><h2 class="center">MY TITLES</h2><div class="notice">Your title statistics could not be loaded.</div></div>${back('showMyStatistics')}`);
-    }
-  };
-
-  window.showGrandmaster=async function(backTarget){
-    const returnTo=backTarget==='showQuizMenu'?'showQuizMenu':'showMyStatistics';
-    try{
-      const data=await getStatsDashboard();
-      const year=data?.grandmaster?.year||new Date().getFullYear();
-      const personal=grandmasterPersonal(data);
-      const ranking=grandmasterLeaderboard(data);
-      const total=data?.ranking_access===true?`<div class="notice" style="font-weight:bold">TOTAL: ${grandmasterNumber(data?.grandmaster?.total_players)} ${grandmasterNumber(data?.grandmaster?.total_players)===1?'PLAYER':'PLAYERS'}</div>`:'';
-      page(`<div class="section stats grandmaster-theme" style="background:var(--stats-bg);border:2px solid var(--stats-light);border-top:7px solid var(--stats)">
-        ${personal}
-      </div>
-      <div class="section stats grandmaster-theme" style="margin-top:18px">
-        <h2 class="center">GRANDMASTER ${year} — LIVE TOP 20</h2>
-        <div class="notice">The live score is recalculated per category. The official annual title is awarded after the year has ended.</div>
-        ${total}
-        ${ranking}
-      </div>${grandmasterWinners(data)}${back(returnTo)}`);
-    }catch(e){
-      page(`<div class="section stats grandmaster-theme"><h2 class="center">GRANDMASTER</h2><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back(returnTo)}`);
-    }
-  };
+  const style=document.createElement('style');
+  style.textContent=`
+    .section.stats{--stats:#6f2da8;--stats-light:#d9b8f0;--stats-bg:#fff7c2;background:var(--stats-bg);border-top-color:var(--stats)}
+    .section.stats>.menu button{background:#6f2da8;border-color:#6f2da8!important;color:#ffd83d;font-weight:bold}
+    .section.stats>.menu .weekly{background:var(--weekly-bg);border-color:var(--weekly)!important;color:var(--weekly)}
+    .section.stats>.menu .supreme{background:var(--supreme-bg);border-color:var(--supreme)!important;color:var(--supreme)}
+    .section.stats>.menu .grandmaster{background:var(--grandmaster-bg);border-color:var(--grandmaster)!important;color:var(--grandmaster)}
+    .section.stats.stats-level-1{background:#fff7c2;border-top-color:#6f2da8}
+    .section.stats.stats-level-1>.menu button{background:#6f2da8;border-color:#6f2da8!important;color:#ffd83d}
+    .section.stats.stats-level-2{background:#6f2da8;border-top-color:#ffd83d}
+    .section.stats.stats-level-2 h2{color:#fff4a3}
+    .section.stats.stats-level-2>.menu button{background:#ffd83d;border-color:#ffd83d!important;color:#5b238c}
+    .section.stats.stats-level-3{background:#fff0a6;border-top-color:#7f3fba}
+    .section.stats.stats-level-3>.menu button{background:#7f3fba;border-color:#7f3fba!important;color:#fff0a6}
+    .stats-connection{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px;font-size:12px}
+    .stats-connection strong{padding:4px 7px;border-radius:999px;background:#e6f5e9;color:#176b2c}
+    .stats-connection span{font-weight:700}
+  `;
+  document.head.appendChild(style);
+  const timing=()=>`<div class="notice"><strong>Results are published at Previous Answer.</strong><br>While a question is in Today or Catch Up, Played, Correct, Incorrect and Accuracy remain hidden and are not counted in the visible statistics. As soon as that question reaches Previous Answer, Played and its Correct or Incorrect result are published together and Accuracy is updated.</div>`;
+  const cards=s=>`<div class="stat-grid"><div class="stat-card"><strong>${s?.played??0}</strong>Played</div><div class="stat-card"><strong>${s?.correct??0}</strong>Correct</div><div class="stat-card"><strong>${s?.incorrect??0}</strong>Incorrect</div><div class="stat-card"><strong>${s?.accuracy??0}%</strong>Accuracy</div></div>`;
+  const num=v=>Number.isFinite(Number(v))?Number(v):0;
+  const sameName=(a,b)=>String(a||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===String(b||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
+  async function data(){page('<div class="loading">Connecting to statistics...</div>');dashboardCache=null;return await loadDashboard()}
+  const connection=()=>'<div class="stats-connection"><strong>LIVE CONNECTION</strong><span>Statistics connected</span></div>';
+  function quizRanking(block,title){const rows=Array.isArray(block?.leaderboard)?block.leaderboard:[];if(!rows.length)return `<h3 class="center">${title}</h3><div class="notice">No ranking data is available yet.</div>`;return `<h3 class="center">${title}</h3><div class="leaderboard">${rows.slice(0,20).map(r=>`<div class="leader-row"><strong>#${r.rank}</strong><span>${html(r.player_name)}</span><span>${r.correct??0} correct<br><small style="margin:0;text-align:right">${r.played??0} played</small></span></div>`).join('')}</div>`}
+  function titleRows(d){const weekly=Array.isArray(d?.history?.weekly)?d.history.weekly:[],monthly=Array.isArray(d?.history?.monthly)?d.history.monthly:[],map=new Map();const add=(name,type)=>{const n=String(name||'').trim();if(!n)return;const k=n.toLowerCase();if(!map.has(k))map.set(k,{player_name:n,smartest:0,supreme:0});const r=map.get(k);r[type]++;r.points=r.smartest+r.supreme*4};weekly.forEach(r=>add(r.player_name,'smartest'));monthly.forEach(r=>add(r.player_name,'supreme'));return [...map.values()]}
+  function titleList(d,type){let rows=titleRows(d);if(type==='smartest')rows=rows.filter(r=>r.smartest>0).sort((a,b)=>b.smartest-a.smartest||a.player_name.localeCompare(b.player_name));if(type==='supreme')rows=rows.filter(r=>r.supreme>0).sort((a,b)=>b.supreme-a.supreme||a.player_name.localeCompare(b.player_name));if(type==='all')rows=rows.sort((a,b)=>b.points-a.points||b.supreme-a.supreme||b.smartest-a.smartest||a.player_name.localeCompare(b.player_name));if(!rows.length)return '<div class="notice">No title winners are available yet.</div>';let previousScore=null,rank=0;return `<div class="title-leaderboard">${rows.slice(0,20).map((r,i)=>{const score=type==='smartest'?r.smartest:type==='supreme'?r.supreme:r.points;if(previousScore===null||score!==previousScore)rank=i+1;previousScore=score;return `<div class="title-leader-card"><div class="title-leader-head"><strong class="title-leader-rank">#${rank}</strong><span class="title-leader-name">${html(r.player_name)}</span></div><div class="title-leader-stats">${type!=='supreme'?`<div class="title-leader-stat weekly-accent"><span>Smartest</span><strong>${r.smartest}</strong></div>`:''}${type!=='smartest'?`<div class="title-leader-stat supreme-accent"><span>Supreme</span><strong>${r.supreme}</strong></div>`:''}${type==='all'?`<div class="title-leader-stat"><span>Title Points</span><strong>${r.points}</strong></div>`:''}</div></div>`}).join('')}</div>`}
+  window.showMyStatistics=function(){page(`<div class="section stats stats-level-1"><h2 class="center">MY STATISTICS</h2><div class="menu"><button onclick="showPeriodMenu()">PERIOD</button><button onclick="showRankingsMenu()">RANKINGS</button><button onclick="showMyTitles()">TITLES</button></div></div>${back('showMainMenu')}`)};
+  window.showPeriodMenu=function(){page(`<div class="section stats stats-level-2"><h2 class="center">PERIOD</h2><div class="menu"><button onclick="showStatisticsPeriod('week')">THIS WEEK</button><button onclick="showStatisticsPeriod('month')">THIS MONTH</button><button onclick="showStatisticsPeriod('year')">YEARLY</button></div></div>${back('showMyStatistics')}`)};
+  window.showRankingsMenu=function(){page(`<div class="section stats stats-level-2"><h2 class="center">RANKINGS</h2><div class="menu"><button onclick="showTop20Menu()">TOP 20</button><button onclick="showTitlePointsMenu()">TITLE POINTS</button></div></div>${back('showMyStatistics')}`)};
+  window.showTop20Menu=function(){page(`<div class="section stats stats-level-3"><h2 class="center">TOP 20</h2><div class="menu"><button onclick="showTop20Period('week')">THIS WEEK</button><button onclick="showTop20Period('month')">THIS MONTH</button><button onclick="showTop20Period('all')">ALL TIME</button></div></div>${back('showRankingsMenu')}`)};
+  window.showTitlePointsMenu=function(){page(`<div class="section stats stats-level-3"><h2 class="center">TITLE POINTS</h2><div class="menu"><button onclick="showTitleCategory('smartest','showTitlePointsMenu')">SMARTEST TITLE POINTS</button><button onclick="showTitleCategory('supreme','showTitlePointsMenu')">SUPREME TITLE POINTS</button><button onclick="showTitleCategory('all','showTitlePointsMenu')">TOTAL TITLE POINTS</button></div></div>${back('showRankingsMenu')}`)};
+  window.showStatisticsPeriod=async function(type){try{const d=await data();let title='THIS WEEK',s=d?.week?.personal||d?.week?.player||{};if(type==='month'){title='THIS MONTH';s=d?.month?.personal||d?.month?.player||{}}else if(type==='year'){title='YEARLY';s=d?.year?.personal||{}}page(`<div class="section stats"><h2 class="center">${title}</h2>${connection()}${cards(s)}${timing()}</div>${back('showPeriodMenu')}`)}catch(e){page(`<div class="section stats"><div class="notice">Your statistics could not be loaded.</div></div>${back('showPeriodMenu')}`)}};
+  window.showTop20Period=async function(type){try{const d=await data();let title='QUIZ TOP 20 — THIS WEEK',r=d?.week;if(type==='month'){title='QUIZ TOP 20 — THIS MONTH';r=d?.month}else if(type==='all'){title='QUIZ TOP 20 — ALL TIME';r=d?.top20}const rank=d?.ranking_access===true?quizRanking(r,title):`<h3 class="center">${title}</h3><div class="notice">Join the rankings in Personal Settings to view the Top 20.</div>`;page(`<div class="section stats">${connection()}${rank}${timing()}</div>${back('showTop20Menu')}`)}catch(e){page(`<div class="section stats"><div class="notice">The ranking could not be loaded.</div></div>${back('showTop20Menu')}`)}};
+  window.showMyTitles=function(){page(`<div class="section stats stats-level-2"><h2 class="center">TITLES</h2><div class="menu"><button onclick="showTitleCategory('smartest','showMyTitles')">SMARTEST</button><button onclick="showTitleCategory('supreme','showMyTitles')">SUPREME</button><button onclick="showGrandmaster('showMyTitles')">GRANDMASTER</button></div></div>${back('showMyStatistics')}`)};
+  window.showTitleCategory=async function(type,backTarget){const returnTo=backTarget==='showTitlePointsMenu'?'showTitlePointsMenu':'showMyTitles';try{const d=await data(),name=type==='smartest'?(returnTo==='showTitlePointsMenu'?'SMARTEST TITLE POINTS':'SMARTEST'):type==='supreme'?(returnTo==='showTitlePointsMenu'?'SUPREME TITLE POINTS':'SUPREME'):'TOTAL TITLE POINTS',cls=type==='smartest'?' weekly-theme':type==='supreme'?' supreme-theme':'';page(`<div class="section stats${cls}"><h2 class="center">${name}</h2>${connection()}${titleList(d,type)}${type==='all'?'<div class="title-points-note">Smartest = 1 Title Point · Supreme = 4 Title Points</div>':''}</div>${back(returnTo)}`)}catch(e){page(`<div class="section stats"><div class="notice">Title statistics could not be loaded.</div></div>${back(returnTo)}`)}};
+  function grandmasterLeaderboard(d){const rows=Array.isArray(d?.grandmaster?.leaderboard)?d.grandmaster.leaderboard:[];if(!rows.length)return '<div class="notice">No Grandmaster ranking data is available yet.</div>';return `<div class="title-leaderboard">${rows.map(r=>`<div class="title-leader-card"><div class="title-leader-head"><strong class="title-leader-rank">#${r.rank}</strong><span class="title-leader-name">${html(r.player_name)}</span><strong style="margin-left:auto">${num(r.grandmaster_score).toFixed(2)}</strong></div></div>`).join('')}</div>`}
+  function grandmasterPersonal(p,year){if(!p)return `<div class="notice">You do not have a Grandmaster score for ${year} yet.</div>`;return `<div class="title-summary"><h3 class="center">YOUR GRANDMASTER SCORE</h3><div class="stat-grid"><div class="stat-card"><strong>${num(p.correct_score).toFixed(2)}</strong>Correct answers</div><div class="stat-card"><strong>${num(p.participation_score).toFixed(2)}</strong>Participation</div><div class="stat-card"><strong>${num(p.accuracy_score).toFixed(2)}</strong>Accuracy</div><div class="stat-card"><strong>${num(p.title_points_score).toFixed(2)}</strong>Total Title Points</div><div class="stat-card supreme-accent"><strong>${num(p.supreme_score).toFixed(2)}</strong>Supreme Title Points</div><div class="stat-card weekly-accent"><strong>${num(p.weekly_score).toFixed(2)}</strong>Weekly Title Points</div></div><div class="stat-card" style="margin-top:12px"><strong>${num(p.grandmaster_score).toFixed(2)}</strong>Grandmaster Score</div></div>`}
+  function grandmasterFormula(){return `<div class="title-points-note title-points-calculation"><h3>HOW YOUR GRANDMASTER SCORE IS CALCULATED</h3><div class="title-point-rule"><span>Correct answers</span><strong>45%</strong></div><div class="title-point-rule"><span>Participation</span><strong>25%</strong></div><div class="title-point-rule"><span>Accuracy</span><strong>15%</strong></div><div class="title-point-rule"><span>Total Title Points</span><strong>10%</strong></div><div class="title-point-rule supreme-accent"><span>Supreme Title Points</span><strong>4%</strong></div><div class="title-point-rule weekly-accent"><span>Weekly Title Points</span><strong>1%</strong></div><div class="title-point-total"><span>TOTAL</span><strong>100%</strong></div></div>`}
+  window.showGrandmaster=async function(backTarget){const returnTo=backTarget==='showQuizMenu'?'showQuizMenu':backTarget==='showMyTitles'?'showMyTitles':'showMyStatistics';try{const d=await data(),g=d?.grandmaster||{},year=g.year||new Date().getFullYear(),rows=Array.isArray(g.leaderboard)?g.leaderboard:[],personal=g.player||rows.find(r=>sameName(r.player_name,typeof playerName==='function'?playerName():''))||null;page(`<div class="section stats grandmaster-theme"><h2 class="center">THE BDL GRANDMASTER ${year}</h2>${connection()}${grandmasterPersonal(personal,year)}<h3 class="center" style="margin-top:28px">RANKING</h3>${d?.ranking_access===true?grandmasterLeaderboard(d):'<div class="notice">Join the rankings in Personal Settings to view the Grandmaster ranking.</div>'}${grandmasterFormula()}</div>${back(returnTo)}`)}catch(e){page(`<div class="section stats grandmaster-theme"><div class="notice">The Grandmaster ranking could not be loaded.</div></div>${back(returnTo)}`)}};
 })();
