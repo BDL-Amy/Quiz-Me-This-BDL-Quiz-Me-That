@@ -27,6 +27,7 @@
   --quiz:#f3a712;
   --quiz-bg:#fff4d7;
   --history:#7b263d;
+  --history-contrast:#28b8b0;
   --history-bg:#fff4f3;
   --settings:#267c78;
   --settings-bg:#effaf8;
@@ -126,8 +127,44 @@ button{
 }
 
 .history{
-  background:var(--history-bg);
+  background:#fff0f3;
   border-top:7px solid var(--history);
+}
+.history-menu button{
+  background:var(--history);
+  border-color:var(--history);
+  color:#bfeeea;
+  font-weight:bold;
+}
+.history.history-level-1{
+  background:#8b3049;
+  border-top-color:#35c7bf;
+}
+.history.history-level-1 h2{color:#d8f7f4;}
+.history.history-level-1 .history-menu button{
+  background:#35c7bf;
+  border-color:#35c7bf;
+  color:#6b1f35;
+}
+.history.history-level-2{
+  background:#35c7bf;
+  border-top-color:#8b3049;
+}
+.history.history-level-2 h2{color:#651d32;}
+.history.history-level-2 .history-menu button{
+  background:#8b3049;
+  border-color:#8b3049;
+  color:#bff4f0;
+}
+.history.history-level-3{
+  background:#bcefeb;
+  border-top-color:#7b263d;
+}
+.history.history-level-3 h2{color:#651d32;}
+.history.history-level-3 .history-menu button{
+  background:#7b263d;
+  border-color:#7b263d;
+  color:#bcefeb;
 }
 
 .settings{
@@ -2742,7 +2779,7 @@ showStartScreen();
 
 <script src="questions-51-60.js?v=20260917-clean-shell"></script>
 <script src="account.js?v=20260918-account-clean-v2"></script>
-<script src="history.js?v=20260917-clean-shell"></script>
+<script src="history.js?v=20260918-wall-week-v4"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
 <script src="quiz-schedule-1530.js?v=20260918-single-nav-v1"></script>
 <script src="test-platform.js?v=20260918-test-clean"></script>
