@@ -1,5 +1,5 @@
 /* BDL PWA UPDATE 2026-09-19 — cleaned quiz paths */
-const CACHE='bdl-app-20260919-mainmenu-fix-v7';
+const CACHE='bdl-app-20260919-no-quiz-access-v8';
 const ASSETS=['./','./index.html','./bootstrap.js','./questions-51-60.js','./quiz-schedule-1530.js','./result-catchphrases.js','./account.js','./history.js','./test-platform.js','./recovery-onboarding.js','./results-menu.js','./performance.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(()=>{}).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await clients.claim();const cs=await clients.matchAll({type:'window',includeUncontrolled:true});for(const c of cs){try{if('navigate' in c)await c.navigate(c.url)}catch{}}})()));
