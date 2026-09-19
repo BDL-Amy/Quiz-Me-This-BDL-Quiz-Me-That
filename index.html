@@ -1444,7 +1444,6 @@ function showStartScreen(){
   document.getElementById("mainHeader").style.display="none";
   const day=quizDay();
   if(day<0){page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>The Daily Quiz starts on 11 August at 08:00.</p></div>`);return}
-  if(day>=questions.length){page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>No new Daily Quiz is scheduled yet.</p></div>`);return}
   const name=playerName(),id=localStorage.getItem("bdlPlayerId");
   if(!name||!id){if(typeof showAccountChoice==="function"){showAccountChoice();return}page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Loading player account...</p></div>`);return}
   if(typeof needsReservedNameChange==="function"&&needsReservedNameChange()){showReservedNameChange();return}
