@@ -1599,6 +1599,16 @@ async function loadWinnerAnnouncements(){
 
 async function startQuiz(){
   showMainMenu();
+  setTimeout(async()=>{
+    try{
+      const items=await loadWinnerAnnouncements();
+      pendingWinnerAnnouncements=Array.isArray(items)?items:[];
+      if(pendingWinnerAnnouncements.length) showNextWinnerAnnouncement();
+    }catch(error){
+      console.error("Winner announcements could not be loaded.",error);
+      pendingWinnerAnnouncements=[];
+    }
+  },0);
 }
 
 function showNextWinnerAnnouncement(){
