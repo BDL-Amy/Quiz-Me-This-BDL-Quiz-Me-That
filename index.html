@@ -1597,18 +1597,19 @@ async function loadWinnerAnnouncements(){
 }
 
 
-async function startQuiz(){
-  showMainMenu();
-  setTimeout(async()=>{
-    try{
-      const items=await loadWinnerAnnouncements();
-      pendingWinnerAnnouncements=Array.isArray(items)?items:[];
-      if(pendingWinnerAnnouncements.length) showNextWinnerAnnouncement();
-    }catch(error){
-      console.error("Winner announcements could not be loaded.",error);
-      pendingWinnerAnnouncements=[];
-    }
-  },0);
+function startQuiz(){
+  page(`<h2 class="center">Welcome, ${html(playerName())}</h2><div class="menu main-menu"><button onclick="showMyStatistics()">MY STATISTICS</button><button onclick="showQuizMenu()">QUIZ</button><button onclick="showHistory()">HISTORY</button><button onclick="showPersonalSettings()">PERSONAL SETTINGS</button><button onclick="showQuizPolicy()">QUIZ POLICY</button>${(typeof isTestIdentity==="function"&&isTestIdentity())?`<button onclick="showTestMode()">TEST MODE</button>`:""}</div>`);
+  window.setTimeout(loadWinnerAnnouncementsAfterStart,250);
+}
+async function loadWinnerAnnouncementsAfterStart(){
+  try{
+    const items=await loadWinnerAnnouncements();
+    pendingWinnerAnnouncements=Array.isArray(items)?items:[];
+    if(pendingWinnerAnnouncements.length) showNextWinnerAnnouncement();
+  }catch(error){
+    console.error("Winner announcements could not be loaded.",error);
+    pendingWinnerAnnouncements=[];
+  }
 }
 
 function showNextWinnerAnnouncement(){
