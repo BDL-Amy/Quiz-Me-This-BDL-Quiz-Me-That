@@ -52,7 +52,7 @@ if(typeof questions !== "undefined"){
   if(slot && !slot.question && next && next.question === "Bubu found a big bag with a lot of money once. What did she do with it?") questions.splice(q49Index,1);
 }
 
-setTimeout(()=>{checkExistingPlayerRecoveryOnboarding();},0);
+/* Recovery onboarding is user-triggered from account/settings flows; do not race the start screen. */
 
 const BDL_RESULT_WORDS = {
   Bubu:"Bubulicious",Dudu:"Dudusational",Alec:"Aleccredible",Masha:"Mashazing",
