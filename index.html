@@ -670,7 +670,6 @@ button{
   <div id="mainHeader">
     <h1>Quiz Me This, BDL, Quiz Me That</h1>
     <small>Daily Quiz</small>
-    <button type="button" style="margin-top:28px" onclick="if(typeof showMainMenu==='function'){showMainMenu()}else{location.reload()}">START QUIZ</button>
   </div>
 
   <div id="quiz"></div>
@@ -2501,6 +2500,19 @@ playerId();
 <script src="recovery-onboarding.js?v=20260919-async-fix-v4"></script>
 <script src="results-menu.js?v=20260918-stats-clean-v3"></script>
 <script src="performance.js?v=20260917-clean-shell"></script>
-<script>showStartScreen();</script>
+<script>
+(function bootQuizApp(){
+  try{
+    if(typeof showStartScreen!=="function") throw new Error("showStartScreen unavailable");
+    showStartScreen();
+  }catch(error){
+    console.error("Quiz startup failed:",error);
+    const quiz=document.getElementById("quiz");
+    const header=document.getElementById("mainHeader");
+    if(header)header.style.display="none";
+    if(quiz)quiz.innerHTML='<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>The quiz could not finish loading.</p><button type="button" onclick="location.reload()">RELOAD QUIZ</button></div>';
+  }
+})();
+</script>
 </body>
 </html>
