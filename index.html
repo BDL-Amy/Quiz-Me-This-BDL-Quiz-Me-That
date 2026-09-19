@@ -1418,33 +1418,24 @@ function html(text){
 
 function page(content){
   document.getElementById("quiz").innerHTML=content;
-  queueMicrotask(bindBackButton);
 }
 
-
-let bdlBackAction=null;
 function back(fn="showMainMenu"){
-  bdlBackAction=fn;
-  return `<button id="bdlBackButton" class="back" type="button">BACK</button>`;
+  return `<button class="back" type="button" data-bdl-back="${html(String(fn||"showMainMenu"))}">BACK</button>`;
 }
 
-function bindBackButton(){
-  const button=document.getElementById("bdlBackButton");
+document.addEventListener("click",function(event){
+  const button=event.target.closest("[data-bdl-back]");
   if(!button)return;
-  button.addEventListener("click",function(event){
-    event.preventDefault();
-    const action=bdlBackAction;
-    if(typeof action==="function"){action();return;}
-    if(typeof action==="string"){
-      try{
-        const call=Function("return function(){"+action+"()}")();
-        call();
-        return;
-      }catch(error){console.error("Back navigation failed:",action,error);}
-    }
+  event.preventDefault();
+  const action=button.getAttribute("data-bdl-back")||"showMainMenu";
+  try{
+    Function(action+"()")();
+  }catch(error){
+    console.error("Back navigation failed:",action,error);
     if(typeof showMainMenu==="function")showMainMenu();
-  },{once:true});
-}
+  }
+});
 
 
 async function api(
