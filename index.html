@@ -605,12 +605,35 @@ button{
   font-weight:bold;
 }
 
-/* POLICY — same nested navigation pattern as Statistics */
-.policy-home,.policy-submenu{background:#fff7fb;border-top-color:#d41473}
-.policy-home>h2,.policy-submenu>h2{color:#d41473}
-.policy-menu{background:#d41473;border-radius:18px;padding:18px}
-.policy-menu button{background:#7bbd1e!important;color:#d41473!important;border-color:#7bbd1e!important}
-.policy-home .policy-menu button{background:#7bbd1e!important;color:#d41473!important}
+/* POLICY — mirror Statistics' filled nested-card pattern */
+.policy-home{
+  background:#f3f8d7;
+  border-top:14px solid #d41473;
+}
+.policy-home>h2{color:#111}
+.policy-home .policy-menu{
+  background:transparent;
+  padding:0;
+}
+.policy-home .policy-menu button{
+  background:#d41473!important;
+  color:#b9ee42!important;
+  border-color:#d41473!important;
+}
+.policy-submenu{
+  background:#d41473;
+  border-top:14px solid #b9ee42;
+}
+.policy-submenu>h2{color:#b9ee42}
+.policy-submenu .policy-menu{
+  background:transparent;
+  padding:0;
+}
+.policy-submenu .policy-menu button{
+  background:#b9ee42!important;
+  color:#d41473!important;
+  border-color:#b9ee42!important;
+}
 .policy-winners .weekly-policy{background:var(--weekly)!important;color:#fff!important;border-color:var(--weekly)!important}
 .policy-winners .supreme-policy{background:var(--supreme)!important;color:#fff!important;border-color:var(--supreme)!important}
 .policy-winners .grandmaster-policy{background:var(--grandmaster)!important;color:#fff!important;border-color:var(--grandmaster)!important}
