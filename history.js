@@ -55,31 +55,22 @@ contact:{title:"CONTACT",body:`<p>For privacy questions, personal-data requests,
 fair:{title:"FAIR PLAY & QUESTION NEUTRALISATION",body:`<p>Players should use one legitimate player identity and should not manipulate accounts, submissions, rankings, winner selection or technical systems. The quiz administrator may correct technical errors, duplicate or invalid records, or results affected by manipulation.</p><p><strong>Question neutralisation</strong> is used when a question cannot reasonably be assessed fairly. This may happen, for example, when wording is genuinely ambiguous, an image or answer option is unclear, information in the question is incorrect, more than one answer can reasonably be considered correct, or another issue has significantly affected the fairness of the question.</p><p>When there is reasonable doubt about whether a question should be neutralised for everyone, <strong>a poll will first be held in the BDL WhatsApp group</strong>. Players can share whether they believe the question should be neutralised. The feedback from the poll will be taken into account before the quiz administration makes the final decision.</p><p>If a question is neutralised for everyone, <strong>every player who participated in that question receives a correct answer</strong>, regardless of the option originally selected. Nobody loses points because of a neutralised question.</p><p>A question is not neutralised simply because it was difficult or because many players answered it incorrectly.</p><p>The BDL Quiz is a general quiz, and it is not always possible to create every question while taking every individual difficulty or circumstance into account. For that reason, an individual difficulty — <strong>for example, colour blindness</strong> — would not normally be a reason to neutralise a question for all players.</p><p>However, an individual difficulty can be a reason to <strong>neutralise the question for an individual player</strong>. If a circumstance makes it difficult or impossible to answer a particular question fairly, the player should contact the quiz administration <strong>during the day the question is running</strong>. The player may contact the administration privately or ask in the BDL WhatsApp group to be contacted privately.</p><p>The situation will then be considered privately and, where appropriate, the question can be neutralised for that player without changing the results of other players.</p>`},
 changes:{title:"POLICY CHANGES",body:`<p>This policy may be updated when quiz features, rules or data processing change. The latest version shown in the quiz applies from its stated update date.</p><p><strong>Last updated: 14 September 2026</strong></p>`}
 };
+function policyNavButton(label,action,index){
+  const colors=["#d41473","#7bbd1e"];
+  const color=colors[index%2];
+  return `<button onclick="${action}" style="border-color:${color};color:${color};font-weight:bold">${label}</button>`;
+}
 function showQuizPolicy(){
-  const magenta="#d41473",lime="#7bbd1e";
-  const policyButton=(key,label,index)=>`<button onclick="showQuizPolicySection('${key}')" style="border-color:${index%2===0?magenta:lime};color:${index%2===0?magenta:lime};font-weight:bold">${label}</button>`;
-  const group=(title,items)=>`<div style="margin-top:18px"><h3 class="center" style="margin:0 0 8px;color:${title==='PRIVACY'?lime:magenta}">${title}</h3><div class="menu">${items.map((x,i)=>policyButton(x[0],x[1],i)).join('')}</div></div>`;
-  const rules=[
-    ['play','HOW TO PLAY'],
-    ['rankings','STATISTICS & RANKINGS'],
-    ['fair','FAIR PLAY & QUESTION NEUTRALISATION'],
-    ['results','RESULTS & PUBLICATION']
-  ];
-  const privacy=[
-    ['privacy','PRIVACY & DATA'],
-    ['security','DATABASE & SECURITY'],
-    ['cookies','COOKIES & LOCAL STORAGE'],
-    ['retention','DATA RETENTION & REQUESTS'],
-    ['contact','CONTACT'],
-    ['changes','POLICY CHANGES']
-  ];
-  const winners=[
-    ['weekly','WEEKLY WINNER','var(--weekly)'],
-    ['monthly','SUPREME WINNER','var(--supreme)'],
-    ['grandmaster','GRANDMASTER','var(--grandmaster)']
-  ];
-  const winnerButtons=winners.map(x=>`<button onclick="showQuizPolicySection('${x[0]}')" style="border-color:${x[2]};color:${x[2]};font-weight:bold">${x[1]}</button>`).join('');
-  page(`<div class="section settings" style="border-top-color:${magenta};background:#fff7fb"><h2 class="center" style="color:${magenta}">QUIZ POLICY</h2><p class="center">Rules, privacy and information about how the quiz works.</p>${group('RULES',rules)}${group('PRIVACY',privacy)}<div style="margin-top:18px"><h3 class="center" style="margin:0 0 8px;color:${magenta}">WINNERS</h3><div class="menu">${winnerButtons}</div></div></div>${back("showMainMenu")}`);
+  page(`<div class="section settings" style="border-top-color:#d41473;background:#fff7fb"><h2 class="center" style="color:#d41473">QUIZ POLICY</h2><p class="center">Rules, privacy and information about how the quiz works.</p><div class="menu">${policyNavButton("RULES","showQuizPolicyRules()",0)}${policyNavButton("PRIVACY","showQuizPolicyPrivacy()",1)}${policyNavButton("WINNERS","showQuizPolicyWinners()",2)}</div></div>${back("showMainMenu")}`);
+}
+function showQuizPolicyRules(){
+  page(`<div class="section settings" style="border-top-color:#d41473;background:#fff7fb"><h2 class="center" style="color:#d41473">RULES</h2><div class="menu">${policyNavButton("HOW TO PLAY","showQuizPolicySection('play')",0)}${policyNavButton("STATISTICS & RANKINGS","showQuizPolicySection('rankings')",1)}${policyNavButton("FAIR PLAY & QUESTION NEUTRALISATION","showQuizPolicySection('fair')",2)}${policyNavButton("RESULTS & PUBLICATION","showQuizPolicySection('results')",3)}</div></div>${back("showQuizPolicy")}`);
+}
+function showQuizPolicyPrivacy(){
+  page(`<div class="section settings" style="border-top-color:#7bbd1e;background:#fff7fb"><h2 class="center" style="color:#7bbd1e">PRIVACY</h2><div class="menu">${policyNavButton("PRIVACY & DATA","showQuizPolicySection('privacy')",0)}${policyNavButton("DATABASE & SECURITY","showQuizPolicySection('security')",1)}${policyNavButton("COOKIES & LOCAL STORAGE","showQuizPolicySection('cookies')",2)}${policyNavButton("DATA RETENTION & REQUESTS","showQuizPolicySection('retention')",3)}${policyNavButton("CONTACT","showQuizPolicySection('contact')",4)}${policyNavButton("POLICY CHANGES","showQuizPolicySection('changes')",5)}</div></div>${back("showQuizPolicy")}`);
+}
+function showQuizPolicyWinners(){
+  page(`<div class="section settings" style="border-top-color:#d41473;background:#fff7fb"><h2 class="center" style="color:#d41473">WINNERS</h2><div class="menu"><button onclick="showQuizPolicySection('weekly')" style="border-color:var(--weekly);color:var(--weekly);font-weight:bold">WEEKLY WINNER</button><button onclick="showQuizPolicySection('monthly')" style="border-color:var(--supreme);color:var(--supreme);font-weight:bold">SUPREME WINNER</button><button onclick="showQuizPolicySection('grandmaster')" style="border-color:var(--grandmaster);color:var(--grandmaster);font-weight:bold">GRANDMASTER</button></div></div>${back("showQuizPolicy")}`);
 }
 function showQuizPolicySection(key){const s=QUIZ_POLICY_SECTIONS[key];if(!s){showQuizPolicy();return}page(`<div class="section settings"><h2 class="center">${s.title}</h2><div class="settings-card" style="line-height:1.5">${s.body}</div></div>${back("showQuizPolicy")}`)}
 function showMainMenu(){document.getElementById("mainHeader").style.display="block";const testButton=(typeof isTestIdentity==="function"&&isTestIdentity())?`<button onclick="showTestMode()">TEST MODE</button>`:"";page(`<h2 class="center">Welcome, ${html(playerName())}</h2><div class="menu main-menu"><button onclick="showMyStatistics()">MY STATISTICS</button><button onclick="showQuizMenu()">QUIZ</button><button onclick="showHistory()">HISTORY</button><button onclick="showPersonalSettings()">PERSONAL SETTINGS</button><button onclick="showQuizPolicy()">QUIZ POLICY</button>${testButton}</div>`)}
