@@ -22,7 +22,6 @@ async function recoverExistingPlayer(){const name=String(document.getElementById
 answerKey=function(index){return "bdlQuizAnswer_"+playerId()+"_"+questionNumber(index)};function legacyAnswerKey(index){return "bdlQuizAnswer_"+questionNumber(index)}
 function migrateLegacyAnswers(){const id=localStorage.getItem("bdlPlayerId");if(!id)return;for(let i=0;i<questions.length;i++){const old=legacyAnswerKey(i),key="bdlQuizAnswer_"+id+"_"+questionNumber(i);if(localStorage.getItem(key)===null){const v=localStorage.getItem(old);if(v!==null)localStorage.setItem(key,v)}}}
 /* Start screen and main menu are owned by index.html/history.js. */
-function showTestMode(){if(!isTestIdentity()){showMainMenu();return}page(`<div class="section settings"><h2 class="center">TEST MODE</h2><div class="settings-card center"><p>${html(playerName())} is recognised as a test account.</p></div></div>${back("showMainMenu")}`)}
 /* showMainMenu is owned by history.js; no duplicate override here. */
 function showTestMode(){if(!isTestIdentity()){showMainMenu();return}page(`<div class="section settings"><h2 class="center">TEST MODE</h2><div class="settings-card center"><p>${html(playerName())} is recognised as a test account.</p></div></div>${back("showMainMenu")}`)}
 
