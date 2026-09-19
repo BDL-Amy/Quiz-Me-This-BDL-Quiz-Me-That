@@ -102,4 +102,4 @@ function showGrandmasterPolicyNotice(){
   </div>`;
   document.body.appendChild(overlay);
 }
-setTimeout(showGrandmasterPolicyNotice,0);
+/* Policy notices are opened from Policy, never as a startup overlay. */
