@@ -1441,132 +1441,15 @@ async function api(
   /* START PAGE */
 
 function showStartScreen(){
-
-  document
-    .getElementById(
-      "mainHeader"
-    )
-    .style.display =
-      "none";
-
-  const day =
-    quizDay();
-
-  if(day < 0){
-
-    page(`
-      <div class="center">
-
-        <h1>
-          Quiz Me This
-          <br>
-          BDL
-          <br>
-          Quiz Me That
-        </h1>
-
-        <p>
-          The Daily Quiz starts
-          on 11 August at 08:00.
-        </p>
-
-      </div>
-    `);
-
-    return;
-  }
-
-  if(
-    day >= questions.length
-  ){
-
-    page(`
-      <div class="center">
-
-        <h1>
-          Quiz Me This
-          <br>
-          BDL
-          <br>
-          Quiz Me That
-        </h1>
-
-        <p>
-          No new Daily Quiz
-          is scheduled yet.
-        </p>
-
-      </div>
-    `);
-
-    return;
-  }
-
-  const name =
-    playerName();
-
-  if(!name){
-
-    page(`
-      <div class="center">
-
-        <h1>
-          Quiz Me This
-          <br>
-          BDL
-          <br>
-          Quiz Me That
-        </h1>
-
-        <p>
-          Before we start,
-          tell us your name.
-        </p>
-
-        <input
-          id="playerNameInput"
-          placeholder="Your name"
-          maxlength="50"
-        >
-
-        <button
-          class="center"
-          onclick="saveNameAndContinue()">
-          CONTINUE
-        </button>
-
-      </div>
-    `);
-
-    return;
-  }
-
-  page(`
-    <div class="center">
-
-      <h1>
-        Quiz Me This
-        <br>
-        BDL
-        <br>
-        Quiz Me That
-      </h1>
-
-      <p>
-        Welcome back,
-        <strong>
-          ${html(name)}
-        </strong>!
-      </p>
-
-      <button
-        class="center"
-        onclick="startQuiz()">
-        START QUIZ
-      </button>
-
-    </div>
-  `);
+  document.getElementById("mainHeader").style.display="none";
+  const day=quizDay();
+  if(day<0){page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>The Daily Quiz starts on 11 August at 08:00.</p></div>`);return}
+  if(day>=questions.length){page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>No new Daily Quiz is scheduled yet.</p></div>`);return}
+  const name=playerName(),id=localStorage.getItem("bdlPlayerId");
+  if(!name||!id){if(typeof showAccountChoice==="function"){showAccountChoice();return}page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Loading player account...</p></div>`);return}
+  if(typeof needsReservedNameChange==="function"&&needsReservedNameChange()){showReservedNameChange();return}
+  if(typeof migrateLegacyAnswers==="function")migrateLegacyAnswers();
+  page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button class="center" onclick="startQuiz()">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
 }
 
 
@@ -1760,46 +1643,7 @@ function continueWinnerAnnouncement(type, period){
 
 /* MAIN MENU */
 
-function showMainMenu(){
-
-  document
-    .getElementById(
-      "mainHeader"
-    )
-    .style.display =
-      "block";
-
-  page(`
-    <h2 class="center">
-      Welcome,
-      ${html(playerName())}
-    </h2>
-
-    <div class="menu main-menu">
-
-      <button
-        onclick="showMyStatistics()">
-        MY STATISTICS
-      </button>
-
-      <button
-        onclick="showQuizMenu()">
-        QUIZ
-      </button>
-
-      <button
-        onclick="showHistory()">
-        HISTORY
-      </button>
-
-      <button
-        onclick="showPersonalSettings()">
-        PERSONAL SETTINGS
-      </button>
-
-    </div>
-  `);
-}
+/* Main menu is owned by history.js after all feature modules load. */
 
 
 /* QUIZ NAVIGATION — SINGLE IMPLEMENTATION */
@@ -2572,7 +2416,6 @@ async function disablePushNotifications(
 
 
 playerId();
-showStartScreen();
 
 /* One-off notice: Sergio may replay Q54 after his previous answer was removed. */
 (()=>{try{if(String(playerName()).trim().toLowerCase()==="sergio"){const k="bdl-replay-54-sergio-2026-09-19";if(localStorage.getItem(k)!=="shown"){alert("As a compensation reward, your answer to Question 54 has been removed. You may play Question 54 again.\n\nP.S. You answered incorrectly.");localStorage.setItem(k,"shown");}}}catch(e){}})();
@@ -2594,13 +2437,14 @@ showStartScreen();
 
 
 <script src="questions-51-60.js?v=20260917-clean-shell"></script>
-<script src="account.js?v=20260918-account-clean-v2"></script>
-<script src="history.js?v=20260919-policy-groups-v2"></script>
+<script src="account.js?v=20260919-lasagne-free-v1"></script>
+<script src="history.js?v=20260919-lasagne-free-v1"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
 <script src="quiz-schedule-1530.js?v=20260918-single-nav-v1"></script>
 <script src="test-platform.js?v=20260918-test-clean"></script>
-<script src="recovery-onboarding.js?v=20260917-clean-shell"></script>
+<script src="recovery-onboarding.js?v=20260919-lasagne-free-v1"></script>
 <script src="results-menu.js?v=20260918-stats-clean-v3"></script>
 <script src="performance.js?v=20260917-clean-shell"></script>
+<script>showStartScreen();</script>
 </body>
 </html>
