@@ -518,13 +518,5 @@ function bdlShowPolicyUpdateNotice(){
   document.body.appendChild(overlay);
 }
 
-if(typeof showStartScreen==="function"){
-  const bdlShowStartScreenBeforePolicyNotice=showStartScreen;
-  showStartScreen=function(){
-    bdlShowStartScreenBeforePolicyNotice();
-    setTimeout(()=>bdlShowPolicyUpdateNotice(),30);
-  };
-}
-
 setTimeout(()=>bdlShowPolicyUpdateNotice(),120);
 
