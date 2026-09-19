@@ -3,7 +3,7 @@
 const RECOVERY_ONBOARDING_KEY = "bdlRecoveryOnboardingSavedV1";
 let recoveryOnboardingChecked = false;
 
-async function checkExistingPlayerRecoveryOnboarding(){
+async async function checkExistingPlayerRecoveryOnboarding(){
   if(recoveryOnboardingChecked) return false;
   recoveryOnboardingChecked = true;
 
