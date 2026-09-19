@@ -64,13 +64,13 @@ function showQuizPolicyRules(){
   page(`<div class="section settings policy-submenu"><h2 class="center">RULES</h2><div class="menu policy-menu"><button onclick="showQuizPolicyHowToPlay()">HOW TO PLAY</button><button onclick="showQuizPolicySection('rankings')">STATISTICS & RANKINGS</button><button onclick="showQuizPolicySection('fair')">FAIR PLAY & QUESTION NEUTRALISATION</button><button onclick="showQuizPolicySection('results')">RESULTS & PUBLICATION</button></div></div>${back("showQuizPolicy")}`);
 }
 function showQuizPolicyHowToPlay(){
-  page(`<div class="section settings policy-submenu"><h2 class="center">HOW TO PLAY</h2><div class="menu policy-menu"><button onclick="showQuizPolicyDailyQuiz()">DAILY QUIZ</button></div></div>${back("showQuizPolicyRules")}`);
+  page(`<div class="section settings policy-submenu policy-level-2"><h2 class="center">HOW TO PLAY</h2><div class="menu policy-menu"><button onclick="showQuizPolicyDailyQuiz()">DAILY QUIZ</button></div></div>${back("showQuizPolicyRules")}`);
 }
 function showQuizPolicyDailyQuiz(){
-  page(`<div class="section settings policy-submenu"><h2 class="center">DAILY QUIZ</h2><div class="menu policy-menu"><button onclick="showQuizPolicyDailyNewQuestion()">NEW QUESTION</button></div></div>${back("showQuizPolicyHowToPlay")}`);
+  page(`<div class="section settings policy-submenu policy-level-3"><h2 class="center">DAILY QUIZ</h2><div class="menu policy-menu"><button onclick="showQuizPolicyDailyNewQuestion()">NEW QUESTION</button></div></div>${back("showQuizPolicyHowToPlay")}`);
 }
 function showQuizPolicyDailyNewQuestion(){
-  page(`<div class="section settings policy-submenu"><h2 class="center">NEW QUESTION</h2><div class="menu policy-menu"><button onclick="showQuizPolicySection('daily-new')">HOW TO PLAY</button><button onclick="showQuizPolicySection('daily-timezones')">RELEASE TIME</button><button onclick="showQuizPolicySection('daily-find')">HOW TO FIND IT</button></div></div>${back("showQuizPolicyDailyQuiz")}`);
+  page(`<div class="section settings policy-submenu policy-level-4"><h2 class="center">NEW QUESTION</h2><div class="menu policy-menu"><button onclick="showQuizPolicySection('daily-new')">HOW TO PLAY</button><button onclick="showQuizPolicySection('daily-timezones')">RELEASE TIME</button><button onclick="showQuizPolicySection('daily-find')">HOW TO FIND IT</button></div></div>${back("showQuizPolicyDailyQuiz")}`);
 }
 function showQuizPolicyPrivacy(){
   page(`<div class="section settings policy-submenu"><h2 class="center">PRIVACY</h2><div class="menu policy-menu"><button onclick="showQuizPolicySection('privacy')">PRIVACY & DATA</button><button onclick="showQuizPolicySection('security')">DATABASE & SECURITY</button><button onclick="showQuizPolicySection('cookies')">COOKIES & LOCAL STORAGE</button><button onclick="showQuizPolicySection('retention')">DATA RETENTION & REQUESTS</button><button onclick="showQuizPolicySection('contact')">CONTACT</button><button onclick="showQuizPolicySection('changes')">POLICY CHANGES</button></div></div>${back("showQuizPolicy")}`);
