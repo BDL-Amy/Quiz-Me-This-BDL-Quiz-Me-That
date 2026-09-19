@@ -2559,8 +2559,8 @@ showStartScreen();
 /* One-off notice: Sergio may replay Q54 after his previous answer was removed. */
 (()=>{try{if(String(playerName()).trim().toLowerCase()==="sergio"){const k="bdl-replay-54-sergio-2026-09-19";if(localStorage.getItem(k)!=="shown"){alert("As a compensation reward, your answer to Question 54 has been removed. You may play Question 54 again.\n\nP.S. You answered incorrectly.");localStorage.setItem(k,"shown");}}}catch(e){}})();
 
-/* One-off notice: Matthias Q52 is already at Previous Answer. */
-(()=>{try{const isMatthias=String(playerName()).trim().toLowerCase()==="matthias"||playerId()==="ab7f5cc3-9084-4546-8b20-2af9a94ace8c";if(isMatthias){const k="bdl-neutralised-52-2026-09-19-v2";if(localStorage.getItem(k)!=="shown"){alert("Question 52 has been neutralised.\n\nQuestion 52: What does BDL stand for?\n\nReason: The question was reopened after you had already submitted your answer and the correct answer had already been released.\n\nYour answer therefore counts as correct.");localStorage.setItem(k,"shown");}}}catch(e){}})();
+/* One-off notice: Matthias Q51 neutralisation. */
+(()=>{try{const isMatthias=String(playerName()).trim().toLowerCase()==="matthias"||playerId()==="ab7f5cc3-9084-4546-8b20-2af9a94ace8c";if(isMatthias){const k="bdl-neutralised-51-2026-09-19-v1";if(localStorage.getItem(k)!=="shown"){alert("Question 51 has been neutralised.\n\nQuestion 51: Who is Dr Toño?\n\nReason: The question was reopened after you had already submitted your answer and the correct answer had already been released.\n\nYour answer therefore counts as correct.");localStorage.setItem(k,"shown");}}}catch(e){}})();
 
 
 </script>
