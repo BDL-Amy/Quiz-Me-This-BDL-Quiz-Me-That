@@ -518,5 +518,5 @@ function bdlShowPolicyUpdateNotice(){
   document.body.appendChild(overlay);
 }
 
-setTimeout(()=>bdlShowPolicyUpdateNotice(),120);
+/* Policy update notice must not overlay or block app startup. */
 
