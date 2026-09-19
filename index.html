@@ -2556,6 +2556,9 @@ async function disablePushNotifications(
 playerId();
 showStartScreen();
 
+/* One-off notice: Sergio may replay Q54 after his previous answer was removed. */
+(()=>{try{if(String(playerName()).trim().toLowerCase()==="sergio"){const k="bdl-replay-54-sergio-2026-09-19";if(localStorage.getItem(k)!=="shown"){alert("Your answer to Question 54 has been removed. You may play Question 54 again.");localStorage.setItem(k,"shown");}}}catch(e){}})();
+
 /* One-off notice: Matthias Q52 is already at Previous Answer. */
 (async()=>{try{const d=await api(QUIZ_SERVICE,{action:"get_answer",player_id:playerId(),question_num:52});if(d?.answer?.player_name==="Matthias"&&d?.answer?.result_adjustment==="neutralised"){const k="bdl-neutralised-52-2026-09-16";if(localStorage.getItem(k)!=="shown"){alert("Your question has been neutralised");localStorage.setItem(k,"shown");}}}catch(e){}})();
 
