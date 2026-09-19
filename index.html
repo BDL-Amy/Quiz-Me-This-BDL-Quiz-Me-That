@@ -1417,28 +1417,33 @@ function html(text){
 
 
 function page(content){
-
-  document
-    .getElementById(
-      "quiz"
-    )
-    .innerHTML =
-      content;
+  document.getElementById("quiz").innerHTML=content;
+  queueMicrotask(bindBackButton);
 }
 
 
+let bdlBackAction=null;
 function back(fn="showMainMenu"){
-  const target=String(fn||"showMainMenu").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
-  return `<button class="back" type="button" onclick="return bdlGoBack('${target}')">BACK</button>`;
+  bdlBackAction=fn;
+  return `<button id="bdlBackButton" class="back" type="button">BACK</button>`;
 }
 
-function bdlGoBack(target){
-  try{
-    const fn=Function("return ("+target+")")();
-    if(typeof fn==="function"){fn();return false;}
-  }catch(error){console.error("Back navigation failed:",target,error);}
-  if(typeof showMainMenu==="function")showMainMenu();
-  return false;
+function bindBackButton(){
+  const button=document.getElementById("bdlBackButton");
+  if(!button)return;
+  button.addEventListener("click",function(event){
+    event.preventDefault();
+    const action=bdlBackAction;
+    if(typeof action==="function"){action();return;}
+    if(typeof action==="string"){
+      try{
+        const call=Function("return function(){"+action+"()}")();
+        call();
+        return;
+      }catch(error){console.error("Back navigation failed:",action,error);}
+    }
+    if(typeof showMainMenu==="function")showMainMenu();
+  },{once:true});
 }
 
 
