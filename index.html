@@ -1482,7 +1482,7 @@ function showStartScreen(){
   if(!name||!id){if(typeof showAccountChoice==="function"){showAccountChoice();return}page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Loading player account...</p></div>`);return}
   if(typeof needsReservedNameChange==="function"&&needsReservedNameChange()){showReservedNameChange();return}
   if(typeof migrateLegacyAnswers==="function")migrateLegacyAnswers();
-  page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button class="center" type="button" onclick="page(`<h2 class="center">Welcome, ${html(playerName())}</h2><div class="menu main-menu"><button onclick="showMyStatistics()">MY STATISTICS</button><button onclick="showQuizMenu()">QUIZ</button><button onclick="showHistory()">HISTORY</button><button onclick="showPersonalSettings()">PERSONAL SETTINGS</button><button onclick="showQuizPolicy()">QUIZ POLICY</button>${(typeof isTestIdentity==="function"&&isTestIdentity())?`<button onclick="showTestMode()">TEST MODE</button>`:""}</div>`)">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
+  page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button id="startQuizButton" class="center" type="button">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
 
 }
 
@@ -1593,6 +1593,13 @@ async function loadWinnerAnnouncements(){
 
 
 function startQuiz(){showMainMenu();}
+
+document.addEventListener("pointerup",function(event){
+  const start=event.target.closest("#startQuizButton");
+  if(!start)return;
+  event.preventDefault();
+  showMainMenu();
+});
 async function loadWinnerAnnouncementsAfterStart(){
   try{
     const items=await loadWinnerAnnouncements();
