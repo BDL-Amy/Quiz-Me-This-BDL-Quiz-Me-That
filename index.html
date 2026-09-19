@@ -1425,6 +1425,12 @@ function back(fn="showMainMenu"){
 }
 
 document.addEventListener("click",function(event){
+  const start=event.target.closest("#startQuizButton");
+  if(start){
+    event.preventDefault();
+    startQuiz();
+    return;
+  }
   const button=event.target.closest("[data-bdl-back]");
   if(!button)return;
   event.preventDefault();
@@ -1486,8 +1492,7 @@ function showStartScreen(){
   if(typeof needsReservedNameChange==="function"&&needsReservedNameChange()){showReservedNameChange();return}
   if(typeof migrateLegacyAnswers==="function")migrateLegacyAnswers();
   page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button id="startQuizButton" class="center" type="button">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
-  const startButton=document.getElementById("startQuizButton");
-  if(startButton) startButton.addEventListener("click",startQuiz,{once:true});
+
 }
 
 
