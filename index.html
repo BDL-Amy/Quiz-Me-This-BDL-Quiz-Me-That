@@ -1563,7 +1563,7 @@ async function loadWinnerAnnouncements(){
   if(d.getDay() === 0 && internalAccount){
     const sunday = dateString(d);
     try{
-      const weekStart=currentWeekStart();
+      const weekStart = dateString(d) === "2026-09-20" ? "2026-09-14" : currentWeekStart();
       const [finalWeek,data] = await Promise.all([
         api(RESULTS_SERVICE,{action:"weekly_winner",week_start:weekStart}).catch(()=>null),
         api(RESULTS_SERVICE,{
