@@ -1223,41 +1223,19 @@ function quizDay(){
 
 
 function currentWeekStart(){
-
-  const d =
-    effectiveDate();
-
-  const day =
-    d.getDay() || 7;
-
-  d.setDate(
-    d.getDate()
-    -
-    day
-    +
-    1
-  );
-
+  const d=effectiveDate();
+  /* Statistics roll over on Monday. The stats week shown Mon-Sun belongs
+     to the quiz week that started on the preceding Saturday. */
+  const day=d.getDay() || 7;
+  d.setDate(d.getDate()-day-1);
   return dateString(d);
 }
 
 
 function previousWeekStart(){
-
-  const d =
-    effectiveDate();
-
-  const day =
-    d.getDay() || 7;
-
-  d.setDate(
-    d.getDate()
-    -
-    day
-    -
-    6
-  );
-
+  const d=effectiveDate();
+  const day=d.getDay() || 7;
+  d.setDate(d.getDate()-day-8);
   return dateString(d);
 }
 
@@ -1563,7 +1541,9 @@ async function loadWinnerAnnouncements(){
   if(d.getDay() === 0 && internalAccount){
     const sunday = dateString(d);
     try{
-      const weekStart = dateString(d) === "2026-09-20" ? "2026-09-14" : currentWeekStart();
+      /* Sunday 15:30 finalises the Saturday-Friday quiz week internally.
+         Public statistics/title rollover remains Monday. */
+      const weekStart=dateString(new Date(d.getFullYear(),d.getMonth(),d.getDate()-8));
       const [finalWeek,data] = await Promise.all([
         api(RESULTS_SERVICE,{action:"weekly_winner",week_start:weekStart}).catch(()=>null),
         api(RESULTS_SERVICE,{
