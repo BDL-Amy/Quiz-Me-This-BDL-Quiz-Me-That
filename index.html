@@ -1637,8 +1637,8 @@ document.addEventListener("click",function(event){
   const start=event.target.closest("#startQuizButton");
   if(!start)return;
   event.preventDefault();
-  if(typeof loadWinnerAnnouncementsAfterStart==="function") loadWinnerAnnouncementsAfterStart();
-  else showMainMenu();
+  showMainMenu();
+  if(typeof loadWinnerAnnouncementsAfterStart==="function") setTimeout(loadWinnerAnnouncementsAfterStart,0);
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
