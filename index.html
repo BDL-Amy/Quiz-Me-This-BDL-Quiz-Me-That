@@ -1557,7 +1557,7 @@ async function loadWinnerAnnouncements(){
 
   const d = effectiveDate();
   const announcements = [];
-  const internalAccount = ["amy","amy.test","drbdl","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
+  const internalAccount = ["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
 
   /* Confidential Sunday preview: only Amy / BDL admin & test identities. */
   if(d.getDay() === 0 && internalAccount){
@@ -1637,8 +1637,9 @@ document.addEventListener("click",function(event){
   const start=event.target.closest("#startQuizButton");
   if(!start)return;
   event.preventDefault();
-  if(typeof loadWinnerAnnouncementsAfterStart==="function") loadWinnerAnnouncementsAfterStart();
-  else showMainMenu();
+  showMainMenu();
+  const testAccount=["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
+  if(testAccount && typeof loadWinnerAnnouncementsAfterStart==="function") setTimeout(loadWinnerAnnouncementsAfterStart,50);
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
