@@ -1557,6 +1557,25 @@ async function loadWinnerAnnouncements(){
 
   const d = effectiveDate();
   const announcements = [];
+  const internalAccount = ["amy","amy.test","drbdl","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
+
+  /* Confidential Sunday preview: only Amy / BDL admin & test identities. */
+  if(d.getDay() === 0 && internalAccount){
+    const sunday = dateString(d);
+    try{
+      const data = await api(RESULTS_SERVICE,{
+        action:"admin_winner_preview",
+        player_id:playerId(),
+        player_name:playerName(),
+        week_start:currentWeekStart(),
+        month_start:currentMonthStart()
+      });
+      const weekWinners=Array.isArray(data?.week?.winners)?data.week.winners:[];
+      const monthWinners=Array.isArray(data?.month?.winners)?data.month.winners:[];
+      if(weekWinners.length && shouldOfferWinnerAnnouncement("admin-weekly-preview",sunday)) announcements.push({type:"admin-weekly-preview",period:sunday,winner:{player_name:weekWinners.map(x=>x.player_name).join(" & ")}});
+      if(monthWinners.length && shouldOfferWinnerAnnouncement("admin-monthly-preview",sunday)) announcements.push({type:"admin-monthly-preview",period:sunday,winner:{player_name:monthWinners.map(x=>x.player_name).join(" & ")}});
+    }catch(error){console.error("Admin winner preview could not be loaded.",error);}
+  }
 
   if(
     d.getDay() === 1
@@ -1641,8 +1660,8 @@ function showNextWinnerAnnouncement(){
     return;
   }
 
-  const monthly =
-    announcement.type === "monthly";
+  const monthly = announcement.type === "monthly" || announcement.type === "admin-monthly-preview";
+  const adminPreview = announcement.type === "admin-weekly-preview" || announcement.type === "admin-monthly-preview";
 
   page(`
     <div class="winner-announcement ${
@@ -1655,15 +1674,11 @@ function showNextWinnerAnnouncement(){
       </div>
 
       <div class="announcement-label">
-        ${monthly ? "WE HONOR" : "CONGRATULATIONS"}
+        ${adminPreview ? "CONFIDENTIAL — ADMIN PREVIEW" : (monthly ? "WE HONOR" : "CONGRATULATIONS")}
       </div>
 
       <h1>
-        ${
-          monthly
-          ? "THE SUPREME BDL’ER OF THE MONTH"
-          : "THE SMARTEST BDL’ER OF THE WEEK"
-        }
+        ${monthly ? "THE SUPREME BDL’ER OF THE MONTH" : "THE SMARTEST BDL’ER OF THE WEEK"}
       </h1>
 
       <div class="winner-name">
@@ -1671,11 +1686,7 @@ function showNextWinnerAnnouncement(){
       </div>
 
       <p>
-        ${
-          monthly
-          ? "Welcome to The Supreme Order of BDL."
-          : "You are the smartest kid in town — at least till next Monday!"
-        }
+        ${adminPreview ? "Early Sunday result for Amy / BDL only. Players will not see this preview." : (monthly ? "Welcome to The Supreme Order of BDL." : "You are the smartest kid in town — at least till next Monday!") }
       </p>
 
       <button onclick="continueWinnerAnnouncement('${
