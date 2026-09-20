@@ -1637,10 +1637,8 @@ document.addEventListener("click",function(event){
   const start=event.target.closest("#startQuizButton");
   if(!start)return;
   event.preventDefault();
-  if(typeof loadWinnerAnnouncementsAfterStart==="function"){
-    loadWinnerAnnouncementsAfterStart();
-    setTimeout(()=>{ if(!document.querySelector(".winner-announcement")) showMainMenu(); },2500);
-  }else showMainMenu();
+  if(typeof loadWinnerAnnouncementsAfterStart==="function") loadWinnerAnnouncementsAfterStart();
+  else showMainMenu();
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
