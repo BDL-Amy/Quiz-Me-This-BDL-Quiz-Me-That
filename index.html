@@ -1563,14 +1563,20 @@ async function loadWinnerAnnouncements(){
   if(d.getDay() === 0 && internalAccount){
     const sunday = dateString(d);
     try{
-      const data = await api(RESULTS_SERVICE,{
-        action:"admin_winner_preview",
-        player_id:playerId(),
-        player_name:playerName(),
-        week_start:currentWeekStart(),
-        month_start:currentMonthStart()
-      });
-      const weekWinners=Array.isArray(data?.week?.winners)?data.week.winners:[];
+      const weekStart=currentWeekStart();
+      const [finalWeek,data] = await Promise.all([
+        api(RESULTS_SERVICE,{action:"weekly_winner",week_start:weekStart}).catch(()=>null),
+        api(RESULTS_SERVICE,{
+          action:"admin_winner_preview",
+          player_id:playerId(),
+          player_name:playerName(),
+          week_start:weekStart,
+          month_start:currentMonthStart()
+        }).catch(()=>null)
+      ]);
+      const weekWinners=finalWeek?.winner?.player_name
+        ? [finalWeek.winner]
+        : (Array.isArray(data?.week?.winners)?data.week.winners:[]);
       const monthWinners=Array.isArray(data?.month?.winners)?data.month.winners:[];
       if(weekWinners.length && shouldOfferWinnerAnnouncement("admin-weekly-preview",sunday)) announcements.push({type:"admin-weekly-preview",period:sunday,winner:{player_name:weekWinners.map(x=>x.player_name).join(" & ")}});
       if(monthWinners.length && shouldOfferWinnerAnnouncement("admin-monthly-preview",sunday)) announcements.push({type:"admin-monthly-preview",period:sunday,winner:{player_name:monthWinners.map(x=>x.player_name).join(" & ")}});
