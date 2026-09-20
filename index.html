@@ -1637,8 +1637,10 @@ document.addEventListener("click",function(event){
   const start=event.target.closest("#startQuizButton");
   if(!start)return;
   event.preventDefault();
-  showMainMenu();
-  if(typeof loadWinnerAnnouncementsAfterStart==="function") setTimeout(loadWinnerAnnouncementsAfterStart,0);
+  if(typeof loadWinnerAnnouncementsAfterStart==="function"){
+    loadWinnerAnnouncementsAfterStart();
+    setTimeout(()=>{ if(!document.querySelector(".winner-announcement")) showMainMenu(); },2500);
+  }else showMainMenu();
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
