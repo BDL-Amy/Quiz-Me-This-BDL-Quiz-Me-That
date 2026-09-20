@@ -1174,7 +1174,7 @@ function effectiveDate(){
       +p.day
     );
 
-  if(+p.hour < 8){
+  if((+p.hour * 60 + +p.minute) < 930){
     d.setDate(
       d.getDate()-1
     );
