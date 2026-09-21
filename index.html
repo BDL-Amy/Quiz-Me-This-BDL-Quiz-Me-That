@@ -1536,7 +1536,7 @@ async function loadWinnerAnnouncements(){
   const d = effectiveDate();
   const now = brussels();
   const actualDate = new Date(+now.year,+now.month-1,+now.day);
-  const afterSundayRelease = actualDate.getDay() === 0 && (+now.hour * 60 + +now.minute) >= 930;
+  const afterSundayRelease = actualDate.getDay() === 0 && (+now.hour * 60 + +now.minute) >= 930; // Sunday winner-preview release gate
   const announcements = [];
   const internalAccount = ["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
 
