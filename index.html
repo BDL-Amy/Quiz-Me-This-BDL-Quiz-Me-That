@@ -1534,16 +1534,19 @@ function shouldOfferWinnerAnnouncement(type, period){
 async function loadWinnerAnnouncements(){
 
   const d = effectiveDate();
+  const now = brussels();
+  const actualDate = new Date(+now.year,+now.month-1,+now.day);
+  const afterSundayRelease = actualDate.getDay() === 0 && (+now.hour * 60 + +now.minute) >= 930;
   const announcements = [];
   const internalAccount = ["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
 
   /* Confidential Sunday preview: only Amy / BDL admin & test identities. */
-  if(d.getDay() === 0 && internalAccount){
-    const sunday = dateString(d);
+  if(afterSundayRelease && internalAccount){
+    const sunday = dateString(actualDate);
     try{
       /* Sunday 15:30 finalises the Saturday-Friday quiz week internally.
          Public statistics/title rollover remains Monday. */
-      const weekStart=dateString(new Date(d.getFullYear(),d.getMonth(),d.getDate()-8));
+      const weekStart=dateString(new Date(actualDate.getFullYear(),actualDate.getMonth(),actualDate.getDate()-6));
       const [finalWeek,data] = await Promise.all([
         api(RESULTS_SERVICE,{action:"weekly_winner",week_start:weekStart}).catch(()=>null),
         api(RESULTS_SERVICE,{
