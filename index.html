@@ -1538,7 +1538,7 @@ async function loadWinnerAnnouncements(){
   const actualDate = new Date(+now.year,+now.month-1,+now.day);
   const afterSundayRelease = actualDate.getDay() === 0 && (+now.hour * 60 + +now.minute) >= 930; // Sunday winner-preview release gate
   const announcements = [];
-  const internalAccount = ["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
+  const internalAccount = (typeof isTestIdentity==="function" && isTestIdentity()) || ["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\s+/g," ").toLocaleLowerCase("en"));
 
   /* Confidential Sunday preview: only Amy / BDL admin & test identities. */
   if(afterSundayRelease && internalAccount){
@@ -1546,7 +1546,8 @@ async function loadWinnerAnnouncements(){
     try{
       /* Sunday 15:30 finalises the Saturday-Friday quiz week internally.
          Public statistics/title rollover remains Monday. */
-      const weekStart=dateString(new Date(actualDate.getFullYear(),actualDate.getMonth(),actualDate.getDate()-6));
+      /* The completed quiz week is Saturday-Friday; Sunday 15:30 releases Friday's result. */
+      const weekStart=dateString(new Date(actualDate.getFullYear(),actualDate.getMonth(),actualDate.getDate()-8));
       const [finalWeek,data] = await Promise.all([
         api(RESULTS_SERVICE,{action:"weekly_winner",week_start:weekStart}).catch(()=>null),
         api(RESULTS_SERVICE,{
@@ -1570,7 +1571,7 @@ async function loadWinnerAnnouncements(){
     d.getDay() === 1
     && shouldOfferWinnerAnnouncement(
       "weekly",
-      previousWeekStart()
+      currentWeekStart()
     )
   ){
     try{
@@ -1578,14 +1579,14 @@ async function loadWinnerAnnouncements(){
         RESULTS_SERVICE,
         {
           action:"weekly_winner",
-          week_start:previousWeekStart()
+          week_start:currentWeekStart()
         }
       );
 
       if(data?.winner?.player_name){
         announcements.push({
           type:"weekly",
-          period:previousWeekStart(),
+          period:currentWeekStart(),
           winner:data.winner
         });
       }
@@ -2502,7 +2503,7 @@ playerId();
 <script src="history.js?v=20260919-back-fix-v23"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
 <script src="quiz-schedule-1530.js?v=20260918-single-nav-v1"></script>
-<script src="test-platform.js?v=20260921-full-test-account-v1"></script>
+<script src="test-platform.js?v=20260921-winner-review-v2"></script>
 <script src="recovery-onboarding.js?v=20260919-async-fix-v4"></script>
 <script src="results-menu.js?v=20260918-stats-clean-v3"></script>
 <script src="performance.js?v=20260917-clean-shell"></script>
