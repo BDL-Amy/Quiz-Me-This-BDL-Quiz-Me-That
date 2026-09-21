@@ -1627,8 +1627,7 @@ document.addEventListener("click",function(event){
   if(!start)return;
   event.preventDefault();
   showMainMenu();
-  const testAccount=["amy.test","drbdl.test"].includes(String(playerName()||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en"));
-  if(testAccount && typeof loadWinnerAnnouncementsAfterStart==="function") setTimeout(loadWinnerAnnouncementsAfterStart,50);
+
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
