@@ -1,5 +1,5 @@
-/* BDL PWA UPDATE 2026-09-19 — cleaned quiz paths */
-const CACHE='bdl-app-20260920-stats-week-v1';
+/* BDL PWA UPDATE 2026-09-21 — statistics/cache cleanup */
+const CACHE='bdl-app-20260921-stats-clean-v2';
 const ASSETS=['./','./index.html','./questions-51-60.js','./quiz-schedule-1530.js','./result-catchphrases.js','./account.js','./history.js','./test-platform.js','./recovery-onboarding.js','./results-menu.js','./performance.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(()=>{}).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await clients.claim()})()));
