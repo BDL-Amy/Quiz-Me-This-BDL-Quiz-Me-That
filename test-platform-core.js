@@ -98,7 +98,7 @@ function showTestControlPlatform(){
         <button class="settings-button" onclick="showTestQuestionsAudit()">QUESTIONS</button>
         <button class="settings-button" onclick="showTestStatistics()">STATISTICS</button>
         <button class="settings-button" onclick="showTestHistory()">HISTORY</button>
-        <button class="settings-button" onclick="showTestWinnerTests()">WINNER TESTS</button>
+        <button class="settings-button" onclick="showTestWinnerOverview()">WINNER OVERVIEW</button>\n        <button class="settings-button" onclick="showTestWinnerTests()">WINNER TESTS</button>
         <button class="settings-button" onclick="showTestPush()">PUSH NOTIFICATIONS</button>
       </div>
 
@@ -510,7 +510,7 @@ function showTestHistory(){
   `);
 }
 
-function weeklyRuleSimulation(candidates){
+function showTestWinnerOverview(){if(!testGuard())return;testShell("WINNER OVERVIEW",`<div class="notice">Read-only control. Choose the period you want to inspect.</div><div class="menu"><button class="settings-button" onclick="showWeeklyAdminOverview()">WEEKLY</button><button class="settings-button" onclick="showMonthlyTestOverview()">MONTHLY</button></div>`)}\nasync function showMonthlyTestOverview(){if(!testGuard())return;testShell("MONTHLY OVERVIEW",`<div class="loading">Loading monthly overview...</div>`,"showTestWinnerOverview");try{const d=await api(RESULTS_SERVICE,{action:"admin_winner_preview",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});const m=d&&d.month?d.month:{};const rows=Array.isArray(m.winners)?m.winners:[];const cards=rows.length?rows.map((r,i)=>`<div class="settings-card" style="margin:10px 0;text-align:left"><strong>${i+1}. ${html(r.player_name)}</strong><br>${r.correct_answers||0} correct · ${r.days_played||0} days played</div>`).join(""):`<div class="notice">No monthly winner candidate is available yet.</div>`;testShell("MONTHLY OVERVIEW",`<div class="notice"><strong>${html(m.period_start||"")} — ${html(m.period_end||"")}</strong></div>${cards}`,"showTestWinnerOverview")}catch(e){testShell("MONTHLY OVERVIEW",`<div class="notice">The monthly overview could not be loaded.<br>${html(e.message||"")}</div>`,"showTestWinnerOverview")}}\n\nfunction weeklyRuleSimulation(candidates){
   let eligible=candidates.filter(c=>!c.cooldown);
   let fallback=false;
   if(!eligible.length){ eligible=candidates.slice(); fallback=true; }
