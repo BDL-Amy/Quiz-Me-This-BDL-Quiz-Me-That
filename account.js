@@ -32,7 +32,7 @@ function showTestMode(){
   const existing=document.querySelector('script[data-bdl-test-core="1"]');
   if(existing){page(`<div class="section settings"><h2 class="center">TEST MODE</h2><div class="notice">Loading the full test account…</div></div>${back("showMainMenu")}`);return}
   const script=document.createElement("script");
-  script.src="test-platform-core.js?v=20260921-restore-full-test-account-v1";
+  script.src="test-platform-core.js?v=20260921-testmode-v22";
   script.dataset.bdlTestCore="1";
   script.onload=()=>{if(typeof showTestControlPlatform==="function")showTestControlPlatform();else page(`<div class="section settings"><h2 class="center">TEST MODE</h2><div class="notice">The full test platform could not be opened.</div></div>${back("showMainMenu")}`)};
   script.onerror=()=>page(`<div class="section settings"><h2 class="center">TEST MODE</h2><div class="notice">The full test platform could not be loaded. Please reload the quiz and try again.</div></div>${back("showMainMenu")}`);
