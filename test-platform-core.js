@@ -510,6 +510,24 @@ function showTestHistory(){
   `);
 }
 
+async function showWeeklyAdminOverview(){
+  if(!testGuard())return;
+  testShell("SMARTEST BDL'ER OF THE WEEK",`<div class="loading">Loading weekly winner...</div>`,"showTestWinnerOverview");
+  try{
+    const d=await api(RESULTS_SERVICE,{action:"admin_weekly_overview",player_id:playerId(),player_name:playerName()});
+    const w=d&&d.winner?d.winner:null;
+    const players=Array.isArray(d&&d.players)?d.players:[];
+    const leader=players.length?players[0]:null;
+    const chosen=w||leader;
+    const card=chosen&&chosen.player_name
+      ? `<div class="wall-card week"><strong>SMARTEST BDL'ER OF THE WEEK</strong><h3>${html(chosen.player_name)}</h3><div>${chosen.correct_answers??0} correct · ${chosen.days_played??0} days played</div><small>${html(d.week_start||"")} — ${html(d.week_end||"")}</small></div>`
+      : `<div class="notice">No weekly winner is available yet.</div>`;
+    testShell("SMARTEST BDL'ER OF THE WEEK",card,"showTestWinnerOverview");
+  }catch(e){
+    testShell("SMARTEST BDL'ER OF THE WEEK",`<div class="notice">The weekly winner could not be loaded.<br>${html(e.message||"")}</div>`,"showTestWinnerOverview");
+  }
+}
+
 function showTestWinnerOverview(){if(!testGuard())return;testShell("WINNER OVERVIEW",`<div class="notice">Read-only control. Choose the period you want to inspect.</div><div class="menu"><button class="settings-button" onclick="showWeeklyAdminOverview()">WEEKLY</button><button class="settings-button" onclick="showMonthlyTestOverview()">MONTHLY</button></div>`)}\nasync function showMonthlyTestOverview(){if(!testGuard())return;testShell("MONTHLY OVERVIEW",`<div class="loading">Loading monthly overview...</div>`,"showTestWinnerOverview");try{const d=await api(RESULTS_SERVICE,{action:"admin_winner_preview",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});const m=d&&d.month?d.month:{};const rows=Array.isArray(m.winners)?m.winners:[];const cards=rows.length?rows.map((r,i)=>`<div class="settings-card" style="margin:10px 0;text-align:left"><strong>${i+1}. ${html(r.player_name)}</strong><br>${r.correct_answers||0} correct · ${r.days_played||0} days played</div>`).join(""):`<div class="notice">No monthly winner candidate is available yet.</div>`;testShell("MONTHLY OVERVIEW",`<div class="notice"><strong>${html(m.period_start||"")} — ${html(m.period_end||"")}</strong></div>${cards}`,"showTestWinnerOverview")}catch(e){testShell("MONTHLY OVERVIEW",`<div class="notice">The monthly overview could not be loaded.<br>${html(e.message||"")}</div>`,"showTestWinnerOverview")}}\n\nfunction weeklyRuleSimulation(candidates){
   let eligible=candidates.filter(c=>!c.cooldown);
   let fallback=false;
