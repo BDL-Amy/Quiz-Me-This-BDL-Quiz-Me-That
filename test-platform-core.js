@@ -1,13 +1,13 @@
 /* AMY.TEST CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
-const TEST_PLATFORM_VERSION = "2.1";
+const TEST_PLATFORM_VERSION = "2.2";
 let testPreviewIndex = null;
 let testPreviewAnswer = null;
 let testPlayIndex = null;
 let testPlayAnswer = null;
 
 function testGuard(){
-  if(!isAmyTestIdentity()){
+  if(typeof isTestIdentity!=="function" || !isTestIdentity()){
     showMainMenu();
     return false;
   }
