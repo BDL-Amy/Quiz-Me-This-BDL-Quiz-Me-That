@@ -8,4 +8,4 @@ const SECURE_CURRENT_INDEX=typeof quizDay==="function"?Math.max(0,quizDay()):0;c
 /* Quiz-day flow lives only in quiz-schedule-1530.js.
    This loader is limited to secure question loading and test tooling. */
 
-document.write('<script src="test-platform-core.js?v=20260917-noletters"><\/script>');document.write('<script src="test-results.js?v=20260916-test-db2"><\/script>');setTimeout(()=>{if(typeof testGuard==="function"&&typeof isTestIdentity==="function")testGuard=function(){if(!isTestIdentity()){showMainMenu();return false}return true}},0);
+document.write('<script src="test-platform-core.js?v=20260921-winner-review-v2"><\/script>');document.write('<script src="test-results.js?v=20260916-test-db2"><\/script>');setTimeout(()=>{if(typeof testGuard==="function"&&typeof isTestIdentity==="function")testGuard=function(){if(!isTestIdentity()){showMainMenu();return false}return true}},0);
