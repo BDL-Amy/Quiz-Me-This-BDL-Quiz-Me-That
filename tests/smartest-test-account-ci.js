@@ -7,7 +7,7 @@ must(/action:"latest_weekly_winner"/.test(index),"Smartest announcement requests
 must(/actualDate\.getDate\(\)-8/.test(index),"Sunday 15:30 preview resolves Saturday-Friday week start");
 must(/typeof isTestIdentity==="function" && isTestIdentity\(\)/.test(index),"test identities use canonical identity check");
 must(/function showTestMode\(\)/.test(account)&&/showTestControlPlatform/.test(account),"TEST MODE opens full control platform");
-must(/test-platform-core\.js\?v=20260921-winner-review-v2/.test(platform),"latest test platform core is loaded");
+must(/test-platform-core\\.js\\?v=20260921-testmode-v22/.test(platform),"latest test platform core is loaded");
 must(/async function showWeeklyAdminOverview\(\)/.test(core),"weekly test overview exists");
 must(/action:"admin_weekly_overview"/.test(core),"weekly test overview calls backend");
 must(/if\(b\.action==="admin_weekly_overview"\)/.test(backend),"backend weekly overview endpoint exists");
