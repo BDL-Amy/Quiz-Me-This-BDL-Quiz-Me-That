@@ -580,10 +580,24 @@ button{
 }
 
 .winner-announcement.weekly-announcement{
-  color:#fff;
-  background:linear-gradient(145deg,var(--weekly-dark),var(--weekly));
-  border:4px solid var(--weekly);
-  box-shadow:inset 0 0 0 2px #ffffff35;
+  color:var(--weekly-dark);
+  background:var(--gold);
+  border:4px solid var(--weekly-dark);
+  box-shadow:inset 0 0 0 2px #ffffff55;
+}
+
+.winner-announcement.weekly-announcement h1,
+.winner-announcement.weekly-announcement .announcement-label,
+.winner-announcement.weekly-announcement .winner-name,
+.winner-announcement.weekly-announcement p,
+.winner-announcement.weekly-announcement .ceremony-mark{
+  color:var(--weekly-dark);
+}
+
+.winner-announcement.weekly-announcement button{
+  background:var(--weekly-dark);
+  color:var(--gold);
+  border-color:var(--weekly-dark);
 }
 
 .winner-announcement.monthly-announcement{
