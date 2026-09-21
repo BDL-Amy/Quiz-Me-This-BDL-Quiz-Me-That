@@ -1571,20 +1571,16 @@ async function loadWinnerAnnouncements(){
     }catch(error){console.error("Admin winner preview could not be loaded.",error);}
   }
 
-  if(
-    d.getDay() === 1
-  ){
-    try{
-      /* Monday announces the latest winner actually published by the backend.
-         Do not derive this from the new statistics week: transition weeks can
-         have a different stored period. */
-      const data = await api(RESULTS_SERVICE,{action:"latest_weekly_winner"});
-      const period = data?.winner?.week_start || "";
-      if(data?.winner?.player_name && period && shouldOfferWinnerAnnouncement("weekly",period)){
-        announcements.push({type:"weekly",period,winner:data.winner});
-      }
-    }catch(error){console.error("Weekly winner announcement could not be loaded.",error);}
-  }
+  /* Once a weekly winner is officially published, every player must receive
+     the announcement on their next START. localStorage ensures it is shown once
+     per published winning period, regardless of what day they next open the quiz. */
+  try{
+    const data = await api(RESULTS_SERVICE,{action:"latest_weekly_winner"});
+    const period = data?.winner?.week_start || "";
+    if(data?.winner?.player_name && period && shouldOfferWinnerAnnouncement("weekly",period)){
+      announcements.push({type:"weekly",period,winner:data.winner});
+    }
+  }catch(error){console.error("Weekly winner announcement could not be loaded.",error);}
 
   if(
     d.getDate() === 1
