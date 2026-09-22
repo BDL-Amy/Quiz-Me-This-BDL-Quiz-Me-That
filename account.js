@@ -1,10 +1,9 @@
 /* BDL PLAYER ACCOUNTS + RECOVERY */
-const AMY_TEST_PLAYER_ID="a06f21c0-62a7-4072-bad8-e12f6d846e99";
-const DRBDL_TEST_PLAYER_ID="7918f225-6787-46ba-bc07-fbbda246448f";
 const LEGACY_BDL_FANS_PLAYER_ID="1dc098f2-7682-4cff-b3cd-9e92d79c3fb5";
 function normalizePlayerName(v){return String(v||"").normalize("NFKC").trim().replace(/\s+/g," ").toLowerCase()}
-function isAmyTestIdentity(){return String(playerId())===AMY_TEST_PLAYER_ID&&normalizePlayerName(playerName())==="amy.test"}
-function isDrBDLTestIdentity(){return String(playerId())===DRBDL_TEST_PLAYER_ID&&normalizePlayerName(playerName())==="drbdl.test"}
+function normalizedCurrentPlayerName(){return normalizePlayerName(playerName())}
+function isAmyTestIdentity(){return normalizedCurrentPlayerName()==="amy.test"}
+function isDrBDLTestIdentity(){return normalizedCurrentPlayerName()==="drbdl.test"}
 function isTestIdentity(){return isAmyTestIdentity()||isDrBDLTestIdentity()}
 function needsReservedNameChange(){const n=normalizePlayerName(playerName());return String(playerId())===LEGACY_BDL_FANS_PLAYER_ID&&n.includes("bdl")&&n!=="bdl family fans"}
 async function accountApi(body){const r=await fetch(QUIZ_SERVICE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(d.error||"Something went wrong.");e.status=r.status;e.data=d;throw e}return d}
