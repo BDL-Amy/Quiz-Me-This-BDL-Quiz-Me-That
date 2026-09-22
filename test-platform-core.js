@@ -1,6 +1,6 @@
 /* AMY.TEST CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
-const TEST_PLATFORM_VERSION = "2.2";
+const TEST_PLATFORM_VERSION = "2.3";
 let testPreviewIndex = null;
 let testPreviewAnswer = null;
 let testPlayIndex = null;
@@ -83,7 +83,7 @@ function showTestControlPlatform(){
 
   page(`
     <div class="section settings">
-      <h2 class="center">AMY.TEST — TEST MODE</h2>
+      <h2 class="center">TEST MODE</h2>
       <div class="notice">
         <strong>TEST PLATFORM</strong><br>
         Version ${TEST_PLATFORM_VERSION}<br><br>
@@ -91,7 +91,7 @@ function showTestControlPlatform(){
       </div>
 
       <div class="menu">
-        <button class="settings-button" onclick="showTestOutcomePreview()">ANSWER OUTCOMES</button>
+        <button class="settings-button" onclick="showTestDashboard()">CONTROL DASHBOARD</button>\n        <button class="settings-button" onclick="showTestPlay()">FREE TEST PLAY</button>\n        <button class="settings-button" onclick="showTestOutcomePreview()">ANSWER OUTCOMES</button>
         <button class="settings-button" onclick="showPrivateTestRelease()">RELEASE NEW QUESTION</button>
         <button class="settings-button" onclick="showTestSystemCheck()">SYSTEM CHECK</button>
         <button class="settings-button" onclick="showTestQuizPreview()">QUIZ PREVIEW</button>
@@ -109,6 +109,8 @@ function showTestControlPlatform(){
     ${back("showTestMode")}
   `);
 }
+
+function showTestDashboard(){if(!testGuard())return;const q=questions.length,invalid=questions.reduce((n,x)=>n+(testQuestionIssues(x).length?1:0),0),released=getPrivateTestReleasedIndex();testShell("CONTROL DASHBOARD",`<div class="settings-card" style="text-align:left"><strong>Questions loaded:</strong> ${q}<br><strong>Question-data issues:</strong> ${invalid}<br><strong>Private released test question:</strong> ${released===null?"None":"Q"+questionNumber(released)}<br><strong>Account:</strong> ${html(playerName())}</div><div class="menu"><button class="settings-button" onclick="showTestSystemCheck()">RUN SYSTEM CHECK</button><button class="settings-button" onclick="showTestStatistics()">OPEN STATISTICS</button><button class="settings-button" onclick="showTestWinnerOverview()">OPEN WINNER CONTROL</button><button class="settings-button" onclick="showTestPush()">TEST NOTIFICATIONS</button></div>`)}
 
 function privateTestReleaseKey(){
   return "bdlAmyTestPrivateReleasedQuestion";
