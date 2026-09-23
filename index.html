@@ -1998,3 +1998,502 @@ async function loadDashboard(){
         week_start:
           currentWeekStart(),
         month_start:
+          currentMonthStart()
+      }
+    );
+
+  return dashboardCache;
+}
+
+
+
+function buildTitleRanking(data){
+  const history=data?.history||{};
+  const weekly=Array.isArray(history.weekly)?history.weekly:[];
+  const monthly=Array.isArray(history.monthly)?history.monthly:[];
+  const players=new Map();
+  const add=(name,type)=>{
+    const clean=String(name||"").trim();
+    if(!clean)return;
+    const key=clean.toLowerCase();
+    if(!players.has(key))players.set(key,{player_name:clean,smartest:0,supreme:0,points:0});
+    const row=players.get(key);
+    if(type==="smartest")row.smartest+=1;
+    if(type==="supreme")row.supreme+=1;
+    row.points=row.smartest+(row.supreme*4);
+  };
+  weekly.forEach(row=>add(row.player_name,"smartest"));
+  monthly.forEach(row=>add(row.player_name,"supreme"));
+  const rows=[...players.values()].sort((a,b)=>b.points-a.points||b.supreme-a.supreme||b.smartest-a.smartest||a.player_name.localeCompare(b.player_name));
+  let rank=0,lastPoints=null,lastSupreme=null,lastSmartest=null;
+  rows.forEach((row,index)=>{
+    if(row.points!==lastPoints||row.supreme!==lastSupreme||row.smartest!==lastSmartest)rank=index+1;
+    row.rank=rank;
+    lastPoints=row.points;lastSupreme=row.supreme;lastSmartest=row.smartest;
+  });
+  return rows;
+}
+
+function renderPersonalTitleStats(data){
+  const rows=buildTitleRanking(data);
+  const me=rows.find(row=>String(row.player_name).toLowerCase()===String(playerName()).toLowerCase())||{smartest:0,supreme:0,points:0};
+  return `
+    <div class="title-summary">
+      <h3 class="center">MY TITLES</h3>
+      <div class="stat-grid">
+        <div class="stat-card weekly-accent"><strong>${me.smartest}</strong>Smartest wins</div>
+        <div class="stat-card supreme-accent"><strong>${me.supreme}</strong>Supreme wins</div>
+      </div>
+      <div class="stat-card" style="margin-top:10px"><strong>${me.points}</strong>Title Points</div>
+      <div class="title-points-note title-points-calculation">
+        <h3>HOW TITLE POINTS ARE CALCULATED</h3>
+        <div class="title-point-rule weekly-accent"><span>Smartest BDL'er of the Week</span><strong>1 point</strong></div>
+        <div class="title-point-rule supreme-accent"><span>Supreme BDL'er of the Month</span><strong>4 points</strong></div>
+        <div class="title-point-total"><span>TOTAL TITLE POINTS</span><strong>Smartest wins + (Supreme wins × 4)</strong></div>
+      </div>
+    </div>`;
+}
+
+function renderTitleRanking(data){
+  const rows=buildTitleRanking(data).slice(0,20);
+  let body='';
+  if(!rows.length){
+    body='<div class="notice">No title winners are available yet.</div>';
+  }else{
+    body='<div class="title-leaderboard">';
+    rows.forEach(row=>{
+      const me=String(row.player_name).toLowerCase()===String(playerName()).toLowerCase();
+      body+=`<div class="title-leader-card ${me?'me':''}">
+        <div class="title-leader-head">
+          <strong class="title-leader-rank">#${row.rank}</strong>
+          <span class="title-leader-name">${html(row.player_name)}</span>
+        </div>
+        <div class="title-leader-stats">
+          <div class="title-leader-stat weekly-accent"><span>Smartest</span><strong>${row.smartest}</strong></div>
+          <div class="title-leader-stat supreme-accent"><span>Supreme</span><strong>${row.supreme}</strong></div>
+          <div class="title-leader-stat"><span>Points</span><strong>${row.points}</strong></div>
+        </div>
+      </div>`;
+    });
+    body+='</div>';
+  }
+  return `<div style="margin-top:30px"><h3 class="center">TITLE RANKING — TOP 20</h3><div class="title-points-note">This is a separate title ranking and does not affect the general quiz ranking.</div>${body}</div>`;
+}
+
+/* MY STATISTICS */
+
+/* Statistics UI lives only in results-menu.js. */
+
+  /* HISTORY / WALL OF FAME */
+
+/* HISTORY UI lives only in history.js. */
+
+/* PERSONAL SETTINGS */
+
+async function showPersonalSettings(){
+
+  page(`
+    <div class="section settings">
+
+      <h2 class="center">
+        PERSONAL SETTINGS
+      </h2>
+
+      <div class="settings-card">
+
+        <h3>
+          Push notifications
+        </h3>
+
+        <p>
+          Receive a notification
+          when the new Daily Quiz
+          is available.
+        </p>
+
+        <p id="pushStatus">
+          Checking status...
+        </p>
+
+        <button
+          id="pushButton"
+          class="settings-button"
+          onclick="
+            togglePushNotifications()
+          ">
+          PLEASE WAIT...
+        </button>
+
+      </div>
+
+    </div>
+
+    ${back("showMainMenu")}
+  `);
+
+  await refreshPushStatus();
+}
+
+
+/* PUSH HELPERS */
+
+function urlBase64ToUint8Array(
+  base64String
+){
+
+  const padding =
+    "=".repeat(
+      (
+        4
+        -
+        base64String.length % 4
+      )
+      % 4
+    );
+
+  const base64 =
+    (
+      base64String
+      +
+      padding
+    )
+    .replace(
+      /-/g,
+      "+"
+    )
+    .replace(
+      /_/g,
+      "/"
+    );
+
+  const rawData =
+    atob(base64);
+
+  return Uint8Array.from(
+    [...rawData]
+      .map(
+        char =>
+          char.charCodeAt(0)
+      )
+  );
+}
+
+
+function pushSupported(){
+
+  return (
+    "serviceWorker"
+    in navigator
+    &&
+    "PushManager"
+    in window
+    &&
+    "Notification"
+    in window
+  );
+}
+
+
+async function getPushRegistration(){
+
+  if(!pushSupported()){
+    return null;
+  }
+
+  return await navigator
+    .serviceWorker
+    .register(
+      "./service-worker.js"
+    );
+}
+
+
+async function getCurrentPushSubscription(){
+
+  const registration =
+    await getPushRegistration();
+
+  if(!registration){
+    return null;
+  }
+
+  return await registration
+    .pushManager
+    .getSubscription();
+}
+
+
+async function refreshPushStatus(){
+
+  const status =
+    document.getElementById(
+      "pushStatus"
+    );
+
+  const button =
+    document.getElementById(
+      "pushButton"
+    );
+
+  if(
+    !status
+    ||
+    !button
+  ){
+    return;
+  }
+
+  if(!pushSupported()){
+
+    status.textContent =
+      "Push notifications are not supported on this device.";
+
+    button.textContent =
+      "NOT AVAILABLE";
+
+    button.disabled =
+      true;
+
+    return;
+  }
+
+  try{
+
+    const subscription =
+      await getCurrentPushSubscription();
+
+    if(subscription){
+
+      status.innerHTML =
+        "<strong>Status: ON</strong>";
+
+      button.textContent =
+        "DISABLE PUSH NOTIFICATIONS";
+
+    }else{
+
+      status.innerHTML =
+        "<strong>Status: OFF</strong>";
+
+      button.textContent =
+        "ENABLE PUSH NOTIFICATIONS";
+    }
+
+    button.disabled =
+      false;
+
+  }catch(error){
+
+    status.textContent =
+      "Push status could not be checked.";
+
+    button.textContent =
+      "TRY AGAIN";
+
+    button.disabled =
+      false;
+  }
+}
+
+
+async function togglePushNotifications(){
+
+  const subscription =
+    await getCurrentPushSubscription();
+
+  if(subscription){
+    await disablePushNotifications(
+      subscription
+    );
+
+  }else{
+    await enablePushNotifications();
+  }
+
+  await refreshPushStatus();
+}
+
+
+async function enablePushNotifications(){
+
+  if(!pushSupported()){
+
+    alert(
+      "Push notifications are not supported on this device."
+    );
+
+    return;
+  }
+
+  let permission =
+    Notification.permission;
+
+  if(
+    permission ===
+    "default"
+  ){
+
+    permission =
+      await Notification
+        .requestPermission();
+  }
+
+  if(
+    permission !==
+    "granted"
+  ){
+
+    alert(
+      "Push notifications were not enabled."
+    );
+
+    return;
+  }
+
+  const registration =
+    await getPushRegistration();
+
+  const keyData =
+    await api(
+      PUSH_SERVICE,
+      {
+        action:
+          "public_key"
+      }
+    );
+
+  if(
+    !keyData.public_key
+  ){
+
+    throw new Error(
+      "Push key is unavailable."
+    );
+  }
+
+  let subscription =
+    await registration
+      .pushManager
+      .getSubscription();
+
+  if(!subscription){
+
+    subscription =
+      await registration
+        .pushManager
+        .subscribe({
+          userVisibleOnly:true,
+
+          applicationServerKey:
+            urlBase64ToUint8Array(
+              keyData.public_key
+            )
+        });
+  }
+
+  await api(
+    PUSH_SERVICE,
+    {
+      action:
+        "subscribe",
+
+      subscription:
+        subscription.toJSON(),
+
+      player_id:
+        playerId(),
+
+      player_name:
+        playerName()
+    }
+  );
+
+  alert(
+    "Push notifications are now enabled."
+  );
+}
+
+
+async function disablePushNotifications(
+  subscription
+){
+
+  if(!subscription){
+
+    subscription =
+      await getCurrentPushSubscription();
+  }
+
+  if(!subscription){
+    return;
+  }
+
+  await api(
+    PUSH_SERVICE,
+    {
+      action:
+        "unsubscribe",
+
+      endpoint:
+        subscription.endpoint
+    }
+  );
+
+  await subscription
+    .unsubscribe();
+
+  alert(
+    "Push notifications are now disabled."
+  );
+}
+  /* FINAL STARTUP */
+
+
+playerId();
+
+/* One-off notice: Sergio may replay Q54 after his previous answer was removed. */
+(()=>{try{if(String(playerName()).trim().toLowerCase()==="sergio"){const k="bdl-replay-54-sergio-2026-09-19";if(localStorage.getItem(k)!=="shown"){alert("As a compensation reward, your answer to Question 54 has been removed. You may play Question 54 again.\n\nP.S. You answered incorrectly.");localStorage.setItem(k,"shown");}}}catch(e){}})();
+
+/* One-off notice: Matthias Q51 neutralisation. */
+(()=>{try{const isMatthias=String(playerName()).trim().toLowerCase()==="matthias"||playerId()==="ab7f5cc3-9084-4546-8b20-2af9a94ace8c";if(isMatthias){const k="bdl-neutralised-51-2026-09-19-v1";if(localStorage.getItem(k)!=="shown"){alert("Question 51 has been neutralised.\n\nQuestion 51: Who is Dr Toño?\n\nReason: The question was reopened after you had already submitted your answer and the correct answer had already been released.\n\nYour answer therefore counts as correct.");localStorage.setItem(k,"shown");}}}catch(e){}})();
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script src="questions-51-60.js?v=20260917-clean-shell"></script>
+<script src="account.js?v=20260923-recovery-v1"></script>
+<script src="history.js?v=20260923-recovery-v1"></script>
+<script src="result-catchphrases.js?v=20260917-clean-shell"></script>
+<script src="quiz-schedule-1530.js?v=20260918-single-nav-v1"></script>
+<script src="test-platform.js?v=20260923-recovery-v1"></script>
+<script src="test-platform-core.js?v=20260923-recovery-v1"></script>
+<script src="test-results.js?v=20260923-recovery-v1"></script>
+<script src="recovery-onboarding.js?v=20260919-async-fix-v4"></script>
+<script src="results-menu.js?v=20260918-stats-clean-v3"></script>
+<script src="performance.js?v=20260917-clean-shell"></script>
+<script>
+(function bootQuizApp(){
+  try{
+    if(typeof showStartScreen!=="function") throw new Error("showStartScreen unavailable");
+    showStartScreen();
+  }catch(error){
+    console.error("Quiz startup failed:",error);
+    const quiz=document.getElementById("quiz");
+    const header=document.getElementById("mainHeader");
+    if(header)header.style.display="none";
+    if(quiz)quiz.innerHTML='<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>The quiz could not finish loading.</p><button type="button" onclick="location.reload()">RELOAD QUIZ</button></div>';
+  }
+})();
+</script>
+</body>
+</html>
