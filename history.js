@@ -111,9 +111,9 @@ async function openTestPlatform(){
   document.getElementById("mainHeader").style.display="none";
   page("<div id=\"app\"></div>");
   let css=document.getElementById("bdlTestPlatformCss");
-  if(!css){css=document.createElement("link");css.id="bdlTestPlatformCss";css.rel="stylesheet";css.href="https://bdl-amy.github.io/BDL-Amy-test-platform/test-platform.css?v=20260924-complete-v1";document.head.appendChild(css)}
+  if(!css){css=document.createElement("link");css.id="bdlTestPlatformCss";css.rel="stylesheet";css.href="https://bdl-amy.github.io/BDL-Amy-test-platform/test-platform.css?v=20260924-player-experience-v1";document.head.appendChild(css)}
   document.getElementById("bdlTestPlatformScript")?.remove();
-  const js=document.createElement("script");js.id="bdlTestPlatformScript";js.src="https://bdl-amy.github.io/BDL-Amy-test-platform/test-platform.js?v=20260924-syntax-fix-v2";js.onerror=()=>{window.BDL_END_TEST_PLATFORM();alert("TEST PLATFORM could not load.")};document.body.appendChild(js);
+  const js=document.createElement("script");js.id="bdlTestPlatformScript";js.src="https://bdl-amy.github.io/BDL-Amy-test-platform/test-platform.js?v=20260924-player-experience-v1";js.onerror=()=>{window.BDL_END_TEST_PLATFORM();alert("TEST PLATFORM could not load.")};document.body.appendChild(js);
  }catch(e){document.getElementById("mainHeader").style.display="";showMainMenu();alert("TEST PLATFORM could not start.")}
 }
 function showMainMenu(){const testPlatformButton=isTestIdentity()?`<button onclick="openTestPlatform()">TEST PLATFORM</button>`:"";page(`<h2 class="center">Welcome, ${html(playerName())}</h2><div class="menu main-menu"><button onclick="showMyStatistics()">MY STATISTICS</button><button onclick="showQuizMenu()">QUIZ</button><button onclick="showHistory()">HISTORY</button><button onclick="showPersonalSettings()">PERSONAL SETTINGS</button><button onclick="showQuizPolicy()">QUIZ POLICY</button>${testPlatformButton}</div>`)}
