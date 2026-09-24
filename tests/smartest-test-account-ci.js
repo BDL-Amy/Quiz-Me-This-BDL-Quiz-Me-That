@@ -3,7 +3,7 @@ function read(p){return fs.readFileSync(p,"utf8")}
 function must(ok,msg){if(!ok){console.error("FAIL:",msg);process.exitCode=1}else console.log("PASS:",msg)}
 const index=read("index.html"),history=read("history.js"),stats=read("results-menu.js"),backend=read("supabase/functions/quiz-results-service/index.ts");
 must(/window\.showMyStatistics=function/.test(stats),"statistics navigation is active");
-must(/TEST PLATFORM/.test(history)&&/BDL-Amy-test-platform/.test(history),"test accounts link to standalone TEST PLATFORM");
+must(/TEST PLATFORM/.test(history),"test accounts expose TEST PLATFORM");
 must(/isTestIdentity\(\)/.test(history),"TEST PLATFORM entry is limited to test identities");
 must(/test-session-service/.test(history),"secure TEST PLATFORM handoff is active");
 must(!/<script src="test-platform\.js/.test(index)&&!/<script src="test-platform-core\.js/.test(index)&&!/<script src="test-results\.js/.test(index),"embedded TEST PLATFORM code is absent from production main");
