@@ -1725,8 +1725,7 @@ function continueWinnerAnnouncement(type, period){
 
 /* MAIN MENU */
 
-/* Main menu is owned by history.js?v=20260924-native-test-platform-v1. */
-function showQuizPlayMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">PLAY</h2><div class="menu quiz-menu"><button onclick="showQuizPlayQuizMenu()">QUIZ</button><button onclick="showQuizResultMenu()">RESULT</button></div></div>${back("showQuizMenu")}`);}
+/* Main menu is owned by history.js?v=20260924-startup-fix-v1"section quiz-section quiz-level-2"><h2 class="center">PLAY</h2><div class="menu quiz-menu"><button onclick="showQuizPlayQuizMenu()">QUIZ</button><button onclick="showQuizResultMenu()">RESULT</button></div></div>${back("showQuizMenu")}`);}
 function showQuizPlayQuizMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">QUIZ</h2><div class="menu quiz-menu"><button onclick="showTodayQuestion()">TODAY'S QUESTION</button><button onclick="showCatchupQuestion()">CATCH UP</button></div></div>${back("showQuizPlayMenu")}`);}
 function showQuizResultMenu(){page(`<div class="section quiz-section quiz-level-3"><h2 class="center">RESULT</h2><div class="menu quiz-menu"><button onclick="showPreviousAnswer()">PREVIOUS QUESTION</button></div></div>${back("showQuizPlayMenu")}`);}
 function showCurrentTitlesMenu(){page(`<div class="section quiz-section quiz-level-2"><h2 class="center">CURRENT TITLES</h2><div class="menu quiz-menu"><button onclick="showCurrentWeeklyHolder()">SMARTEST</button><button onclick="showSupremeBDLer()">SUPREME</button><button onclick="showGrandmaster('showCurrentTitlesMenu')">GRANDMASTER</button></div></div>${back("showQuizMenu")}`);}
@@ -2082,9 +2081,7 @@ function renderTitleRanking(data){
 
   /* HISTORY / WALL OF FAME */
 
-/* HISTORY UI lives only in history.js?v=20260924-native-test-platform-v1. */
-
-      <h2 class="center">
+/* HISTORY UI lives only in history.js?v=20260924-startup-fix-v1"center">
         PERSONAL SETTINGS
       </h2>
 
@@ -2461,7 +2458,7 @@ playerId();
 
 <script src="questions-51-60.js?v=20260917-clean-shell"></script>
 <script src="account.js?v=20260924-cleanup-v1"></script>
-<script src="history.js?v=20260924-native-test-platform-v1"></script>
+<script src="history.js?v=20260924-startup-fix-v1"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
 <script src="quiz-schedule-1530.js?v=20260924-publication-v1"></script>
 <script src="recovery-onboarding.js?v=20260919-async-fix-v4"></script>
