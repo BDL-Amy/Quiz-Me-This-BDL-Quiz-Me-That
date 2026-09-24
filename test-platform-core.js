@@ -1,4 +1,4 @@
-/* AMY.TEST CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
+/* BDL TEST MODE CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
 const TEST_PLATFORM_VERSION = "2.3";
 let testPreviewIndex = null;
@@ -54,7 +54,7 @@ showTestMode = function(){
   if(!testGuard()) return;
   page(`
     <div class="section settings">
-      <h2 class="center">AMY.TEST</h2>
+      <h2 class="center">TEST MODE</h2>
       <div class="notice">
         <strong>CHOOSE MODE</strong><br><br>
         This account has three separate ways to use the quiz.
@@ -363,7 +363,7 @@ async function showTestSystemCheck(){
   const checks=[];
   const add=(name,ok,detail)=>checks.push({name,ok,detail});
 
-  add("Amy.TEST identity",isAmyTestIdentity(),playerName()+" · "+playerId());
+  add("Test account identity",isTestIdentity(),playerName());
   add("Question data",questions.every(q=>testQuestionIssues(q).length===0),`${questions.length} loaded`);
 
   const todayIndex=quizDay();
@@ -375,7 +375,7 @@ async function showTestSystemCheck(){
   }catch(e){ add("Quiz service",false,e.message); }
 
   try{
-    const d=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),week_start:currentWeekStart(),month_start:currentMonthStart()});
+    const d=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});
     add("Results service",!!d?.success,"Dashboard reachable");
   }catch(e){ add("Results service",false,e.message); }
 
@@ -480,10 +480,10 @@ function showTestQuestionsAudit(){
 
 async function showTestStatistics(){
   if(!testGuard()) return;
-  testShell("STATISTICS",`<div class="loading">Loading Amy.TEST statistics...</div>`);
+  testShell("STATISTICS",`<div class="loading">Loading test-account statistics...</div>`);
 
   try{
-    const d=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),week_start:currentWeekStart(),month_start:currentMonthStart()});
+    const d=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});
     const s=d.lifetime||{};
     testShell("STATISTICS",`
       <div class="stat-grid">
@@ -492,7 +492,7 @@ async function showTestStatistics(){
         <div class="stat-card"><strong>${s.incorrect??0}</strong>Incorrect</div>
         <div class="stat-card"><strong>${s.accuracy??0}%</strong>Accuracy</div>
       </div>
-      <div class="notice"><strong>COMPETITION STATUS</strong><br>Amy.TEST is intentionally excluded from weekly and monthly rankings and winner selection.</div>
+      <div class="notice"><strong>COMPETITION STATUS</strong><br>Test/admin accounts are intentionally excluded from public rankings and winner selection.</div>
       <button class="settings-button" onclick="showTestStatistics()">REFRESH</button>
     `);
   }catch(e){
