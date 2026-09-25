@@ -1,10 +1,4 @@
 /* BDL HISTORY + RANKINGS + QUIZ POLICY */
-loadDashboard=async function(){
-  if(dashboardCache)return dashboardCache;
-  const data=await api(RESULTS_SERVICE,{action:"dashboard",player_id:playerId(),player_name:playerName(),week_start:currentWeekStart(),month_start:currentMonthStart()});
-  dashboardCache=data;
-  return dashboardCache;
-};
 function historyDateForIndex(index){const d=new Date(2026,7,11);d.setDate(d.getDate()+index);return d}
 function historyDateLabel(d){return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
 function historyShortDate(d){return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"}).toUpperCase()}
