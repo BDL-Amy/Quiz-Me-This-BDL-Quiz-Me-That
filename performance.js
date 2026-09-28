@@ -32,7 +32,40 @@
     if("requestIdleCallback" in window)requestIdleCallback(warm,{timeout:2500});else setTimeout(warm,1200);
   }
 
+  /* Winner gate: a published winner must be acknowledged before the main menu.
+     This capture listener runs before the legacy START handler, so the menu can
+     never flash up first. If the winner service is unavailable, normal quiz
+     navigation remains available instead of trapping the player. */
+  function installWinnerGate(){
+    document.addEventListener("click",async function(event){
+      const start=event.target.closest&&event.target.closest("#startQuizButton");
+      if(!start)return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if(typeof page==="function"){
+        page('<div class="loading">Checking winner announcement...</div>');
+      }
+
+      try{
+        const items=typeof loadWinnerAnnouncements==="function"
+          ? await loadWinnerAnnouncements()
+          : [];
+        window.pendingWinnerAnnouncements=Array.isArray(items)?items:[];
+        if(window.pendingWinnerAnnouncements.length&&typeof showNextWinnerAnnouncement==="function"){
+          showNextWinnerAnnouncement();
+          return;
+        }
+      }catch(error){
+        console.error("Winner announcement gate could not be loaded.",error);
+      }
+
+      if(typeof showMainMenu==="function")showMainMenu();
+    },true);
+  }
+
   installDashboardCache();
   installAnswerCache();
+  installWinnerGate();
   warmDashboard();
 })();
