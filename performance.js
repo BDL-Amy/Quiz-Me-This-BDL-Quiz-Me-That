@@ -32,43 +32,27 @@
     if("requestIdleCallback" in window)requestIdleCallback(warm,{timeout:2500});else setTimeout(warm,1200);
   }
 
-  /* Extend the existing announcement loader so published Supreme winners are
-     offered on the player's next START, not only on the first calendar day of
-     a month. The existing loader remains authoritative for Smartest and admin
-     previews. Every announcement keeps its own per-player/per-period seen key. */
-  function installAllWinnerAnnouncements(){
-    if(typeof window.loadWinnerAnnouncements!=="function")return;
-    const original=window.loadWinnerAnnouncements;
+  function announcementSchedule(items){
+    const list=Array.isArray(items)?items:[];
+    const b=typeof brussels==="function"?brussels():null;
+    const date=b?new Date(+b.year,+b.month-1,+b.day):new Date();
+    const monday=date.getDay()===1;
+    const firstOfMonth=date.getDate()===1;
 
-    window.loadWinnerAnnouncements=async function(){
-      const items=await original();
-      const announcements=Array.isArray(items)?items.slice():[];
-
-      try{
-        if(typeof MONTHLY_WINNER_SERVICE!=="undefined"){
-          const response=await fetch(MONTHLY_WINNER_SERVICE,{cache:"no-store"});
-          const data=await response.json().catch(()=>({}));
-          const winner=data?.winner?.player_name?data.winner:null;
-          if(response.ok&&winner){
-            const period=winner.month_start||winner.period||winner.period_start||null;
-            if(period&&typeof shouldOfferWinnerAnnouncement==="function"&&shouldOfferWinnerAnnouncement("monthly",period)){
-              const alreadyQueued=announcements.some(item=>item&&item.type==="monthly"&&item.period===period);
-              if(!alreadyQueued)announcements.push({type:"monthly",period,winner});
-            }
-          }
-        }
-      }catch(error){
-        console.error("Supreme winner announcement could not be loaded.",error);
-      }
-
-      return announcements;
-    };
+    return list.filter(item=>{
+      const type=String(item?.type||"");
+      /* Keep confidential Sunday admin/test previews unchanged. */
+      if(type.startsWith("admin-"))return true;
+      /* Public title ceremony schedule is strict. */
+      if(type==="weekly")return monday;
+      if(type==="monthly")return firstOfMonth;
+      return false;
+    });
   }
 
-  /* Mandatory winner gate. All currently published title announcements are
-     loaded before navigation. If several are unseen, showNextWinnerAnnouncement
-     presents them one after another; only after the last CONTINUE is the main
-     menu opened. This applies to every player, including Amy/BDL test accounts. */
+  /* Winner gate: title announcements are shown before the main menu.
+     Smartest is public on Monday only. Supreme is public on the 1st only.
+     If Monday is also the 1st, both are shown in sequence. */
   function installWinnerGate(){
     document.addEventListener("click",async function(event){
       const start=event.target.closest&&event.target.closest("#startQuizButton");
@@ -77,20 +61,20 @@
       event.stopImmediatePropagation();
 
       if(typeof page==="function"){
-        page('<div class="loading">Checking title announcements...</div>');
+        page('<div class="loading">Checking title announcement...</div>');
       }
 
       try{
         const items=typeof loadWinnerAnnouncements==="function"
           ? await loadWinnerAnnouncements()
           : [];
-        pendingWinnerAnnouncements=Array.isArray(items)?items:[];
+        pendingWinnerAnnouncements=announcementSchedule(items);
         if(pendingWinnerAnnouncements.length&&typeof showNextWinnerAnnouncement==="function"){
           showNextWinnerAnnouncement();
           return;
         }
       }catch(error){
-        console.error("Winner announcement gate could not be loaded.",error);
+        console.error("Title announcement gate could not be loaded.",error);
       }
 
       if(typeof showMainMenu==="function")showMainMenu();
@@ -99,7 +83,6 @@
 
   installDashboardCache();
   installAnswerCache();
-  installAllWinnerAnnouncements();
   installWinnerGate();
   warmDashboard();
 })();
