@@ -51,8 +51,8 @@
         const items=typeof loadWinnerAnnouncements==="function"
           ? await loadWinnerAnnouncements()
           : [];
-        window.pendingWinnerAnnouncements=Array.isArray(items)?items:[];
-        if(window.pendingWinnerAnnouncements.length&&typeof showNextWinnerAnnouncement==="function"){
+        pendingWinnerAnnouncements=Array.isArray(items)?items:[];
+        if(pendingWinnerAnnouncements.length&&typeof showNextWinnerAnnouncement==="function"){
           showNextWinnerAnnouncement();
           return;
         }
