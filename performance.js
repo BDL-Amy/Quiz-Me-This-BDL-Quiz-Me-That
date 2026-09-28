@@ -1,4 +1,4 @@
-/* BDL frontend performance layer — winner gate + caches. */
+/* BDL frontend performance layer — authoritative title ceremony gate. */
 (function(){
   const DASH_TTL=60000;
   let dashAt=0,dashPromise=null;
@@ -27,91 +27,97 @@
     };
   }
 
-  function warmDashboard(){
-    const warm=()=>{if(typeof window.loadDashboard==="function"&&typeof window.playerId==="function"&&playerId())window.loadDashboard().catch(()=>{})};
-    if("requestIdleCallback" in window)requestIdleCallback(warm,{timeout:2500});else setTimeout(warm,1200);
-  }
-
   function actualBrusselsDate(){
-    const b=typeof brussels==="function"?brussels():null;
-    return b?new Date(+b.year,+b.month-1,+b.day):new Date();
+    const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+    const get=t=>parts.find(p=>p.type===t)?.value||"";
+    return new Date(Number(get("year")),Number(get("month"))-1,Number(get("day")));
   }
 
-  function ceremonySeenKey(type,period){
+  function key(type,period){
     const pid=typeof playerId==="function"?playerId():"player";
-    return ["bdlTitleCeremonyV2",pid,type,period].join("_");
+    return ["bdlTitleCeremonyV3",pid,type,period].join("_");
   }
+  function unseen(type,period){try{return localStorage.getItem(key(type,period))!=="yes"}catch(_e){return true}}
+  function mark(type,period){try{localStorage.setItem(key(type,period),"yes")}catch(_e){}}
 
-  function markCeremonySeen(type,period){
-    try{localStorage.setItem(ceremonySeenKey(type,period),"yes")}catch(_e){}
-  }
-
-  function ceremonyUnseen(type,period){
-    try{return localStorage.getItem(ceremonySeenKey(type,period))!=="yes"}catch(_e){return true}
-  }
-
-  async function scheduledAnnouncements(){
-    const date=actualBrusselsDate();
-    const monday=date.getDay()===1;
-    const firstOfMonth=date.getDate()===1;
+  async function getScheduledTitles(){
+    const d=actualBrusselsDate();
     const items=[];
-
-    /* Monday is authoritative for the public Smartest ceremony. Fetch the
-       published winner directly so an older local seen-key or the legacy
-       after-START loader cannot suppress this Monday's ceremony. */
-    if(monday&&typeof api==="function"&&typeof RESULTS_SERVICE!=="undefined"){
+    if(d.getDay()===1){
       try{
         const data=await api(RESULTS_SERVICE,{action:"latest_weekly_winner"});
-        const winner=data&&data.winner&&data.winner.player_name?data.winner:null;
-        const period=winner&&winner.week_start;
-        if(winner&&period&&ceremonyUnseen("weekly",period))items.push({type:"weekly",period,winner});
-      }catch(error){console.error("Monday Smartest ceremony could not be loaded.",error)}
+        const winner=data?.winner?.player_name?data.winner:null;
+        if(winner?.week_start&&unseen("weekly",winner.week_start))items.push({type:"weekly",period:winner.week_start,winner});
+      }catch(error){console.error("Smartest ceremony load failed",error)}
     }
-
-    /* Supreme remains strictly the 1st. Reuse the existing monthly loader,
-       but never allow weekly/admin items from it into the public gate. */
-    if(firstOfMonth&&typeof loadWinnerAnnouncements==="function"){
+    if(d.getDate()===1){
       try{
-        const legacy=await loadWinnerAnnouncements();
-        for(const item of Array.isArray(legacy)?legacy:[]){
-          if(item&&item.type==="monthly"&&item.period&&ceremonyUnseen("monthly",item.period))items.push(item);
-        }
-      }catch(error){console.error("Supreme ceremony could not be loaded.",error)}
+        const response=await fetch(MONTHLY_WINNER_SERVICE,{cache:"no-store"});
+        const data=await response.json().catch(()=>({}));
+        const winner=response.ok&&data?.winner?.player_name?data.winner:null;
+        const period=typeof previousMonthStart==="function"?previousMonthStart():"previous-month";
+        if(winner&&unseen("monthly",period))items.push({type:"monthly",period,winner});
+      }catch(error){console.error("Supreme ceremony load failed",error)}
     }
     return items;
   }
 
-  function showCeremonyQueue(items){
-    const queue=Array.isArray(items)?items.slice():[];
+  function renderQueue(items,finish){
+    const queue=items.slice();
     const next=()=>{
       const a=queue.shift();
-      if(!a){if(typeof showMainMenu==="function")showMainMenu();return}
+      if(!a){finish();return}
       const monthly=a.type==="monthly";
-      if(typeof page!=="function"){next();return}
-      page(`<div class="winner-announcement ${monthly?"monthly-announcement":"weekly-announcement"}"><div class="ceremony-mark">${monthly?"✦":"♛"}</div><div class="announcement-label">${monthly?"WE HONOR":"CONGRATULATIONS"}</div><h1>${monthly?"THE SUPREME BDL’ER OF THE MONTH":"THE SMARTEST BDL’ER OF THE WEEK"}</h1><div class="winner-name">${typeof html==="function"?html(a.winner.player_name):a.winner.player_name}</div><p>${monthly?"Welcome to The Supreme Order of BDL.":"You are the smartest kid in town — at least till next Monday!"}</p><button id="bdlCeremonyContinue">CONTINUE</button></div>`);
-      const btn=document.getElementById("bdlCeremonyContinue");
-      if(btn)btn.onclick=()=>{markCeremonySeen(a.type,a.period);next()};
+      page(`<div class="winner-announcement ${monthly?"monthly-announcement":"weekly-announcement"}">
+        <div class="ceremony-mark">${monthly?"✦":"♛"}</div>
+        <div class="announcement-label">${monthly?"WE HONOR":"CONGRATULATIONS"}</div>
+        <h1>${monthly?"THE SUPREME BDL’ER OF THE MONTH":"THE SMARTEST BDL’ER OF THE WEEK"}</h1>
+        <div class="winner-name">${html(a.winner.player_name)}</div>
+        <p>${monthly?"Welcome to The Supreme Order of BDL.":"You are the smartest kid in town — at least till next Monday!"}</p>
+        <button id="bdlTitleContinue">CONTINUE</button>
+      </div>`);
+      const btn=document.getElementById("bdlTitleContinue");
+      if(btn)btn.onclick=()=>{mark(a.type,a.period);next()};
     };
     next();
   }
 
-  function installWinnerGate(){
-    document.addEventListener("click",async function(event){
-      const start=event.target.closest&&event.target.closest("#startQuizButton");
-      if(!start)return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if(typeof page==="function")page('<div class="loading">Checking title announcement...</div>');
-      try{
-        const items=await scheduledAnnouncements();
-        if(items.length){showCeremonyQueue(items);return}
-      }catch(error){console.error("Title announcement gate could not be loaded.",error)}
-      if(typeof showMainMenu==="function")showMainMenu();
-    },true);
+  function installAuthoritativeMenuGate(){
+    if(typeof window.showMainMenu!=="function")return;
+    const realMainMenu=window.showMainMenu;
+    let checking=false;
+    let bypass=false;
+    window.showMainMenu=function(){
+      if(bypass)return realMainMenu.apply(this,arguments);
+      const d=actualBrusselsDate();
+      if(d.getDay()!==1&&d.getDate()!==1)return realMainMenu.apply(this,arguments);
+      if(checking)return;
+      checking=true;
+      page('<div class="loading">Checking title announcement...</div>');
+      getScheduledTitles().then(items=>{
+        if(items.length){
+          renderQueue(items,()=>{bypass=true;realMainMenu();bypass=false;checking=false});
+        }else{
+          bypass=true;realMainMenu();bypass=false;checking=false;
+        }
+      }).catch(error=>{
+        console.error("Title ceremony gate failed",error);
+        bypass=true;realMainMenu();bypass=false;checking=false;
+      });
+    };
   }
+
+  /* Stop the legacy START listener before it can navigate. The only navigation
+     path is the wrapped showMainMenu above. */
+  document.addEventListener("click",function(event){
+    const start=event.target.closest&&event.target.closest("#startQuizButton");
+    if(!start)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.showMainMenu();
+  },true);
 
   installDashboardCache();
   installAnswerCache();
-  installWinnerGate();
-  warmDashboard();
+  installAuthoritativeMenuGate();
 })();
