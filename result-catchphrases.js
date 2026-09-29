@@ -7,12 +7,14 @@ async function bdlLoadResultCatchphrase(questionNum,status){
 
 /* Shared statistics dashboard loader.
    Single implementation used by Statistics, Rankings and Wall of Fame.
-   The results service dashboard contract only needs player_id and period starts. */
+   quiz-results-service requires both the player id and claimed player name
+   before it authorizes dashboard access. */
 async function loadDashboard(){
   if(dashboardCache)return dashboardCache;
   const data=await api(RESULTS_SERVICE,{
     action:"dashboard",
     player_id:playerId(),
+    player_name:playerName(),
     week_start:currentWeekStart(),
     month_start:currentMonthStart()
   });
