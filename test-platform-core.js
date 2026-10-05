@@ -1,6 +1,6 @@
 /* BDL TEST MODE CONTROL PLATFORM — SAFE / NON-DESTRUCTIVE */
 
-const TEST_PLATFORM_VERSION = "2.3";
+const TEST_PLATFORM_VERSION = "2.4";\nconst RECOVERY_LINK_SERVICE = BASE+"/recovery-link-service";
 let testPreviewIndex = null;
 let testPreviewAnswer = null;
 let testPlayIndex = null;
@@ -102,7 +102,7 @@ function showTestControlPlatform(){
         <button class="settings-button" onclick="showTestHistory()">HISTORY</button>
         <button class="settings-button" onclick="showTestWinnerOverview()">WINNER OVERVIEW</button>
         <button class="settings-button" onclick="showTestWinnerTests()">WINNER TESTS</button>
-        <button class="settings-button" onclick="showTestPush()">PUSH NOTIFICATIONS</button>
+        <button class="settings-button" onclick="showTestPush()">PUSH NOTIFICATIONS</button>\n        <button class="settings-button" onclick="showTestPlayerRecovery()">PLAYER RECOVERY</button>
       </div>
 
       <div class="notice" style="margin-top:14px">
@@ -610,4 +610,81 @@ async function runLocalPushTest(){
   }catch(e){
     alert(e.message || "The local push test failed.");
   }
+}
+
+/* ADMIN PLAYER RECOVERY — Amy.TEST / DrBDL.TEST only */
+async function testRecoverySession(){
+  const r=await fetch(BASE+"/test-session-service",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({player_id:playerId(),player_name:playerName()})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||!d.session_token)throw new Error(d.error||"Admin session unavailable.");
+  return d.session_token;
+}
+async function recoveryAdminApi(action,extra={}){
+  const token=await testRecoverySession();
+  const r=await fetch(RECOVERY_LINK_SERVICE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,admin_session_token:token,...extra})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(d.error||"Recovery request failed.");e.status=r.status;throw e}
+  return d;
+}
+async function showTestPlayerRecovery(){
+  if(!testGuard())return;
+  testShell("PLAYER RECOVERY",`<div class="loading">Loading player accounts...</div>`);
+  try{
+    const d=await recoveryAdminApi("list_players");
+    const players=Array.isArray(d.players)?d.players:[];
+    const options=players.map((p,i)=>`<option value="${i}">${html(p.player_name)} · ${p.recovery_enabled?"CODE SET":"NO CODE"}</option>`).join("");
+    window.bdlRecoveryPlayers=players;
+    testShell("PLAYER RECOVERY",`
+      <div class="notice"><strong>${players.length} ACCOUNTS</strong><br>Select an existing player. You do not need to type a player name.</div>
+      <div class="settings-card">
+        <label for="recoveryPlayerSelect"><strong>Player account</strong></label>
+        <select id="recoveryPlayerSelect" onchange="renderSelectedRecoveryPlayer()" style="width:100%;padding:14px;margin:8px 0 14px;border:2px solid #111;border-radius:12px;font-size:16px">
+          ${options}
+        </select>
+        <div id="selectedRecoveryPlayer"></div>
+      </div>
+      <div id="recoveryLinkResult"></div>
+    `);
+    renderSelectedRecoveryPlayer();
+  }catch(e){
+    testShell("PLAYER RECOVERY",`<div class="notice">Player accounts could not be loaded.<br>${html(e.message||"")}</div>`);
+  }
+}
+function renderSelectedRecoveryPlayer(){
+  const select=document.getElementById("recoveryPlayerSelect"),area=document.getElementById("selectedRecoveryPlayer");
+  if(!select||!area)return;
+  const p=(window.bdlRecoveryPlayers||[])[Number(select.value)];
+  if(!p){area.innerHTML='<div class="notice">No player selected.</div>';return}
+  area.innerHTML=`
+    <div class="notice" style="text-align:left">
+      <strong>${html(p.player_name)}</strong><br>
+      Recovery code: <strong>${p.recovery_enabled?"SET":"NOT SET"}</strong>
+    </div>
+    <button id="createRecoveryLinkButton" class="settings-button" onclick="createSelectedPlayerRecoveryLink()">CREATE ONE-TIME RECOVERY LINK</button>
+    <small style="text-align:left;margin-top:8px">Creating a link does not change the player's current recovery code. A new code is created only when the player opens the link. The link expires after 24 hours and can be used once.</small>`;
+  const result=document.getElementById("recoveryLinkResult");if(result)result.innerHTML="";
+}
+async function createSelectedPlayerRecoveryLink(){
+  if(!testGuard())return;
+  const select=document.getElementById("recoveryPlayerSelect"),button=document.getElementById("createRecoveryLinkButton"),area=document.getElementById("recoveryLinkResult");
+  const p=(window.bdlRecoveryPlayers||[])[Number(select?.value)];
+  if(!p||!area)return;
+  button.disabled=true;button.textContent="CREATING...";
+  try{
+    const d=await recoveryAdminApi("create_link",{player_name:p.player_name});
+    area.innerHTML=`
+      <div class="settings-card" style="margin-top:14px">
+        <div class="notice"><strong>RECOVERY LINK FOR ${html(d.player_name)}</strong><br><br><span id="generatedRecoveryLink" style="overflow-wrap:anywhere">${html(d.recovery_url)}</span></div>
+        <button class="settings-button" onclick="copyGeneratedRecoveryLink()">COPY LINK</button>
+        <small style="text-align:left;margin-top:8px">Personal · one use · expires after 24 hours. Send this link only to the selected player.</small>
+      </div>`;
+  }catch(e){
+    area.innerHTML=`<div class="notice">The recovery link could not be created.<br>${html(e.message||"")}</div>`;
+  }finally{button.disabled=false;button.textContent="CREATE ONE-TIME RECOVERY LINK"}
+}
+async function copyGeneratedRecoveryLink(){
+  const value=document.getElementById("generatedRecoveryLink")?.textContent||"";
+  if(!value)return;
+  try{await navigator.clipboard.writeText(value);alert("Recovery link copied.");}
+  catch{prompt("Copy this recovery link:",value)}
 }
