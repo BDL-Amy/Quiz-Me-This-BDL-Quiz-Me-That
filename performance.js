@@ -88,15 +88,7 @@
     if(typeof window.showMainMenu!=="function")return;
   }
 
-  /* Stop the legacy START listener before it can navigate. The only navigation
-     path is the wrapped showMainMenu above. */
-  document.addEventListener("click",function(event){
-    const start=event.target.closest&&event.target.closest("#startQuizButton");
-    if(!start)return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    window.showMainMenu();
-  },true);
+  /* START uses the application's normal click handler. Title checks must not intercept it. */
 
   installDashboardCache();
   installAnswerCache();
