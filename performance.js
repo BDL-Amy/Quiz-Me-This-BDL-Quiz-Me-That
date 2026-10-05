@@ -94,15 +94,29 @@
       if(checking)return;
       checking=true;
       page('<div class="loading">Checking title announcement...</div>');
+      const finishGate=()=>{bypass=true;try{realMainMenu()}finally{bypass=false;checking=false}};
+      let settled=false;
+      const timeout=setTimeout(()=>{
+        if(settled)return;
+        settled=true;
+        console.warn("Title ceremony check timed out; continuing to main menu.");
+        finishGate();
+      },3500);
       getScheduledTitles().then(items=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(timeout);
         if(items.length){
-          renderQueue(items,()=>{bypass=true;realMainMenu();bypass=false;checking=false});
+          renderQueue(items,finishGate);
         }else{
-          bypass=true;realMainMenu();bypass=false;checking=false;
+          finishGate();
         }
       }).catch(error=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(timeout);
         console.error("Title ceremony gate failed",error);
-        bypass=true;realMainMenu();bypass=false;checking=false;
+        finishGate();
       });
     };
   }
