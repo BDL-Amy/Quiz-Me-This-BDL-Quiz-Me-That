@@ -83,42 +83,9 @@
   }
 
   function installAuthoritativeMenuGate(){
+    /* Emergency fail-open: title announcements must never block access to the quiz.
+       Winner ceremonies remain available elsewhere, but startup goes directly to the menu. */
     if(typeof window.showMainMenu!=="function")return;
-    const realMainMenu=window.showMainMenu;
-    let checking=false;
-    let bypass=false;
-    window.showMainMenu=function(){
-      if(bypass)return realMainMenu.apply(this,arguments);
-      const d=actualBrusselsDate();
-      if(d.getDay()!==1&&d.getDate()!==1)return realMainMenu.apply(this,arguments);
-      if(checking)return;
-      checking=true;
-      page('<div class="loading">Checking title announcement...</div>');
-      const finishGate=()=>{bypass=true;checking=false;try{realMainMenu()}catch(error){console.error("Main menu after title gate failed",error);if(typeof showAccountChoice==="function")showAccountChoice()}finally{bypass=false}};
-      let settled=false;
-      const timeout=setTimeout(()=>{
-        if(settled)return;
-        settled=true;
-        console.warn("Title ceremony check timed out; continuing to main menu.");
-        finishGate();
-      },3500);
-      getScheduledTitles().then(items=>{
-        if(settled)return;
-        settled=true;
-        clearTimeout(timeout);
-        if(items.length){
-          renderQueue(items,finishGate);
-        }else{
-          finishGate();
-        }
-      }).catch(error=>{
-        if(settled)return;
-        settled=true;
-        clearTimeout(timeout);
-        console.error("Title ceremony gate failed",error);
-        finishGate();
-      });
-    };
   }
 
   /* Stop the legacy START listener before it can navigate. The only navigation
