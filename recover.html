@@ -1,87 +1,28 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Recover player account</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;padding:16px;background:#eee;font-family:Arial,sans-serif;color:#111}
-main{max-width:650px;margin:auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 8px 30px #00000015}
-.card{background:#effaf8;border-top:7px solid #267c78;border-radius:18px;padding:18px}
-h1,h2{text-align:center;margin-top:0}
-input,button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:12px;font-size:16px}
-button{background:#267c78;color:#fff;border-color:#267c78;font-weight:bold;cursor:pointer}
-.notice{display:none;padding:14px;background:#fff;border-radius:12px;text-align:center;margin:12px 0}
-.back{background:#fff;color:#111;border-color:#111}
-</style>
-</head>
-<body>
-<main>
-  <div class="card">
-    <h2>ACCOUNT RECOVERY</h2>
-    <p>Enter your existing player name and recovery code. This will reconnect this device to your existing quiz account.</p>
-
-    <input id="playerName" placeholder="Player name" maxlength="50" autocomplete="username">
-    <input id="recoveryCode" placeholder="BDL-XXXX-XXXX-XXXX-XXXX" maxlength="24" autocapitalize="characters" autocomplete="off">
-
-    <div id="message" class="notice"></div>
-
-    <button id="recoverButton" onclick="recoverAccount()">RECOVER THIS ACCOUNT</button>
-    <button class="back" onclick="location.href='./'">BACK TO QUIZ</button>
-  </div>
-</main>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BDL Account Recovery</title><style>
+*{box-sizing:border-box}body{margin:0;padding:16px;background:#eee;font-family:Arial,sans-serif;color:#111}main{max-width:650px;margin:auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 8px 30px #00000015}.card{background:#effaf8;border-top:7px solid #267c78;border-radius:18px;padding:18px}h1,h2{text-align:center;margin-top:0}input,button{width:100%;padding:15px;margin:7px 0;border:2px solid #111;border-radius:12px;font-size:16px}button{background:#267c78;color:#fff;border-color:#267c78;font-weight:bold;cursor:pointer}.notice{padding:14px;background:#fff;border-radius:12px;text-align:center;margin:12px 0}.code{font-size:22px;font-weight:900;letter-spacing:1px;overflow-wrap:anywhere;border:2px solid #111}.danger{background:#fff3f3}.back{background:#fff;color:#111;border-color:#111}
+</style></head><body><main><div class="card"><h2>ACCOUNT RECOVERY</h2><div id="app"><p class="notice">Checking your personal recovery link...</p></div></div></main>
 <script>
-const QUIZ_SERVICE="https://ggmcjycwrnpahauhwyrs.supabase.co/functions/v1/quiz-service";
-
-async function recoverAccount(){
-  const name=String(document.getElementById('playerName').value||'').trim();
-  const code=String(document.getElementById('recoveryCode').value||'').trim();
-  const button=document.getElementById('recoverButton');
-  const message=document.getElementById('message');
-
-  message.style.display='none';
-
-  if(!name||!code){
-    message.textContent='Enter both your player name and recovery code.';
-    message.style.display='block';
-    return;
-  }
-
-  button.disabled=true;
-  button.textContent='CHECKING...';
-
-  try{
-    const response=await fetch(QUIZ_SERVICE,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'recover_player',player_name:name,recovery_code:code})
-    });
-
-    const data=await response.json().catch(()=>({}));
-
-    if(!response.ok){
-      if(response.status===401){
-        throw new Error('The player name or recovery code is not correct.');
-      }
-      if(response.status===409&&String(data.error||'').includes('recovery_not_set')){
-        throw new Error('No recovery code has been created for this account yet.');
-      }
-      throw new Error('Your account could not be recovered.');
-    }
-
-    localStorage.setItem('bdlPlayerId',data.player_id);
-    localStorage.setItem('bdlPlayerName',data.player_name);
-    message.textContent='Account recovered successfully. Returning to the quiz...';
-    message.style.display='block';
-    setTimeout(()=>location.href='./',700);
-  }catch(error){
-    message.textContent=error.message||'Your account could not be recovered.';
-    message.style.display='block';
-    button.disabled=false;
-    button.textContent='RECOVER THIS ACCOUNT';
-  }
+const BASE="https://ggmcjycwrnpahauhwyrs.supabase.co/functions/v1";
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+async function post(url,body){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||"Request failed"),{status:r.status});return d}
+function manual(){document.getElementById("app").innerHTML='<p>Enter your existing player name and recovery code.</p><input id="playerName" placeholder="Player name" maxlength="50"><input id="recoveryCode" placeholder="BDL-XXXX-XXXX-XXXX-XXXX" maxlength="24" autocapitalize="characters" autocomplete="off"><div id="message"></div><button id="recoverButton" onclick="recoverAccount()">RECOVER THIS ACCOUNT</button><button class="back" onclick="location.href=\'./\'">BACK TO QUIZ</button>'}
+async function redeem(){
+ const token=new URLSearchParams(location.search).get("token");if(!token){manual();return}
+ try{
+  const d=await post(BASE+"/recovery-link-service",{action:"redeem",token});
+  history.replaceState(null,"",location.pathname);
+  document.getElementById("app").innerHTML='<p>New recovery code for <strong>'+esc(d.player_name)+'</strong></p><div id="code" class="notice code">'+esc(d.recovery_code)+'</div><p><strong>Save this code now.</strong> This personal link has now been used and cannot be opened again.</p><button onclick="copyCode()">COPY RECOVERY CODE</button><button class="back" onclick="location.href=\'./\'">BACK TO QUIZ</button>';
+ }catch(e){document.getElementById("app").innerHTML='<div class="notice danger"><strong>This recovery link can no longer be used.</strong><br><br>It may already have been used or may have expired. Ask a BDL Quiz administrator for a new link.</div><button class="back" onclick="location.href=\'./\'">BACK TO QUIZ</button>'}
 }
-</script>
-</body>
-</html>
+async function copyCode(){const t=document.getElementById("code")?.textContent||"";try{await navigator.clipboard.writeText(t);alert("Recovery code copied.")}catch{prompt("Copy your recovery code:",t)}}
+async function recoverAccount(){
+ const name=String(document.getElementById("playerName")?.value||"").trim(),code=String(document.getElementById("recoveryCode")?.value||"").trim(),button=document.getElementById("recoverButton"),m=document.getElementById("message");
+ if(!name||!code){m.innerHTML='<div class="notice danger">Enter both your player name and recovery code.</div>';return}
+ button.disabled=true;button.textContent="CHECKING...";
+ try{const d=await post(BASE+"/account-service",{action:"recover_player",player_name:name,recovery_code:code});localStorage.setItem("bdlPlayerId",d.player_id);localStorage.setItem("bdlPlayerName",d.player_name);m.innerHTML='<div class="notice">Account recovered successfully. Returning to the quiz...</div>';setTimeout(()=>location.href="./",700)}
+ catch(e){m.innerHTML='<div class="notice danger">'+(e.status===401?"The player name or recovery code is not correct.":e.status===409?"No recovery code has been created for this account yet.":"Your account could not be recovered.")+'</div>';button.disabled=false;button.textContent="RECOVER THIS ACCOUNT"}
+}
+redeem();
+</script></body></html>
