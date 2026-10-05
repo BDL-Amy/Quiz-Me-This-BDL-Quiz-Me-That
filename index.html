@@ -1655,13 +1655,18 @@ async function loadWinnerAnnouncements(){
 function startQuiz(){showMainMenu();}
 
 document.addEventListener("click",function(event){
-  const start=event.target.closest("#startQuizButton");
+  const start=event.target.closest&&event.target.closest("#startQuizButton");
   if(!start)return;
   event.preventDefault();
-  showMainMenu();
-  /* Announcements are loaded after START without blocking normal navigation. */
-  setTimeout(()=>{loadWinnerAnnouncementsAfterStart();},0);
-
+  event.stopPropagation();
+  try{
+    startQuiz();
+  }catch(error){
+    console.error("START QUIZ navigation failed",error);
+    try{showMainMenu()}catch(menuError){console.error("Main menu failed",menuError)}
+  }
+  /* Winner announcements are intentionally not allowed to replace or block
+     the menu during startup. They can be checked separately after navigation. */
 });
 async function loadWinnerAnnouncementsAfterStart(){
   try{
