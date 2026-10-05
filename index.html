@@ -1521,7 +1521,7 @@ function showStartScreen(){
   if(!name||!id){if(typeof showAccountChoice==="function"){showAccountChoice();return}page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Loading player account...</p></div>`);return}
   if(typeof needsReservedNameChange==="function"&&needsReservedNameChange()){showReservedNameChange();return}
   if(typeof migrateLegacyAnswers==="function")migrateLegacyAnswers();
-  page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button type="button" id="startQuizButton" class="start-quiz-link" onclick="startQuiz()">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
+  page(`<div class="center"><h1>Quiz Me This<br>BDL<br>Quiz Me That</h1><p>Welcome back, <strong>${html(name)}</strong>!</p><button type="button" id="startQuizButton" class="start-quiz-link" onclick="document.getElementById('mainHeader').style.display='';showMainMenu();return false;">START QUIZ</button><p style="font-size:.78rem;opacity:.72;margin:14px 12px 0">By using this quiz platform and submitting quiz answers, you agree to the Quiz Policy. Only answers submitted through this official quiz platform are eligible for weekly and Supreme Winner selection.</p></div>`);
 
 }
 
