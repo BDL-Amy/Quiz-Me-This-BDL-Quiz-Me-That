@@ -94,7 +94,7 @@
       if(checking)return;
       checking=true;
       page('<div class="loading">Checking title announcement...</div>');
-      const finishGate=()=>{bypass=true;try{realMainMenu()}finally{bypass=false;checking=false}};
+      const finishGate=()=>{bypass=true;checking=false;try{realMainMenu()}catch(error){console.error("Main menu after title gate failed",error);if(typeof showAccountChoice==="function")showAccountChoice()}finally{bypass=false}};
       let settled=false;
       const timeout=setTimeout(()=>{
         if(settled)return;
