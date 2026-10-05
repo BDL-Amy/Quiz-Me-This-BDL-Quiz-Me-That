@@ -1652,13 +1652,13 @@ async function loadWinnerAnnouncements(){
 }
 
 
-function renderMainMenuDirect(){
+function showMainMenu(){
   const header=document.getElementById("mainHeader");
   if(header)header.style.display="";
   const testPlatformButton=(typeof isTestIdentity==="function"&&isTestIdentity())?`<button onclick="openTestPlatform()">TEST PLATFORM</button>`:"";
   page(`<h2 class="center">Welcome, ${html(playerName())}</h2><div class="menu main-menu"><button onclick="showMyStatistics()">MY STATISTICS</button><button onclick="showQuizMenu()">QUIZ</button><button onclick="showHistory()">HISTORY</button><button onclick="showPersonalSettings()">PERSONAL SETTINGS</button><button onclick="showQuizPolicy()">QUIZ POLICY</button>${testPlatformButton}</div>`);
 }
-function startQuiz(){renderMainMenuDirect();}
+function startQuiz(){showMainMenu();}
 
 
 async function loadWinnerAnnouncementsAfterStart(){
@@ -2089,45 +2089,7 @@ function renderTitleRanking(data){
 
   /* HISTORY / WALL OF FAME */
 
-/* HISTORY UI lives only in history.js?v=20260924-stable-v1"center">
-        PERSONAL SETTINGS
-      </h2>
-
-      <div class="settings-card">
-
-        <h3>
-          Push notifications
-        </h3>
-
-        <p>
-          Receive a notification
-          when the new Daily Quiz
-          is available.
-        </p>
-
-        <p id="pushStatus">
-          Checking status...
-        </p>
-
-        <button
-          id="pushButton"
-          class="settings-button"
-          onclick="
-            togglePushNotifications()
-          ">
-          PLEASE WAIT...
-        </button>
-
-      </div>
-
-    </div>
-
-    ${back("showMainMenu")}
-  `);
-
-  await refreshPushStatus();
-}
-
+/* History UI lives in history.js; personal settings live in account.js. */
 
 /* PUSH HELPERS */
 
@@ -2465,13 +2427,13 @@ playerId();
 
 
 <script src="questions-51-60.js?v=20260917-clean-shell"></script>
-<script src="account.js?v=20260924-cleanup-v1"></script>
-<script src="history.js?v=20260924-test-platform-live-v1"></script>
+<script src="account.js?v=20261005-clean-start-v1"></script>
+<script src="history.js?v=20261005-clean-start-v1"></script>
 <script src="result-catchphrases.js?v=20260917-clean-shell"></script>
 <script src="quiz-schedule-1530.js?v=20260924-publication-v1"></script>
-<script src="recovery-onboarding.js?v=20260919-async-fix-v4"></script>
+<script src="recovery-onboarding.js?v=20261005-clean-start-v1"></script>
 <script src="results-menu.js?v=20260924-single-stats-v1"></script>
-<script src="performance.js?v=20261005-start-fix-v4"></script>
+<script src="performance.js?v=20261005-clean-start-v1"></script>
 <script>
 (function bootQuizApp(){
   try{

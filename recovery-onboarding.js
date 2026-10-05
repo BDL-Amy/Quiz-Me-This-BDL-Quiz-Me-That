@@ -159,37 +159,6 @@ if(typeof showTestMode === "function"){
   };
 }
 
-/* Player-facing daily question: keep A/B/C/D internally, but never display them. */
-showTodayQuestion = function(){
-  const index=quizDay();
-  const q=questions[index];
-  if(!q||!q.question||!Array.isArray(q.answers)){
-    page(`<div class="section quiz-section"><h2 class="center">TODAY'S QUESTION</h2><div class="notice">Today's question is not available yet.</div></div>${back("showQuizMenu")}`);
-    return;
-  }
-  const existing=savedAnswer(index);
-  selectedAnswer=existing;
-  let answersHtml="";
-  q.answers.forEach((answer,i)=>{
-    const selected=existing===i?"selected":"";
-    const click=existing===null?`onclick="selectAnswer(${i})"`:"";
-    answersHtml+=`<button id="answer-${i}" class="${selected}" ${click}>${html(answer)}</button>`;
-  });
-  if(existing!==null){
-    page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><div class="notice">You already answered today's question.</div><h3>${html(q.question)}</h3>${answersHtml}<div class="answer"><strong>Your answer:</strong><br><br>${html(q.answers[existing])}</div><p class="center">The correct answer will be revealed tomorrow.</p></div>${back("showQuizMenu")}`);
-    return;
-  }
-  page(`<div class="section quiz-section"><h2 class="center">QUESTION ${questionNumber(index)}</h2><h3>${html(q.question)}</h3><div id="answerButtons">${answersHtml}</div><button id="submitButton" class="center" style="background:var(--quiz);border-color:var(--quiz);color:#111;font-weight:bold" onclick="submitAnswer()" disabled>SUBMIT ANSWER</button></div>${back("showQuizMenu")}`);
-};
-
-showThankYouPage = function(){
-  const index=quizDay();
-  const q=questions[index];
-  const chosen=savedAnswer(index);
-  if(!q||chosen===null){showQuizMenu();return;}
-  page(`<div class="section quiz-section center"><h2>${html(playerName())}, thanks for playing today!</h2><p><strong>Question ${questionNumber(index)}</strong></p><p>The question was:</p><p><strong>${html(q.question)}</strong></p><p>You answered:</p><div class="answer">${html(q.answers[chosen])}</div><p>Stay tuned! The correct answer will be revealed tomorrow together with a new Daily Quiz.</p></div>${back("showQuizMenu")}`);
-};
-
 /* Test play remains unlimited and mirrors the player-facing answer display without letters. */
 if(typeof renderTestPlay === "function"){
   renderTestPlay = function(){
@@ -475,8 +444,8 @@ showTestStatistics=async function(){
 };
 
 /* POLICY UPDATE NOTICE 2026-09-10 */
-const BDL_POLICY_NOTICE_VERSION="2026-09-10-question-neutralisation";
-const BDL_POLICY_NOTICE_KEY=`bdlPolicyNoticeSeen:${BDL_POLICY_NOTICE_VERSION}`;
+const BDL_NEUTRALISATION_NOTICE_VERSION="2026-09-10-question-neutralisation";
+const BDL_POLICY_NOTICE_KEY=`bdlPolicyNoticeSeen:${BDL_NEUTRALISATION_NOTICE_VERSION}`;
 
 function bdlClosePolicyUpdateNotice(markSeen=true){
   if(markSeen) localStorage.setItem(BDL_POLICY_NOTICE_KEY,"yes");

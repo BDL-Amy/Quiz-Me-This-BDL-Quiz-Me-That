@@ -1,4 +1,4 @@
-/* BDL frontend performance layer — authoritative title ceremony gate. */
+/* BDL frontend performance layer — dashboard and answer caches. */
 (function(){
   const DASH_TTL=60000;
   let dashAt=0,dashPromise=null;
@@ -27,70 +27,6 @@
     };
   }
 
-  function actualBrusselsDate(){
-    const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
-    const get=t=>parts.find(p=>p.type===t)?.value||"";
-    return new Date(Number(get("year")),Number(get("month"))-1,Number(get("day")));
-  }
-
-  function key(type,period){
-    const pid=typeof playerId==="function"?playerId():"player";
-    return ["bdlTitleCeremonyV3",pid,type,period].join("_");
-  }
-  function unseen(type,period){try{return localStorage.getItem(key(type,period))!=="yes"}catch(_e){return true}}
-  function mark(type,period){try{localStorage.setItem(key(type,period),"yes")}catch(_e){}}
-
-  async function getScheduledTitles(){
-    const d=actualBrusselsDate();
-    const items=[];
-    if(d.getDay()===1){
-      try{
-        const data=await api(RESULTS_SERVICE,{action:"latest_weekly_winner"});
-        const winner=data?.winner?.player_name?data.winner:null;
-        if(winner?.week_start&&unseen("weekly",winner.week_start))items.push({type:"weekly",period:winner.week_start,winner});
-      }catch(error){console.error("Smartest ceremony load failed",error)}
-    }
-    if(d.getDate()===1){
-      try{
-        const response=await fetch(MONTHLY_WINNER_SERVICE,{cache:"no-store"});
-        const data=await response.json().catch(()=>({}));
-        const winner=response.ok&&data?.winner?.player_name?data.winner:null;
-        const period=typeof previousMonthStart==="function"?previousMonthStart():"previous-month";
-        if(winner&&unseen("monthly",period))items.push({type:"monthly",period,winner});
-      }catch(error){console.error("Supreme ceremony load failed",error)}
-    }
-    return items;
-  }
-
-  function renderQueue(items,finish){
-    const queue=items.slice();
-    const next=()=>{
-      const a=queue.shift();
-      if(!a){finish();return}
-      const monthly=a.type==="monthly";
-      page(`<div class="winner-announcement ${monthly?"monthly-announcement":"weekly-announcement"}">
-        <div class="ceremony-mark">${monthly?"✦":"♛"}</div>
-        <div class="announcement-label">${monthly?"WE HONOR":"CONGRATULATIONS"}</div>
-        <h1>${monthly?"THE SUPREME BDL’ER OF THE MONTH":"THE SMARTEST BDL’ER OF THE WEEK"}</h1>
-        <div class="winner-name">${html(a.winner.player_name)}</div>
-        <p>${monthly?"Welcome to The Supreme Order of BDL.":"You are the smartest kid in town — at least till next Monday!"}</p>
-        <button id="bdlTitleContinue">CONTINUE</button>
-      </div>`);
-      const btn=document.getElementById("bdlTitleContinue");
-      if(btn)btn.onclick=()=>{mark(a.type,a.period);next()};
-    };
-    next();
-  }
-
-  function installAuthoritativeMenuGate(){
-    /* Emergency fail-open: title announcements must never block access to the quiz.
-       Winner ceremonies remain available elsewhere, but startup goes directly to the menu. */
-    if(typeof window.showMainMenu!=="function")return;
-  }
-
-  /* START uses the application's normal click handler. Title checks must not intercept it. */
-
   installDashboardCache();
   installAnswerCache();
-  installAuthoritativeMenuGate();
 })();

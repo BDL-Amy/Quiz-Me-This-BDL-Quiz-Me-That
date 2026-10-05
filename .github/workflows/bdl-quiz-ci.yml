@@ -21,3 +21,6 @@ jobs:
           node-version: "20"
       - name: Smartest and Test Account integration checks
         run: node tests/smartest-test-account-ci.js
+
+      - name: Start and live-question navigation checks
+        run: node tests/start-flow-ci.js
