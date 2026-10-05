@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BDL Recovery Link Admin</title><style>
+body{margin:0;padding:18px;background:#eee;font-family:Arial,sans-serif;color:#111}main{max-width:620px;margin:auto;background:#fff;padding:24px;border-radius:20px;box-shadow:0 8px 30px #0002}h1{text-align:center}input,button{width:100%;box-sizing:border-box;padding:15px;margin:7px 0;border:2px solid #111;border-radius:12px;font-size:16px}button{background:#111;color:#fff;font-weight:bold}.card{background:#effaf8;border-top:7px solid #267c78;padding:18px;border-radius:16px}.notice{padding:14px;margin:12px 0;background:#fff;border-radius:12px;overflow-wrap:anywhere}.danger{background:#fff3f3}.copy{background:#267c78;border-color:#267c78}small{display:block;color:#666;text-align:center;margin-top:14px}
+</style></head><body><main><div class="card"><h1>PLAYER RECOVERY LINK</h1>
+<p>Create a personal one-time recovery link for an existing player. The link expires after 24 hours and becomes invalid after use.</p>
+<input id="name" maxlength="50" placeholder="Player name">
+<button id="create" onclick="createLink()">CREATE ONE-TIME LINK</button>
+<div id="result"></div><small>Admin access: Amy.test or DrBDL.test</small></div></main>
+<script>
+const BASE="https://ggmcjycwrnpahauhwyrs.supabase.co/functions/v1";
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+async function post(url,body){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||"Request failed"),{status:r.status});return d}
+async function createLink(){
+ const result=document.getElementById("result"),button=document.getElementById("create"),target=document.getElementById("name").value.trim();
+ if(!target)return document.getElementById("name").focus();
+ const pid=localStorage.getItem("bdlPlayerId"),name=localStorage.getItem("bdlPlayerName");
+ if(!pid||!name){result.innerHTML='<div class="notice danger">Open the quiz on this device and sign in with Amy.test or DrBDL.test first.</div>';return}
+ button.disabled=true;button.textContent="CREATING...";
+ try{
+  const s=await post(BASE+"/test-session-service",{player_id:pid,player_name:name});
+  const d=await post(BASE+"/recovery-link-service",{action:"create_link",admin_session_token:s.session_token,player_name:target});
+  result.innerHTML='<div class="notice"><strong>'+esc(d.player_name)+'</strong><br><br><span id="link">'+esc(d.recovery_url)+'</span></div><button class="copy" onclick="copyLink()">COPY LINK</button><div class="notice">This link can be used once and expires after 24 hours.</div>';
+ }catch(e){result.innerHTML='<div class="notice danger">'+(e.status===404?'Player not found.':e.status===403?'This page requires Amy.test or DrBDL.test.':'The recovery link could not be created.')+'</div>'}
+ finally{button.disabled=false;button.textContent="CREATE ONE-TIME LINK"}
+}
+async function copyLink(){const t=document.getElementById("link")?.textContent||"";try{await navigator.clipboard.writeText(t);alert("Recovery link copied.")}catch{prompt("Copy this recovery link:",t)}}
+</script></body></html>
