@@ -616,7 +616,7 @@ async function runLocalPushTest(){
 }
 
 /* ADMIN PLAYER RECOVERY — Amy.TEST / DrBDL.TEST only */
-async function testRecoverySession(){
+async async function testRecoverySession(){
   const r=await fetch(BASE+"/test-session-service",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({player_id:playerId(),player_name:playerName()})});
   const d=await r.json().catch(()=>({}));
   if(!r.ok||!d.session_token)throw new Error(d.error||"Admin session unavailable.");
